@@ -50,6 +50,12 @@ class Update implements AutoloadInterface
         // Disable automatic plugin and theme updates (used by WP to force push security fixes).
         add_filter('auto_update_plugin', '__return_false');
         add_filter('auto_update_theme', '__return_false');
+
+        // Tell WordPress we are on a version control system to add additional blocks.
+        add_filter('automatic_updates_is_vcs_checkout', '__return_true');
+
+        // Disable translation updates.
+        add_filter('auto_update_translation', '__return_false');
     }
 
     /**
