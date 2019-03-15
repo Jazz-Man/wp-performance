@@ -21,6 +21,15 @@ class Update implements AutoloadInterface
         add_filter('bulk_actions-themes', [$this, 'remove_bulk_actions']);
         add_filter('bulk_actions-plugins-network', [$this, 'remove_bulk_actions']);
         add_filter('bulk_actions-themes-network', [$this, 'remove_bulk_actions']);
+
+        // Admin UI items.
+        add_action('admin_menu', [$this, 'admin_menu_items'], 9999);
+        add_action('network_admin_menu', [$this, 'ms_admin_menu_items'], 9999);
+        add_filter('install_plugins_tabs', [$this, 'plugin_add_tabs']);
+
+        // Theme update API for different calls.
+        add_filter('themes_api_args', [$this, 'bypass_theme_api'], 10, 2);
+        add_filter('themes_api', '__return_false');
     }
 
     /**
@@ -128,5 +137,84 @@ class Update implements AutoloadInterface
 
         // Return the remaining.
         return $actions;
+    }
+
+    /**
+     * Remove menu items for updates from a standard WP install.
+     */
+    public function admin_menu_items()
+    {
+        // Bail if disabled, or on a multisite.
+        if (!App::enabled() || is_multisite()) {
+            return;
+        }
+
+        // Remove our items.
+        remove_submenu_page('index.php', 'update-core.php');
+    }
+
+    /**
+     * Remove menu items for updates from a multisite instance.
+     */
+    public function ms_admin_menu_items()
+    {
+        // Bail if disabled or not on our network admin.
+        if (!App::enabled() || !is_network_admin()) {
+            return;
+        }
+
+        // Remove the items.
+        remove_submenu_page('index.php', 'upgrade.php');
+    }
+
+    /**
+     * Remove the tabs on the plugin page to add new items
+     * since they require the WP connection and will fail.
+     *
+     * @param array $nonmenu_tabs all the tabs displayed
+     *
+     * @return array $nonmenu_tabs  the remaining tabs
+     */
+    public function plugin_add_tabs($nonmenu_tabs)
+    {
+        // Bail if disabled.
+        if (!App::enabled()) {
+            return $nonmenu_tabs;
+        }
+
+        // Set an array of tabs to be removed with optional filter.
+        if (false === $remove = apply_filters('core_blocker_bulk_items',
+                ['featured', 'popular', 'recommended', 'favorites', 'beta'])) {
+            return $nonmenu_tabs;
+        }
+
+        // Loop the item array and unset each.
+        foreach ($remove as $key) {
+            unset($nonmenu_tabs[$key]);
+        }
+
+        // Return the tabs.
+        return $nonmenu_tabs;
+    }
+
+
+    /**
+     * Hijack the themes api setup to bypass the API call.
+     *
+     * @param object $args   arguments used to query for installer pages from the Themes API
+     * @param string $action Requested action. Likely values are 'theme_information',
+     *                       'feature_list', or 'query_themes'.
+     *
+     * @return bool|object true or false depending on the type of query
+     */
+    public function bypass_theme_api($args, $action)
+    {
+        // Bail if disabled.
+        if ( ! App::enabled()) {
+            return $args;
+        }
+
+        // Return false on feature list to avoid the API call.
+        return ! empty($action) && 'feature_list' === $action ? false : $args;
     }
 }
