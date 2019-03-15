@@ -2,6 +2,8 @@
 
 namespace JazzMan\Performance;
 
+use stdClass;
+
 /**
  * Class Update.
  */
@@ -30,6 +32,13 @@ class Update implements AutoloadInterface
         // Theme update API for different calls.
         add_filter('themes_api_args', [$this, 'bypass_theme_api'], 10, 2);
         add_filter('themes_api', '__return_false');
+
+        // Time based transient checks.
+        add_filter('pre_site_transient_update_themes', [$this, 'last_checked_themes']);
+        add_filter('pre_site_transient_update_plugins', [$this, 'last_checked_plugins']);
+        add_filter('pre_site_transient_update_core', [$this, 'last_checked_core']);
+        add_filter('site_transient_update_themes', [$this, 'remove_update_array']);
+        add_filter('site_transient_update_plugins', [$this, 'remove_plugin_updates']);
     }
 
     /**
@@ -197,7 +206,6 @@ class Update implements AutoloadInterface
         return $nonmenu_tabs;
     }
 
-
     /**
      * Hijack the themes api setup to bypass the API call.
      *
@@ -210,11 +218,142 @@ class Update implements AutoloadInterface
     public function bypass_theme_api($args, $action)
     {
         // Bail if disabled.
-        if ( ! App::enabled()) {
+        if (!App::enabled()) {
             return $args;
         }
 
         // Return false on feature list to avoid the API call.
-        return ! empty($action) && 'feature_list' === $action ? false : $args;
+        return !empty($action) && 'feature_list' === $action ? false : $args;
+    }
+
+    /**
+     * Always send back that the latest version of our theme is the one we're running.
+     *
+     * @return object|false the modified output with our information
+     */
+    public function last_checked_themes()
+    {
+        // Bail if disabled.
+        if (!App::enabled()) {
+            return false;
+        }
+
+        // Call the global WP version.
+        global $wp_version;
+
+        // Set a blank data array.
+        $data = [];
+
+        /** @var \WP_Theme[] $themes */
+        $themes = wp_get_themes();
+
+        // Build my theme data array.
+        foreach ($themes as $theme) {
+            $data[$theme->get_stylesheet()] = $theme->get('Version');
+        }
+
+        // Return our object.
+        return (object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+            'checked' => $data,
+        ];
+    }
+
+    /**
+     * Always send back that the latest version of our plugins are the one we're running.
+     *
+     * @return object|false the modified output with our information
+     */
+    public function last_checked_plugins()
+    {
+        // Bail if disabled.
+        if (!App::enabled()) {
+            return false;
+        }
+
+        // Call the global WP version.
+        global $wp_version;
+
+        // Set a blank data array.
+        $data = [];
+
+        // Add our plugin file if we don't have it.
+        if (!\function_exists('get_plugins')) {
+            require_once ABSPATH.'wp-admin/includes/plugin.php';
+        }
+
+        // Build my plugin data array.
+        foreach (get_plugins() as $file => $pl) {
+            $data[$file] = $pl['Version'];
+        }
+
+        // Return our object.
+        return (object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+            'checked' => $data,
+        ];
+    }
+
+    /**
+     * Always send back that the latest version of WordPress is the one we're running.
+     *
+     * @return object|false the modified output with our information
+     */
+    public function last_checked_core()
+    {
+        // Bail if disabled.
+        if (!App::enabled()) {
+            return false;
+        }
+
+        // Call the global WP version.
+        global $wp_version;
+
+        // Return our object.
+        return (object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+        ];
+    }
+
+    /**
+     * Return an empty array of items requiring update for both themes and plugins.
+     *
+     * @param array $items all the items being passed for update
+     *
+     * @return array an empty array, or the original items if not enabled
+     */
+    public function remove_update_array($items)
+    {
+        return !App::enabled() ? $items : [];
+    }
+
+    /**
+     * Returns list of plugins which tells that there's no updates.
+     *
+     * @param array|stdClass $current Empty array
+     *
+     * @return array Lookalike data which is stored in site transient 'update_plugins'
+     */
+    public function remove_plugin_updates($current)
+    {
+        if (!$current) {
+            $current = new stdClass();
+            $current->last_checked = time();
+            $current->translations = [];
+
+            $plugins = get_plugins();
+            foreach ($plugins as $file => $p) {
+                $current->checked[$file] = (string) $p['Version'];
+            }
+            $current->response = [];
+        }
+
+        return $current;
     }
 }
