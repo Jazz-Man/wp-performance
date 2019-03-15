@@ -27,6 +27,7 @@ class App
 
         $this->class_autoload = [
             Update::class,
+            Media::class
         ];
     }
 
