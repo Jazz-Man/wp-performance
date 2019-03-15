@@ -72,6 +72,12 @@ class Update implements AutoloadInterface
         if (App::enabled()) {
             // Disable WordPress from fetching available languages
             add_filter('pre_site_transient_available_translations', [$this, 'available_translations']);
+
+            // Hijack the themes api setup to bypass the API call.
+            add_filter('themes_api', '__return_true');
+
+            // Disable debug emails (used by core for rollback alerts in automatic update deployment).
+            add_filter('automatic_updates_send_debug_email', '__return_false');
         }
     }
 
