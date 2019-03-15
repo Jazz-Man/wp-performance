@@ -56,6 +56,18 @@ class Update implements AutoloadInterface
 
         // Disable translation updates.
         add_filter('auto_update_translation', '__return_false');
+
+        // Disable minor core updates.
+        add_filter('allow_minor_auto_core_updates', '__return_false');
+
+        // Disable major core updates.
+        add_filter('allow_major_auto_core_updates', '__return_false');
+
+        // Disable dev core updates.
+        add_filter('allow_dev_auto_core_updates', '__return_false');
+
+        // Disable automatic updater updates.
+        add_filter('automatic_updater_disabled', '__return_true');
     }
 
     /**
