@@ -39,6 +39,9 @@ class Update implements AutoloadInterface
         add_filter('pre_site_transient_update_core', [$this, 'last_checked_core']);
         add_filter('site_transient_update_themes', [$this, 'remove_update_array']);
         add_filter('site_transient_update_plugins', [$this, 'remove_plugin_updates']);
+
+        // Removes update check wp-cron
+        remove_action('init', 'wp_schedule_update_checks');
     }
 
     /**
