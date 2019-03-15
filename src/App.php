@@ -27,6 +27,15 @@ class App
         });
     }
 
+    /**
+     * Checks when plugin should be enabled This offers nice compatibilty with wp-cli.
+     */
+
+    public static function enabled()
+    {
+        return ! (\defined('WP_CLI') and WP_CLI);
+    }
+
     private function initAutoload()
     {
         if ($autoload = app_config()->get('class_autoload', false)) {
