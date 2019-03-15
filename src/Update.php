@@ -69,6 +69,7 @@ class Update implements AutoloadInterface
         // Disable automatic updater updates.
         add_filter('automatic_updater_disabled', '__return_true');
 
+        // Run various hooks if the plugin should be enabled
         if (App::enabled()) {
             // Disable WordPress from fetching available languages
             add_filter('pre_site_transient_available_translations', [$this, 'available_translations']);
@@ -78,6 +79,24 @@ class Update implements AutoloadInterface
 
             // Disable debug emails (used by core for rollback alerts in automatic update deployment).
             add_filter('automatic_updates_send_debug_email', '__return_false');
+
+            // Disable update emails (for when we push the new WordPress versions manually) as well
+            // as the notification there is a new version emails.
+            add_filter('auto_core_update_send_email', '__return_false');
+            add_filter('send_core_update_notification_email', '__return_false');
+            add_filter('automatic_updates_send_debug_email ', '__return_false', 1);
+
+            // Get rid of the version number in the footer.
+            add_filter('update_footer', '__return_empty_string', 11);
+
+            // Filter out the pre core option.
+            add_filter('pre_option_update_core', '__return_null');
+
+            // Remove some actions.
+            remove_action('admin_init', 'wp_plugin_update_rows');
+            remove_action('admin_init', 'wp_theme_update_rows');
+            remove_action('admin_notices', 'maintenance_nag');
+            remove_action('admin_notices', 'yith_plugin_fw_promo_notices',15);
         }
     }
 
