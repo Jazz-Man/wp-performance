@@ -42,6 +42,10 @@ class Update implements AutoloadInterface
 
         // Removes update check wp-cron
         remove_action('init', 'wp_schedule_update_checks');
+
+        // Disable overall core updates.
+        add_filter('auto_update_core', '__return_false');
+        add_filter('wp_auto_update_core', '__return_false');
     }
 
     /**
