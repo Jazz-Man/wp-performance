@@ -26,7 +26,8 @@
         "roots/wordpress": "^5.1",
         "woocommerce/woocommerce": "^3.5",
         "dg/composer-cleaner": "^2.0",
-        "wp-cli/db-command": "^2.0"
+        "wp-cli/db-command": "^2.0",
+        "symfony/var-dumper": "^4.2"
     },
     "autoload": {
         "psr-4": {
