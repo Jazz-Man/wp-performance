@@ -46,6 +46,10 @@ class Update implements AutoloadInterface
         // Disable overall core updates.
         add_filter('auto_update_core', '__return_false');
         add_filter('wp_auto_update_core', '__return_false');
+
+        // Disable automatic plugin and theme updates (used by WP to force push security fixes).
+        add_filter('auto_update_plugin', '__return_false');
+        add_filter('auto_update_theme', '__return_false');
     }
 
     /**
