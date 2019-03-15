@@ -1,0 +1,34 @@
+{
+    "name": "jazzman/wp-performance",
+    "type": "wordpress-muplugin",
+    "authors": [
+        {
+            "name": "Vasyl Sokolyk",
+            "email": "vsokolyk@gmail.com"
+        }
+    ],
+    "extra": {
+        "installer-paths": {
+            "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+            "vendor/wp/wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
+            "vendor/wp/wp-content/themes/{$name}/": ["type:wordpress-theme"]
+        },
+        "wordpress-install-dir": "vendor/wp"
+    },
+    "require": {
+        "php": ">=7.0",
+        "composer/installers": "^1"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master",
+        "roots/wordpress": "^5.1",
+        "woocommerce/woocommerce": "^3.5",
+        "dg/composer-cleaner": "^2.0",
+        "wp-cli/db-command": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "JazzMan\\Performance\\":"src"
+        }
+    }
+}
