@@ -7,16 +7,20 @@ namespace JazzMan\Performance;
  */
 class Update implements AutoloadInterface
 {
+
     public function load()
     {
         // Stop wp-cron from looking out for new plugin versions
         add_action('admin_init', [$this, 'remove_update_crons']);
         add_action('admin_init', [$this, 'remove_schedule_hook']);
+
+        // Prevent users from even trying to update plugins and themes
+        add_filter('map_meta_cap', [$this, 'prevent_auto_updates'], 10, 2);
     }
 
     public function remove_update_crons()
     {
-        if (!App::enabled()){
+        if ( ! App::enabled()) {
             return;
         }
 
@@ -47,11 +51,11 @@ class Update implements AutoloadInterface
         remove_action('wp_maybe_auto_update', 'wp_maybe_auto_update');
         remove_action('admin_init', 'wp_maybe_auto_update');
         remove_action('admin_init', 'wp_auto_update_core');
-
     }
 
-    public function remove_schedule_hook(){
-        if (!App::enabled()){
+    public function remove_schedule_hook()
+    {
+        if ( ! App::enabled()) {
             return;
         }
 
@@ -59,5 +63,30 @@ class Update implements AutoloadInterface
         wp_clear_scheduled_hook('wp_update_plugins');
         wp_clear_scheduled_hook('wp_version_check');
         wp_clear_scheduled_hook('wp_maybe_auto_update');
+    }
+
+    /**
+     * Filter a user's meta capabilities to prevent auto-updates from being attempted.
+     *
+     * @param array  $caps returns the user's actual capabilities
+     * @param string $cap  capability name
+     *
+     * @return array the user's filtered capabilities
+     */
+    public function prevent_auto_updates($caps, $cap)
+    {
+        // Check for being enabled and look for specific cap requirements.
+        if (App::enabled() && \in_array($cap, [
+                    'install_plugins',
+                    'install_themes',
+                    'update_plugins',
+                    'update_themes',
+                    'update_core',
+                ])) {
+            $caps[] = 'do_not_allow';
+        }
+
+        // Send back the data array.
+        return $caps;
     }
 }
