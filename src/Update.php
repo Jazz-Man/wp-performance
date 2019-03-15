@@ -15,6 +15,9 @@ class Update implements AutoloadInterface
         add_action('admin_init', [$this, 'remove_update_crons']);
         add_action('admin_init', [$this, 'remove_schedule_hook']);
 
+        // Remove admin news dashboard widget
+        add_action('admin_init', [$this, 'remove_dashboards']);
+
         // Prevent users from even trying to update plugins and themes
         add_filter('map_meta_cap', [$this, 'prevent_auto_updates'], 10, 2);
 
@@ -97,7 +100,19 @@ class Update implements AutoloadInterface
             remove_action('admin_init', 'wp_theme_update_rows');
             remove_action('admin_notices', 'maintenance_nag');
             remove_action('admin_notices', 'yith_plugin_fw_promo_notices',15);
+
+            // Add back the upload tab.
+            add_action('install_themes_upload', 'install_themes_upload', 10, 0);
         }
+    }
+
+
+    /**
+     * Remove WordPress news dashboard widget.
+     */
+    public function remove_dashboards()
+    {
+        remove_meta_box('dashboard_primary', 'dashboard', 'normal');
     }
 
     /**
