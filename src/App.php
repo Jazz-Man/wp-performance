@@ -33,7 +33,8 @@ class App
             WP_Query_Performance::class,
             PostMeta::class,
             Shortcode::class,
-            LastPostModified::class
+            LastPostModified::class,
+            BulkEdit::class
         ];
     }
 
