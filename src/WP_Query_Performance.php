@@ -9,6 +9,7 @@ use WP_Query;
  */
 class WP_Query_Performance implements AutoloadInterface
 {
+
     /**
      * @var string
      */
@@ -23,8 +24,10 @@ class WP_Query_Performance implements AutoloadInterface
         add_filter('found_posts', [$this, 'sql_calc_found_rows_caching'], 99, 2);
 
         add_filter('pre_get_posts', [$this, 'set_no_found_rows'], 10, 1);
+        add_filter('wp_link_query_args', [$this, 'set_no_found_rows'], 10, 1);
 
         add_filter('posts_clauses', [$this, 'wpartisan_set_found_posts'], 10, 2);
+        add_filter( 'woocommerce_install_skip_create_files', '__return_true' );
     }
 
     /**
@@ -38,22 +41,22 @@ class WP_Query_Performance implements AutoloadInterface
             $query_hash = $query->query_vars_hash;
             if (empty($query->query_vars['post__in'])) {
                 $global_invalidate_time = $this->get_invalidate_time();
-                $local_invalidate_time = $this->get_time_random_posts($query_hash);
+                $local_invalidate_time  = $this->get_time_random_posts($query_hash);
                 if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
                     $this->delete_random_posts($query_hash);
                     $this->delete_time_random_posts($query_hash);
                 }
                 if (false === ($ids = $this->get_random_posts($query_hash))) {
-                    $vars = $query->query_vars;
-                    $vars['orderby'] = 'date';
-                    $vars['order'] = 'DESC';
-                    $vars['posts_per_page'] = 1000; // do you really need more?
-                    $vars['showposts'] = null;
+                    $vars                           = $query->query_vars;
+                    $vars['orderby']                = 'date';
+                    $vars['order']                  = 'DESC';
+                    $vars['posts_per_page']         = 1000; // do you really need more?
+                    $vars['showposts']              = null;
                     $vars['posts_per_archive_page'] = null;
-                    $vars['fields'] = 'ids';
-                    $vars['no_found_rows'] = true;
-                    $vars['ignore_sticky_posts'] = true;
-                    $ids = get_posts($vars);
+                    $vars['fields']                 = 'ids';
+                    $vars['no_found_rows']          = true;
+                    $vars['ignore_sticky_posts']    = true;
+                    $ids                            = get_posts($vars);
                     $this->set_random_posts($query_hash, $ids);
                     $this->set_time_random_posts($query_hash);
                 }
@@ -67,9 +70,9 @@ class WP_Query_Performance implements AutoloadInterface
             } else {
                 shuffle($query->query_vars['post__in']);
             }
-            $query->query_vars['orderby'] = 'post__in';
+            $query->query_vars['orderby']       = 'post__in';
             $query->query_vars['no_found_rows'] = true;
-            $query->found_posts = \count($query->query_vars['post__in']);
+            $query->found_posts                 = \count($query->query_vars['post__in']);
         }
     }
 
@@ -85,7 +88,7 @@ class WP_Query_Performance implements AutoloadInterface
             $query_hash = $query->query_vars_hash;
 
             $global_invalidate_time = $this->get_invalidate_time();
-            $local_invalidate_time = $this->get_time_found_posts($query_hash);
+            $local_invalidate_time  = $this->get_time_found_posts($query_hash);
 
             if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
                 $this->delete_cached_found_posts($query_hash);
@@ -94,13 +97,33 @@ class WP_Query_Performance implements AutoloadInterface
                 return $orderby;
             }
             if (false !== ($found_posts = $this->get_cached_found_posts($query_hash))) {
-                $query->found_posts = $found_posts;
-                $query->max_num_pages = ceil($query->found_posts / $query->query_vars['posts_per_page']);
+                $query->found_posts                 = $found_posts;
+                $query->max_num_pages               = ceil($query->found_posts / $query->query_vars['posts_per_page']);
                 $query->query_vars['no_found_rows'] = true;
             }
         }
 
         return $orderby;
+    }
+
+
+    /**
+     * Improve perfomance of the `_WP_Editors::wp_link_query` method
+     * The WordPress core is currently not setting `no_found_rows` inside the `_WP_Editors::wp_link_query`
+     *
+     * @see  https://core.trac.wordpress.org/ticket/38784
+     * Since the `_WP_Editors::wp_link_query` method is not using the `found_posts` nor `max_num_pages` properties of
+     * `WP_Query` class, the `SQL_CALC_FOUND_ROWS` in produced SQL query is extra and useless.
+     *
+     * @param array $query
+     *
+     * @return array
+     */
+    public function wp_link_query_args($query)
+    {
+        $query['no_found_rows'] = true;
+
+        return $query;
     }
 
     /**
@@ -130,8 +153,8 @@ class WP_Query_Performance implements AutoloadInterface
             global $wpdb;
 
             // Check if they're set.
-            $where = $clauses['where'] ?? '';
-            $join = $clauses['join'] ?? '';
+            $where    = $clauses['where'] ?? '';
+            $join     = $clauses['join'] ?? '';
             $distinct = $clauses['distinct'] ?? '';
 
             $found_posts = $wpdb->get_var("SELECT $distinct COUNT(*) FROM {$wpdb->posts} $join WHERE 1=1 $where");
@@ -142,7 +165,7 @@ class WP_Query_Performance implements AutoloadInterface
         $wp_query->found_posts = $found_posts;
 
         // Work out how many posts per page there should be.
-        $posts_per_page = (!empty($wp_query->query_vars['posts_per_page']) ? absint($wp_query->query_vars['posts_per_page']) : absint(get_option('posts_per_page')));
+        $posts_per_page = (! empty($wp_query->query_vars['posts_per_page']) ? absint($wp_query->query_vars['posts_per_page']) : absint(get_option('posts_per_page')));
 
         // Set the max_num_pages.
         $wp_query->max_num_pages = ceil($wp_query->found_posts / $posts_per_page);
@@ -261,7 +284,7 @@ class WP_Query_Performance implements AutoloadInterface
      */
     private function get_time_found_posts($query_hash)
     {
-        return  wp_cache_get("time-found-posts-{$query_hash}", $this->cache_group);
+        return wp_cache_get("time-found-posts-{$query_hash}", $this->cache_group);
     }
 
     /**
