@@ -2,6 +2,8 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\Performance\Shortcode\Shortcode;
+
 /**
  * Class App.
  */
@@ -28,7 +30,9 @@ class App
         $this->class_autoload = [
             Update::class,
             Media::class,
-            WP_Query_Performance::class
+            WP_Query_Performance::class,
+            PostMeta::class,
+            Shortcode::class
         ];
     }
 
