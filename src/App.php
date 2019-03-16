@@ -32,7 +32,8 @@ class App
             Media::class,
             WP_Query_Performance::class,
             PostMeta::class,
-            Shortcode::class
+            Shortcode::class,
+            LastPostModified::class
         ];
     }
 
