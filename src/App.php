@@ -27,7 +27,8 @@ class App
 
         $this->class_autoload = [
             Update::class,
-            Media::class
+            Media::class,
+            WP_Query_Performance::class
         ];
     }
 
