@@ -3,17 +3,22 @@
 namespace JazzMan\Performance;
 
 use JazzMan\Performance\Shortcode\Shortcode;
+use JazzMan\Performance\WP_CLI\Sanitize_Command;
 
 /**
  * Class App.
  */
 class App
 {
-
     /**
      * @var array
      */
     private $class_autoload;
+
+    /**
+     * @var array
+     */
+    private $class_autoload_cli;
 
     /**
      * App constructor.
@@ -21,12 +26,16 @@ class App
     public function __construct()
     {
         $this->config();
-        $this->initAutoload();
+
+        app_autoload_classes($this->class_autoload);
+
+        if (self::is_cli()) {
+            app_autoload_classes($this->class_autoload_cli);
+        }
     }
 
     private function config()
     {
-
         $this->class_autoload = [
             Update::class,
             Media::class,
@@ -35,34 +44,29 @@ class App
             Shortcode::class,
             LastPostModified::class,
             BulkEdit::class,
-            TermCount::class
+            TermCount::class,
+            Sanitizer::class,
         ];
+
+        $this->class_autoload_cli = [
+            Sanitize_Command::class,
+        ];
+    }
+
+    /**
+     * @return bool
+     */
+    public static function is_cli()
+    {
+        return \defined('WP_CLI') && WP_CLI;
     }
 
     /**
      * Checks when plugin should be enabled This offers nice compatibilty with wp-cli.
      */
-
     public static function enabled()
     {
-        return ( ! (defined('DOING_CRON') && DOING_CRON) && ! (defined('WP_CLI') && WP_CLI) && ! (defined('WP_IMPORTING') && WP_IMPORTING));
-
+        return  !(\defined('DOING_CRON') && DOING_CRON) && !self::is_cli() && !(\defined('WP_IMPORTING') && WP_IMPORTING);
     }
 
-    private function initAutoload()
-    {
-
-        foreach ($this->class_autoload as $class) {
-            try {
-                $_class = new \ReflectionClass($class);
-                if ($_class->implementsInterface(AutoloadInterface::class)) {
-                    /** @var AutoloadInterface $instance */
-                    $instance = $_class->newInstance();
-                    $instance->load();
-                }
-            } catch (\ReflectionException $e) {
-                wp_die($e, 'ReflectionException');
-            }
-        }
-    }
 }
