@@ -34,7 +34,8 @@ class App
             PostMeta::class,
             Shortcode::class,
             LastPostModified::class,
-            BulkEdit::class
+            BulkEdit::class,
+            TermCount::class
         ];
     }
 
@@ -44,7 +45,8 @@ class App
 
     public static function enabled()
     {
-        return ! (\defined('WP_CLI') and WP_CLI);
+        return ( ! (defined('DOING_CRON') && DOING_CRON) && ! (defined('WP_CLI') && WP_CLI) && ! (defined('WP_IMPORTING') && WP_IMPORTING));
+
     }
 
     private function initAutoload()
