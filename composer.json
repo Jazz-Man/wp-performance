@@ -19,14 +19,15 @@
     "require": {
         "php": ">=7.0",
         "composer/installers": "^1",
-        "jazzman/wp-app-config": "^2.0"
+        "jazzman/wp-object-cache": "^0.2.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.1",
         "woocommerce/woocommerce": "^3.5",
         "dg/composer-cleaner": "^2.0",
-        "wp-cli/db-command": "^2.0"
+        "wp-cli/db-command": "^2.0",
+        "symfony/var-dumper": "^4.2"
     },
     "autoload": {
         "psr-4": {
