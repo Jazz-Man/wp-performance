@@ -95,7 +95,7 @@ class ShortcodeRenderer
             $message = sprintf(__('Attempting to parse a shortcode without a valid callback: %s'), $tag);
             _doing_it_wrong(__FUNCTION__, $message, '4.3.0');
 
-            return $shortcode->rawTag;
+            return $shortcode['rawTag'];
         }
         /**
          * short circuit filter for shortcode parsing function.
@@ -126,7 +126,7 @@ class ShortcodeRenderer
          * @param array        $shortcode shortcode tree node.
          */
 
-        return apply_filters('do_shortcode_tag', $output, $tag, $shortcode->attrs, $content, $shortcode);
+        return apply_filters('do_shortcode_tag', $output, $tag, $shortcode['attrs'], $content, $shortcode);
     }
 
     /**
