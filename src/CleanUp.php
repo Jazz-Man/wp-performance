@@ -16,8 +16,6 @@ class CleanUp implements AutoloadInterface
         add_filter('the_generator', '__return_false');
 
         add_filter('language_attributes', [$this, 'language_attributes']);
-        add_filter('style_loader_tag', [$this, 'clean_style_tag']);
-        add_filter('script_loader_tag', [$this, 'clean_script_tag']);
         add_filter('body_class', [$this, 'body_class']);
         add_filter('embed_oembed_html', [$this, 'embed_wrap']);
         add_filter('get_bloginfo_rss', [$this, 'remove_default_description']);
@@ -72,37 +70,6 @@ class CleanUp implements AutoloadInterface
         }
 
         return implode(' ', $attributes);
-    }
-
-    /**
-     * Clean up output of stylesheet <link> tags.
-     *
-     * @param string $input
-     *
-     * @return string
-     */
-    public function clean_style_tag($input)
-    {
-        preg_match_all("!<link rel='stylesheet'\s?(id='[^']+')?\s+href='(.*)' type='text/css' media='(.*)' />!", $input, $matches);
-        if (empty($matches[2])) {
-            return $input;
-        }
-        // Only display media if it is meaningful
-        $media = '' !== $matches[3][0] && 'all' !== $matches[3][0] ? ' media="'.$matches[3][0].'"' : '';
-
-        return '<link rel="stylesheet" href="'.$matches[2][0].'"'.$media.'>'."\n";
-    }
-
-    /**
-     * Clean up output of <script> tags.
-     *
-     * @param string $input
-     *
-     * @return mixed
-     */
-    public function clean_script_tag($input)
-    {
-        return str_replace(["type='text/javascript' ", "'"], ['', '"'], $input);
     }
 
     /**
