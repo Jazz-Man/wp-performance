@@ -25,13 +25,13 @@ if (!function_exists('app_autoload_classes')) {
     }
 }
 
-if (!function_exists('add_do_shortcode')){
+if (!function_exists('app_do_shortcode')){
     /**
      * @param string $content
      *
      * @return string
      */
-    function add_do_shortcode($content){
+    function app_do_shortcode($content){
         $parser = new ShortcodeParser(false);
         $renderer = new ShortcodeRenderer();
         $doc_tree = $parser->parse($content);

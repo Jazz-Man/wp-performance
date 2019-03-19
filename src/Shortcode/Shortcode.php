@@ -31,6 +31,6 @@ class Shortcode implements AutoloadInterface
      */
     public function do_shortcode($content, $ignore_html = false)
     {
-        return add_do_shortcode($content);
+        return app_do_shortcode($content);
     }
 }
