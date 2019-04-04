@@ -61,10 +61,11 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
     /**
      * Helper: Removes accents from all attachments and posts where those attachments were used.
      *
-     * @param mixed $args
-     * @param mixed $assoc_args
+     * @param array $args
+     * @param array $assoc_args
      *
      * @return array
+     *
      * @throws \WP_CLI\ExitException
      */
     private static function replace_content($args, $assoc_args)
@@ -77,7 +78,7 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
 
         if (isset($assoc_args['network'])) {
             if (is_multisite()) {
-                $sites = wp_get_sites();
+                $sites = get_sites();
             } else {
                 WP_CLI::error('This is not multisite installation.');
 
@@ -114,7 +115,7 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
                 $ascii_guid = Sanitizer::remove_accents($upload->guid, $assoc_args['sanitize']);
 
                 // Replace all files and content if file is different after removing accents
-                if ($ascii_guid != $upload->guid) {
+                if ($ascii_guid !== $upload->guid) {
                     ++$replaced_count;
 
                     /**
@@ -221,28 +222,35 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
 
                     if (!isset($assoc_args['dry-run'])) {
                         // Replace guid
-                        $sql = $wpdb->prepare("UPDATE {$wpdb->prefix}posts SET guid = %s WHERE ID=%d;", $ascii_guid,
-                            $upload->ID);
-                        $wpdb->query($sql);
+
+                        $wpdb->update($wpdb->posts, ['guid' => $ascii_guid], ['ID' => $upload->ID], ['%s'], ['%d']);
 
                         // Replace upload name
-                        $sql = $wpdb->prepare("UPDATE {$wpdb->prefix}postmeta SET meta_value = %s WHERE post_id=%d and meta_key='_wp_attached_file';",
-                            $ascii_file, $upload->ID);
-                        $wpdb->query($sql);
+
+                        $wpdb->update($wpdb->postmeta,
+                            ['meta_value' => $ascii_file],
+                            ['post_id' => '%d', 'meta_key' => '_wp_attached_file'],
+                            ['%s'],
+                            ['%d']
+                        );
 
                         // Replace meta data like thumbnail fields
-                        $sql = $wpdb->prepare("UPDATE {$wpdb->prefix}postmeta SET meta_value = %s WHERE post_id=%d and meta_key='_wp_attachment_metadata';",
-                            $fixed_metadata, $upload->ID);
-                        $wpdb->query($sql);
+
+                        $wpdb->update($wpdb->postmeta,
+                            ['meta_value' => $fixed_metadata],
+                            ['post_id' => '%d', 'meta_key' => '_wp_attachment_metadata'],
+                            ['%s'],
+                            ['%d']
+                        );
                     }
 
                     // Calculate remaining files
                     $remaining_files = $all_posts_count - $index - 1;
 
                     // Show some kind of progress to wp-cli user
-                    WP_CLI::line('');
+                    WP_CLI::line();
                     WP_CLI::line("Remaining workload: $remaining_files attachments...");
-                    WP_CLI::line('');
+                    WP_CLI::line();
                 }
             }
         }
