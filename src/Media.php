@@ -19,6 +19,9 @@ class Media implements AutoloadInterface
 
         add_action('ini', [$this, 'enable_performance_tweaks']);
 
+        add_filter('upload_mimes', [$this, 'allow_svg']);
+        add_filter('wp_check_filetype_and_ext', [$this, 'fix_mime_type_svg'], 75, 4);
+
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
             add_filter('media_library_show_audio_playlist', '__return_true');
@@ -130,5 +133,45 @@ class Media implements AutoloadInterface
         }
 
         return $months;
+    }
+
+    /**
+     * @param array $mimes
+     *
+     * @return array
+     */
+    public function allow_svg($mimes)
+    {
+        $mimes['svg'] = 'image/svg+xml';
+        $mimes['svgz'] = 'image/svg+xml';
+
+        return $mimes;
+    }
+
+    /**
+     * @param array|null  $data
+     * @param static|null $file
+     * @param string|null $filename
+     * @param array|null  $mimes
+     *
+     * @return array|null
+     */
+    public function fix_mime_type_svg($data = null, $file = null, $filename = null, $mimes = null)
+    {
+        $ext = !empty($data['ext']) ? $data['ext'] : '';
+        if ('' === $ext) {
+            $exploded = explode('.', $filename);
+            $ext = strtolower(end($exploded));
+        }
+
+        if ('svg' === $ext) {
+            $data['type'] = 'image/svg+xml';
+            $data['ext'] = 'svg';
+        } elseif ('svgz' === $ext) {
+            $data['type'] = 'image/svg+xml';
+            $data['ext'] = 'svgz';
+        }
+
+        return $data;
     }
 }
