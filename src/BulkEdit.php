@@ -2,6 +2,8 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\AutoloadInterface\AutoloadInterface;
+
 /**
  * Class BulkEdit.
  *
@@ -34,11 +36,11 @@ class BulkEdit implements AutoloadInterface
      */
     private function bulk_editing_is_limited()
     {
+        global $wp_query;
+
         $per_page = get_query_var('posts_per_page');
         // Get total number of entries
-        if (isset($GLOBALS['wp_query']) && is_a($GLOBALS['wp_query'], 'WP_Query')) {
-            $total_posts = $GLOBALS['wp_query']->found_posts;
-        }
+        $total_posts = $wp_query->found_posts;
         // Core defaults to 20 posts per page
         // Do no hide bulk edit actions if number of total entries is less than 20
         if (isset($total_posts) && self::BULK_EDIT_LIMIT > $total_posts) {
