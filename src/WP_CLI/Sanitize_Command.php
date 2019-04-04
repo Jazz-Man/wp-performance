@@ -2,7 +2,7 @@
 
 namespace JazzMan\Performance\WP_CLI;
 
-use JazzMan\Performance\AutoloadInterface;
+use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Sanitizer;
 use WP_CLI;
 use WP_CLI_Command;

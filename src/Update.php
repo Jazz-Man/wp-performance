@@ -139,7 +139,7 @@ class Update implements AutoloadInterface
         remove_action('admin_init', '_maybe_update_plugins');
 
         // Disable Core updates
-        add_action('init', function () {
+        add_action('init', static function () {
             remove_action('init', 'wp_version_check');
         }, 2);
 

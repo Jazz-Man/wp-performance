@@ -2,6 +2,8 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\AutoloadInterface\AutoloadInterface;
+
 /**
  * Class Media.
  */

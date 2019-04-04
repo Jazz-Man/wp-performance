@@ -2,6 +2,7 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Query;
 use WP_Screen;
 

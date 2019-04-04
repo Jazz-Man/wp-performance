@@ -2,6 +2,9 @@
 
 namespace JazzMan\Performance\Shortcode;
 
+/**
+ * Class ShortcodeParserShortcode.
+ */
 class ShortcodeParserShortcode
 {
     /**

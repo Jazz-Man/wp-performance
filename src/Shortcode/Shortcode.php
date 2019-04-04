@@ -2,10 +2,12 @@
 
 namespace JazzMan\Performance\Shortcode;
 
-use JazzMan\Performance\AutoloadInterface;
+
+use JazzMan\AutoloadInterface\AutoloadInterface;
 
 /**
  * Class Shortcode.
+ *
  * @see https://github.com/gschoppe/Better-Shortcode-Parser
  */
 class Shortcode implements AutoloadInterface

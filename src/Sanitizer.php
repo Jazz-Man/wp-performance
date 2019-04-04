@@ -2,6 +2,7 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\AutoloadInterface\AutoloadInterface;
 use Normalizer;
 
 /**
@@ -219,11 +220,11 @@ class Sanitizer implements AutoloadInterface
         // Check which one $filename uses and use it
         // If $filename doesn't use FORM_D or FORM_C don't convert errors
         if (Normalizer::isNormalized($filename, Normalizer::FORM_D)) {
-            $error_chars = array_map(function ($n) {
+            $error_chars = array_map(static function ($n) {
                 return Normalizer::normalize($n, Normalizer::FORM_D);
             }, $error_chars);
         } elseif (Normalizer::isNormalized($filename)) {
-            $error_chars = array_map(function ($n) {
+            $error_chars = array_map(static function ($n) {
                 return Normalizer::normalize($n);
             }, $error_chars);
         }

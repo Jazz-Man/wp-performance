@@ -25,7 +25,7 @@ class BulkEdit implements AutoloadInterface
     {
         if (isset($_REQUEST['bulk_edit'])) {
             wp_defer_term_counting(true);
-            add_action('shutdown', function () {
+            add_action('shutdown', static function () {
                 wp_defer_term_counting(false);
             });
         }
