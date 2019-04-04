@@ -7,6 +7,12 @@
             "email": "vsokolyk@gmail.com"
         }
     ],
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "classmap-authoritative": true
+    },
     "extra": {
         "installer-paths": {
             "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
@@ -15,11 +21,15 @@
         },
         "wordpress-install-dir": "vendor/wp"
     },
+    "conflict": {
+        "roots/soil":"*"
+    },
     "require": {
         "php": ">=7.0",
+        "ext-intl": "*",
         "composer/installers": "^1",
-        "jazzman/wp-object-cache": "^0.2.0",
-        "ext-intl":"*"
+        "jazzman/autoload-interface": "^0.1.0",
+        "jazzman/wp-object-cache": "^0.2.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
