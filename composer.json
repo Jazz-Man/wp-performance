@@ -13,14 +13,6 @@
         "optimize-autoloader": true,
         "classmap-authoritative": true
     },
-    "extra": {
-        "installer-paths": {
-            "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
-            "vendor/wp/wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
-            "vendor/wp/wp-content/themes/{$name}/": ["type:wordpress-theme"]
-        },
-        "wordpress-install-dir": "vendor/wp"
-    },
     "conflict": {
         "roots/soil":"*"
     },
@@ -28,14 +20,10 @@
         "php": ">=7.0",
         "ext-intl": "*",
         "composer/installers": "^1",
-        "ezimuel/php-secure-session": "^1.1",
-        "jazzman/autoload-interface": "^0.1.0",
-        "jazzman/wp-object-cache": "^0.2.0"
+        "jazzman/autoload-interface": "^0.1.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
-        "roots/wordpress": "^5.1",
-        "woocommerce/woocommerce": "^3.5",
         "dg/composer-cleaner": "^2.0",
         "wp-cli/db-command": "^2.0",
         "symfony/var-dumper": "^4.2"
