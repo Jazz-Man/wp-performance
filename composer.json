@@ -1,6 +1,7 @@
 {
     "name": "jazzman/wp-performance",
     "type": "wordpress-muplugin",
+    "version": "1.0",
     "authors": [
         {
             "name": "Vasyl Sokolyk",
@@ -23,9 +24,7 @@
         "jazzman/autoload-interface": "^0.1.0"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master",
-        "dg/composer-cleaner": "^2.0",
-        "symfony/var-dumper": "^4.2"
+        "roave/security-advisories": "dev-master"
     },
     "autoload": {
         "psr-4": {
