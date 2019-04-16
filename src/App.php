@@ -37,6 +37,7 @@ class App
     private function config()
     {
         $this->class_autoload = [
+            Options::class,
             Update::class,
             Media::class,
             WP_Query_Performance::class,
