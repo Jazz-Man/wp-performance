@@ -22,6 +22,9 @@ class Media implements AutoloadInterface
         add_filter('upload_mimes', [$this, 'allow_svg']);
         add_filter('wp_check_filetype_and_ext', [$this, 'fix_mime_type_svg'], 75, 4);
 
+        // resize image on the fly
+        add_filter('wp_get_attachment_image_src', [$this, 'resize_image_on_the_fly'], 10, 3);
+
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
             add_filter('media_library_show_audio_playlist', '__return_true');
@@ -167,5 +170,47 @@ class Media implements AutoloadInterface
         }
 
         return $data;
+    }
+
+    /**
+     * @param array        $image
+     * @param int          $id
+     * @param string|array $size
+     *
+     * @return array
+     */
+    public function resize_image_on_the_fly($image, $id, $size)
+    {
+        $path = get_attached_file($id);
+
+        if (\is_array($size) && file_exists($path)) {
+            $upload = wp_upload_dir();
+            $path_info = pathinfo($path);
+            $base_url = $upload['baseurl'].str_replace($upload['basedir'], '', $path_info['dirname']);
+
+            list($width, $height) = $size;
+            $meta = wp_get_attachment_metadata($id);
+
+            foreach ($meta['sizes'] as $key => $value) {
+                if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
+                    return $image;
+                }
+            }
+
+            // Generate new size
+            $resized = image_make_intermediate_size($path, $width, $height, true);
+
+            if ($resized && !is_wp_error($resized)) {
+                $key = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
+                $meta['sizes'][$key] = $resized;
+                wp_update_attachment_metadata($id, $meta);
+
+                $image[0] = "{$base_url}/{$resized['file']}";
+                $image[1] = $resized['width'];
+                $image[2] = $resized['height'];
+            }
+        }
+
+        return $image;
     }
 }
