@@ -19,8 +19,6 @@ class Media implements AutoloadInterface
 
         add_action('add_attachment', [$this, 'bust_media_months_cache']);
 
-        add_action('ini', [$this, 'enable_performance_tweaks']);
-
         add_filter('upload_mimes', [$this, 'allow_svg']);
         add_filter('wp_check_filetype_and_ext', [$this, 'fix_mime_type_svg'], 75, 4);
 
@@ -77,12 +75,6 @@ class Media implements AutoloadInterface
 
         // Send back the list.
         return $avatar_list;
-    }
-
-    public function enable_performance_tweaks()
-    {
-        // This disables the adjacent_post links in the header that are almost never beneficial and are very slow to compute.
-        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
     }
 
     /**
