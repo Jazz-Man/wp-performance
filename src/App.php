@@ -11,32 +11,11 @@ use JazzMan\Performance\WP_CLI\Sanitize_Command;
 class App
 {
     /**
-     * @var array
-     */
-    private $class_autoload;
-
-    /**
-     * @var array
-     */
-    private $class_autoload_cli;
-
-    /**
      * App constructor.
      */
     public function __construct()
     {
-        $this->config();
-
-        app_autoload_classes($this->class_autoload);
-
-        if (self::is_cli()) {
-            app_autoload_classes($this->class_autoload_cli);
-        }
-    }
-
-    private function config()
-    {
-        $this->class_autoload = [
+        app_autoload_classes([
             Options::class,
             Update::class,
             Media::class,
@@ -48,17 +27,19 @@ class App
             TermCount::class,
             Sanitizer::class,
             CleanUp::class,
-        ];
+        ]);
 
-        $this->class_autoload_cli = [
-            Sanitize_Command::class,
-        ];
+        if (self::isCli()) {
+            app_autoload_classes([
+                Sanitize_Command::class,
+            ]);
+        }
     }
 
     /**
      * @return bool
      */
-    public static function is_cli()
+    public static function isCli()
     {
         return \defined('WP_CLI') && WP_CLI;
     }
@@ -66,7 +47,7 @@ class App
     /**
      * @return bool
      */
-    public static function is_cron()
+    public static function isCron()
     {
         return \defined('DOING_CRON') && DOING_CRON;
     }
@@ -74,7 +55,7 @@ class App
     /**
      * @return bool
      */
-    public static function is_importing()
+    public static function isImporting()
     {
         return \defined('WP_IMPORTING') && WP_IMPORTING;
     }
@@ -84,6 +65,6 @@ class App
      */
     public static function enabled()
     {
-        return  !self::is_cron() && !self::is_cli() && !self::is_importing();
+        return !self::isCron() && !self::isCli() && !self::isImporting();
     }
 }

@@ -87,7 +87,7 @@ class Media implements AutoloadInterface
      */
     public function bust_media_months_cache($post_id)
     {
-        if (App::is_importing()) {
+        if (App::isImporting()) {
             return;
         }
 
