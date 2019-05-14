@@ -2,7 +2,6 @@
 
 namespace JazzMan\Performance;
 
-use JazzMan\Performance\Optimization\BulkEdit;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\Divi;
 use JazzMan\Performance\Optimization\LastPostModified;
@@ -35,7 +34,6 @@ class App
             PostMeta::class,
             Shortcode::class,
             LastPostModified::class,
-            BulkEdit::class,
             TermCount::class,
             Sanitizer::class,
             CleanUp::class,
