@@ -11,28 +11,50 @@ class Divi implements AutoloadInterface
 {
     public function load()
     {
-        add_action('init', [$this, 'removeDiviActions']);
+        add_action('init', [$this, 'removeActionsOnInit']);
+
+        add_action('after_setup_theme', [$this, 'removeActionsAfterSetupTheme']);
         add_action('init', [$this, 'removeDiviFilter']);
         add_action('init', [$this, 'removeDiviImageSizes']);
-        add_filter('et_module_shortcode_output', [$this, 'etModuleShortcodeOutput'], 10, 3);
     }
 
-    public function removeDiviActions()
+    public function removeActionsOnInit()
     {
-        remove_action('wp', 'et_pb_ab_init');
-        remove_action('wp', 'et_divi_add_customizer_css');
-        remove_action('init', 'et_sync_custom_css_options');
-        remove_action('wp_head', 'head_addons', 7);
+        remove_action('wp_footer', 'integration_body', 12);
+        remove_action('wp_head', 'et_add_custom_css', 100);
         remove_action('wp_head', 'add_favicon');
-        remove_action('wp_head', 'integration_head');
+        remove_action('wp_head', 'head_addons', 7);
+        remove_action('wp_head', 'integration_head', 12);
+
+        remove_action('wp', 'et_fb_remove_emoji_detection_script');
+        remove_action('wp', 'et_pb_ab_init');
+
+        remove_action('wp_enqueue_scripts', 'et_add_responsive_shortcodes_css', 11);
+
+        remove_action('init', 'et_create_images_temp_folder');
+        remove_action('init', 'et_sync_custom_css_options');
+        remove_action('et_after_post', 'integration_single_bottom', 12);
+        remove_action('et_before_post', 'integration_single_top', 12);
+        remove_action('update_option_upload_path', 'et_update_uploads_dir');
+        remove_action('pre_get_posts', 'et_custom_posts_per_page');
+    }
+
+    public function removeActionsAfterSetupTheme()
+    {
         remove_action('wp_head', 'et_add_viewport_meta');
+        remove_action('wp', 'et_divi_add_customizer_css');
         remove_action('wp_enqueue_scripts', 'et_divi_replace_stylesheet', 99999998);
     }
 
     public function removeDiviFilter()
     {
         add_filter('et_theme_image_sizes', '__return_false');
-        remove_filter('body_class', 'et_layout_body_class');
+
+        remove_filter('pre_get_document_title', 'elegant_titles_filter');
+
+        remove_filter('wp_get_custom_css', 'et_epanel_handle_custom_css_output', 999);
+        remove_filter('update_custom_css_data', 'et_update_custom_css_data_cb');
+        remove_filter('update_custom_css_data', 'et_back_sync_custom_css_options');
         remove_filter('body_class', 'et_customizer_color_scheme_class');
         remove_filter('body_class', 'et_divi_theme_body_class');
         remove_filter('body_class', 'et_customizer_button_class');
@@ -68,17 +90,5 @@ class Divi implements AutoloadInterface
                 remove_image_size($image_size);
             }
         }
-    }
-
-    /**
-     * @param string              $output
-     * @param string              $render_slug
-     * @param \ET_Builder_Element $element
-     *
-     * @return mixed
-     */
-    public function etModuleShortcodeOutput(string $output, string $render_slug, $element)
-    {
-        return apply_filters("et_module_{$render_slug}_shortcode_output", $output, $element);
     }
 }
