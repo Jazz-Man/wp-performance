@@ -2,7 +2,6 @@
 
 namespace JazzMan\Performance\Shortcode;
 
-
 use JazzMan\AutoloadInterface\AutoloadInterface;
 
 /**
@@ -19,6 +18,10 @@ class Shortcode implements AutoloadInterface
 
     public function init()
     {
+        if (\defined('ET_CORE_VERSION')) {
+            add_filter('shortcode_disable_nested_rendering', '__return_true');
+        }
+
         remove_filter('the_content', 'do_shortcode', 11);
         remove_filter('widget_text_content', 'do_shortcode', 11);
         add_filter('the_content', [$this, 'do_shortcode'], 11);

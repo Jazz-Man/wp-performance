@@ -2,8 +2,8 @@
 
 namespace JazzMan\Performance;
 
-use JazzMan\Performance\Optimization\BulkEdit;
 use JazzMan\Performance\Optimization\CleanUp;
+use JazzMan\Performance\Optimization\Divi;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
 use JazzMan\Performance\Optimization\Options;
@@ -34,11 +34,11 @@ class App
             PostMeta::class,
             Shortcode::class,
             LastPostModified::class,
-            BulkEdit::class,
             TermCount::class,
             Sanitizer::class,
             CleanUp::class,
-            RestAPI::class
+            RestAPI::class,
+            Divi::class
         ]);
 
         if (self::isCli()) {
