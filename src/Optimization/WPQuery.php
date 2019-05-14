@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\Performance;
+namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Query;
@@ -8,7 +8,7 @@ use WP_Query;
 /**
  * Class WP_Query.
  */
-class WP_Query_Performance implements AutoloadInterface
+class WPQuery implements AutoloadInterface
 {
 
     /**

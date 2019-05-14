@@ -1,8 +1,9 @@
 <?php
 
-namespace JazzMan\Performance;
+namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\Performance\App;
 use WP_Query;
 use WP_Screen;
 

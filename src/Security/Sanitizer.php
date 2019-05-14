@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\Performance;
+namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use Normalizer;
@@ -12,27 +12,27 @@ use Normalizer;
  */
 class Sanitizer implements AutoloadInterface
 {
+
     public function load()
     {
         // Remove accents from all uploaded files
 
-        add_filter('sanitize_file_name', [$this, 'sanitize_filenames_on_upload']);
+        add_filter('sanitize_file_name', [$this, 'sanitizeFilenamesOnUpload']);
     }
 
-    /*
-          * Replaces all files immediately on upload
-          */
 
     /**
+     * Replaces all files immediately on upload
+     *
      * @param $filename
      *
      * @return string
      */
-    public function sanitize_filenames_on_upload($filename)
+    public function sanitizeFilenamesOnUpload($filename)
     {
         // Remove accents and filename to lowercase for better urls
         // Don't sanitize file here because wordpress does this automatically
-        return strtolower(self::remove_accents($filename, false));
+        return strtolower(self::removeAccents($filename, false));
     }
 
     //##########################################################
@@ -47,11 +47,11 @@ class Sanitizer implements AutoloadInterface
      *
      * @return string|string[]|null
      */
-    public static function remove_accents($filename, $sanitize = true)
+    public static function removeAccents($filename, $sanitize = true)
     {
         // Get path and basename
         $file_info = pathinfo($filename);
-        $filename = $file_info['basename'];
+        $filename  = $file_info['basename'];
 
         // If available remove all NFD characters before doing anything else
         if (class_exists('Normalizer')) {
@@ -67,12 +67,12 @@ class Sanitizer implements AutoloadInterface
         }
 
         // And then just remove anything fancy like ¼ and ™
-        $filename = self::remove_non_ascii_characters($filename);
+        $filename = self::removeNonASCIICharacters($filename);
 
         // If this was full path return it like it was before
         // pathinfo returns . for only filenames
         if ('.' !== $file_info['dirname']) {
-            $filename = $file_info['dirname'].'/'.$filename;
+            $filename = $file_info['dirname'] . '/' . $filename;
         }
 
         // Return full path
@@ -86,7 +86,7 @@ class Sanitizer implements AutoloadInterface
      *
      * @return string
      */
-    public static function remove_non_ascii_characters($string)
+    public static function removeNonASCIICharacters($string)
     {
         return preg_replace("/[^(\x20-\x7F)]*/", '', $string);
     }
@@ -100,7 +100,7 @@ class Sanitizer implements AutoloadInterface
      *
      * @return bool|mixed - return the name of the file which could be found
      */
-    public static function rename_accented_files_in_any_form($old_file, $new_file)
+    public static function renameAccentedFilesInAnyForm($old_file, $new_file)
     {
         // Try to move the file without any hacks before continuing
         $result = @rename($old_file, $new_file);
@@ -109,7 +109,7 @@ class Sanitizer implements AutoloadInterface
             return $old_file;
         }
 
-        if (!file_exists($new_file)) {
+        if ( ! file_exists($new_file)) {
             // Continue if we couldn't rename $old_file and $new_file doesn't yet exist
 
             $possible_old_files = [];
@@ -154,41 +154,131 @@ class Sanitizer implements AutoloadInterface
          */
         $fix_list = [
             // 3 char errors first
-            'â€š' => '‚', 'â€ž' => '„', 'â€¦' => '…', 'â€¡' => '‡',
-            'â€°' => '‰', 'â€¹' => '‹', 'â€˜' => '‘', 'â€™' => '’',
-            'â€œ' => '“', 'â€¢' => '•', 'â€“' => '–', 'â€”' => '—',
-            'â„¢' => '™', 'â€º' => '›', 'â‚¬' => '€',
+            'â€š' => '‚',
+            'â€ž' => '„',
+            'â€¦' => '…',
+            'â€¡' => '‡',
+            'â€°' => '‰',
+            'â€¹' => '‹',
+            'â€˜' => '‘',
+            'â€™' => '’',
+            'â€œ' => '“',
+            'â€¢' => '•',
+            'â€“' => '–',
+            'â€”' => '—',
+            'â„¢' => '™',
+            'â€º' => '›',
+            'â‚¬' => '€',
 
             // 2 char errors
-            'Ã‚' => 'Â', 'Æ’' => 'ƒ', 'Ãƒ' => 'Ã', 'Ã„' => 'Ä',
-            'Ã…' => 'Å', 'â€' => '†', 'Ã†' => 'Æ', 'Ã‡' => 'Ç',
-            'Ë†' => 'ˆ', 'Ãˆ' => 'È', 'Ã‰' => 'É', 'ÃŠ' => 'Ê',
-            'Ã‹' => 'Ë', 'Å’' => 'Œ', 'ÃŒ' => 'Ì', 'Å½' => 'Ž',
-            'ÃŽ' => 'Î', 'Ã‘' => 'Ñ', 'Ã’' => 'Ò', 'Ã“' => 'Ó',
-            'â€' => '”', 'Ã”' => 'Ô', 'Ã•' => 'Õ', 'Ã–' => 'Ö',
-            'Ã—' => '×', 'Ëœ' => '˜', 'Ã˜' => 'Ø', 'Ã™' => 'Ù',
-            'Å¡' => 'š', 'Ãš' => 'Ú', 'Ã›' => 'Û', 'Å“' => 'œ',
-            'Ãœ' => 'Ü', 'Å¾' => 'ž', 'Ãž' => 'Þ', 'Å¸' => 'Ÿ',
-            'ÃŸ' => 'ß', 'Â¡' => '¡', 'Ã¡' => 'á', 'Â¢' => '¢',
-            'Ã¢' => 'â', 'Â£' => '£', 'Ã£' => 'ã', 'Â¤' => '¤',
-            'Ã¤' => 'ä', 'Â¥' => '¥', 'Ã¥' => 'å', 'Â¦' => '¦',
-            'Ã¦' => 'æ', 'Â§' => '§', 'Ã§' => 'ç', 'Â¨' => '¨',
-            'Ã¨' => 'è', 'Â©' => '©', 'Ã©' => 'é', 'Âª' => 'ª',
-            'Ãª' => 'ê', 'Â«' => '«', 'Ã«' => 'ë', 'Â¬' => '¬',
-            'Ã¬' => 'ì', 'Â®' => '®', 'Ã®' => 'î', 'Â¯' => '¯',
-            'Ã¯' => 'ï', 'Â°' => '°', 'Ã°' => 'ð', 'Â±' => '±',
-            'Ã±' => 'ñ', 'Â²' => '²', 'Ã²' => 'ò', 'Â³' => '³',
-            'Ã³' => 'ó', 'Â´' => '´', 'Ã´' => 'ô', 'Âµ' => 'µ',
-            'Ãµ' => 'õ', 'Â¶' => '¶', 'Ã¶' => 'ö', 'Â·' => '·',
-            'Ã·' => '÷', 'Â¸' => '¸', 'Ã¸' => 'ø', 'Â¹' => '¹',
-            'Ã¹' => 'ù', 'Âº' => 'º', 'Ãº' => 'ú', 'Â»' => '»',
-            'Ã»' => 'û', 'Â¼' => '¼', 'Ã¼' => 'ü', 'Â½' => '½',
-            'Ã½' => 'ý', 'Â¾' => '¾', 'Ã¾' => 'þ', 'Â¿' => '¿',
-            'Ã¿' => 'ÿ', 'Ã€' => 'À',
+            'Ã‚'  => 'Â',
+            'Æ’'  => 'ƒ',
+            'Ãƒ'  => 'Ã',
+            'Ã„'  => 'Ä',
+            'Ã…'  => 'Å',
+            'â€'  => '†',
+            'Ã†'  => 'Æ',
+            'Ã‡'  => 'Ç',
+            'Ë†'  => 'ˆ',
+            'Ãˆ'  => 'È',
+            'Ã‰'  => 'É',
+            'ÃŠ'  => 'Ê',
+            'Ã‹'  => 'Ë',
+            'Å’'  => 'Œ',
+            'ÃŒ'  => 'Ì',
+            'Å½'  => 'Ž',
+            'ÃŽ'  => 'Î',
+            'Ã‘'  => 'Ñ',
+            'Ã’'  => 'Ò',
+            'Ã“'  => 'Ó',
+            'â€'  => '”',
+            'Ã”'  => 'Ô',
+            'Ã•'  => 'Õ',
+            'Ã–'  => 'Ö',
+            'Ã—'  => '×',
+            'Ëœ'  => '˜',
+            'Ã˜'  => 'Ø',
+            'Ã™'  => 'Ù',
+            'Å¡'  => 'š',
+            'Ãš'  => 'Ú',
+            'Ã›'  => 'Û',
+            'Å“'  => 'œ',
+            'Ãœ'  => 'Ü',
+            'Å¾'  => 'ž',
+            'Ãž'  => 'Þ',
+            'Å¸'  => 'Ÿ',
+            'ÃŸ'  => 'ß',
+            'Â¡'  => '¡',
+            'Ã¡'  => 'á',
+            'Â¢'  => '¢',
+            'Ã¢'  => 'â',
+            'Â£'  => '£',
+            'Ã£'  => 'ã',
+            'Â¤'  => '¤',
+            'Ã¤'  => 'ä',
+            'Â¥'  => '¥',
+            'Ã¥'  => 'å',
+            'Â¦'  => '¦',
+            'Ã¦'  => 'æ',
+            'Â§'  => '§',
+            'Ã§'  => 'ç',
+            'Â¨'  => '¨',
+            'Ã¨'  => 'è',
+            'Â©'  => '©',
+            'Ã©'  => 'é',
+            'Âª'  => 'ª',
+            'Ãª'  => 'ê',
+            'Â«'  => '«',
+            'Ã«'  => 'ë',
+            'Â¬'  => '¬',
+            'Ã¬'  => 'ì',
+            'Â®'  => '®',
+            'Ã®'  => 'î',
+            'Â¯'  => '¯',
+            'Ã¯'  => 'ï',
+            'Â°'  => '°',
+            'Ã°'  => 'ð',
+            'Â±'  => '±',
+            'Ã±'  => 'ñ',
+            'Â²'  => '²',
+            'Ã²'  => 'ò',
+            'Â³'  => '³',
+            'Ã³'  => 'ó',
+            'Â´'  => '´',
+            'Ã´'  => 'ô',
+            'Âµ'  => 'µ',
+            'Ãµ'  => 'õ',
+            'Â¶'  => '¶',
+            'Ã¶'  => 'ö',
+            'Â·'  => '·',
+            'Ã·'  => '÷',
+            'Â¸'  => '¸',
+            'Ã¸'  => 'ø',
+            'Â¹'  => '¹',
+            'Ã¹'  => 'ù',
+            'Âº'  => 'º',
+            'Ãº'  => 'ú',
+            'Â»'  => '»',
+            'Ã»'  => 'û',
+            'Â¼'  => '¼',
+            'Ã¼'  => 'ü',
+            'Â½'  => '½',
+            'Ã½'  => 'ý',
+            'Â¾'  => '¾',
+            'Ã¾'  => 'þ',
+            'Â¿'  => '¿',
+            'Ã¿'  => 'ÿ',
+            'Ã€'  => 'À',
 
             // 1 char errors last
-            'Ã' => 'Á', 'Å' => 'Š', 'Ã' => 'Í', 'Ã' => 'Ï',
-            'Ã' => 'Ð', 'Ã' => 'Ý', 'Ã' => 'à', 'Ã­' => 'í',
+            'Ã'   => 'Á',
+            'Å'   => 'Š',
+            'Ã'   => 'Í',
+            'Ã'   => 'Ï',
+            'Ã'   => 'Ð',
+            'Ã'   => 'Ý',
+            'Ã'   => 'à',
+            'Ã­'  => 'í',
         ];
 
         // Allow developers to add fixes into this list
@@ -214,7 +304,7 @@ class Sanitizer implements AutoloadInterface
 
         // Get encoding errors
         $error_chars = array_keys($fix_list);
-        $real_chars = array_values($fix_list);
+        $real_chars  = array_values($fix_list);
 
         // The errors can happen in both nfd/nfc format so convert chars into nfd
         // Check which one $filename uses and use it

@@ -1,8 +1,9 @@
 <?php
 
-namespace JazzMan\Performance;
+namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\Performance\App;
 
 /**
  * Class Media.
@@ -12,23 +13,23 @@ class Media implements AutoloadInterface
     public function load()
     {
         // Disable gravatars
-        add_filter('get_avatar', [$this, 'replace_gravatar'], 1, 5);
-        add_filter('default_avatar_select', [$this, 'default_avatar']);
+        add_filter('get_avatar', [$this, 'replaceGravatar'], 1, 5);
+        add_filter('default_avatar_select', [$this, 'defaultAvatar']);
         // Prevent BuddyPress from falling back to Gravatar avatars.
         add_filter('bp_core_fetch_avatar_no_grav', '__return_true');
 
-        add_action('add_attachment', [$this, 'bust_media_months_cache']);
+        add_action('add_attachment', [$this, 'setMediaMonthsCache']);
 
-        add_filter('upload_mimes', [$this, 'allow_svg']);
-        add_filter('wp_check_filetype_and_ext', [$this, 'fix_mime_type_svg'], 75, 4);
+        add_filter('upload_mimes', [$this, 'allowSvg']);
+        add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 4);
 
         // resize image on the fly
-        add_filter('wp_get_attachment_image_src', [$this, 'resize_image_on_the_fly'], 10, 3);
+        add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
 
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
             add_filter('media_library_show_audio_playlist', '__return_true');
-            add_filter('media_library_months_with_files', [$this, 'media_library_months_with_files']);
+            add_filter('media_library_months_with_files', [$this, 'mediaLibraryMonthsWithFiles']);
         }
     }
 
@@ -44,7 +45,7 @@ class Media implements AutoloadInterface
      *
      * @return string `<img>` tag for the user's avatar
      */
-    public function replace_gravatar($avatar, $id_or_email, $size, $default, $alt)
+    public function replaceGravatar($avatar, $id_or_email, $size, $default, $alt)
     {
         // Bail if disabled.
         if (!App::enabled()) {
@@ -66,7 +67,7 @@ class Media implements AutoloadInterface
      *
      * @return string Updated list with images removed
      */
-    public function default_avatar($avatar_list)
+    public function defaultAvatar($avatar_list)
     {
         // Bail if disabled.
         if (!App::enabled()) {
@@ -85,7 +86,7 @@ class Media implements AutoloadInterface
      *
      * @param int $post_id
      */
-    public function bust_media_months_cache($post_id)
+    public function setMediaMonthsCache(int $post_id)
     {
         if (App::isImporting()) {
             return;
@@ -113,7 +114,7 @@ class Media implements AutoloadInterface
      *
      * @return array|mixed|object|null
      */
-    public function media_library_months_with_files()
+    public function mediaLibraryMonthsWithFiles()
     {
         global $wpdb;
 
@@ -137,7 +138,7 @@ class Media implements AutoloadInterface
      *
      * @return array
      */
-    public function allow_svg($mimes)
+    public function allowSvg($mimes)
     {
         $mimes['svg'] = 'image/svg+xml';
         $mimes['svgz'] = 'image/svg+xml';
@@ -153,7 +154,7 @@ class Media implements AutoloadInterface
      *
      * @return array|null
      */
-    public function fix_mime_type_svg($data = null, $file = null, $filename = null, $mimes = null)
+    public function fixMimeTypeSvg($data = null, $file = null, $filename = null, $mimes = null)
     {
         $ext = !empty($data['ext']) ? $data['ext'] : '';
         if ('' === $ext) {
@@ -179,7 +180,7 @@ class Media implements AutoloadInterface
      *
      * @return array
      */
-    public function resize_image_on_the_fly($image, $id, $size)
+    public function resizeImageOnTheFly($image, $id, $size)
     {
         $path = get_attached_file($id);
 
@@ -191,9 +192,11 @@ class Media implements AutoloadInterface
             list($width, $height) = $size;
             $meta = wp_get_attachment_metadata($id);
 
-            foreach ($meta['sizes'] as $key => $value) {
-                if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
-                    return $image;
+            if (!empty($meta['sizes'])) {
+                foreach ($meta['sizes'] as $key => $value) {
+                    if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
+                        return $image;
+                    }
                 }
             }
 

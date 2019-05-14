@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\performance;
+namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Error;
@@ -12,7 +12,7 @@ class RestAPI implements AutoloadInterface
 {
     public function load()
     {
-        add_filter('rest_authentication_errors', [$this, 'rest_authentication_errors']);
+        add_filter('rest_authentication_errors', [$this, 'restAuthenticationErrors']);
     }
 
     /**
@@ -20,7 +20,7 @@ class RestAPI implements AutoloadInterface
      *
      * @return \WP_Error
      */
-    public function rest_authentication_errors($result)
+    public function restAuthenticationErrors($result)
     {
         if (!empty($result)) {
             return $result;

@@ -2,6 +2,17 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\Performance\Optimization\BulkEdit;
+use JazzMan\Performance\Optimization\CleanUp;
+use JazzMan\Performance\Optimization\LastPostModified;
+use JazzMan\Performance\Optimization\Media;
+use JazzMan\Performance\Optimization\Options;
+use JazzMan\Performance\Optimization\PostMeta;
+use JazzMan\Performance\Optimization\TermCount;
+use JazzMan\Performance\Optimization\Update;
+use JazzMan\Performance\Optimization\WPQuery;
+use JazzMan\Performance\Security\RestAPI;
+use JazzMan\Performance\Security\Sanitizer;
 use JazzMan\Performance\Shortcode\Shortcode;
 use JazzMan\Performance\WP_CLI\Sanitize_Command;
 
@@ -19,7 +30,7 @@ class App
             Options::class,
             Update::class,
             Media::class,
-            WP_Query_Performance::class,
+            WPQuery::class,
             PostMeta::class,
             Shortcode::class,
             LastPostModified::class,
@@ -27,6 +38,7 @@ class App
             TermCount::class,
             Sanitizer::class,
             CleanUp::class,
+            RestAPI::class
         ]);
 
         if (self::isCli()) {
@@ -45,6 +57,14 @@ class App
     }
 
     /**
+     * Checks when plugin should be enabled This offers nice compatibilty with wp-cli.
+     */
+    public static function enabled()
+    {
+        return !self::isCron() && !self::isCli() && !self::isImporting();
+    }
+
+    /**
      * @return bool
      */
     public static function isCron()
@@ -58,13 +78,5 @@ class App
     public static function isImporting()
     {
         return \defined('WP_IMPORTING') && WP_IMPORTING;
-    }
-
-    /**
-     * Checks when plugin should be enabled This offers nice compatibilty with wp-cli.
-     */
-    public static function enabled()
-    {
-        return !self::isCron() && !self::isCli() && !self::isImporting();
     }
 }

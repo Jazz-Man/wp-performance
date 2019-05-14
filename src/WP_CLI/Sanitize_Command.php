@@ -3,7 +3,7 @@
 namespace JazzMan\Performance\WP_CLI;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\Performance\Sanitizer;
+use JazzMan\Performance\Security\Sanitizer;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -112,7 +112,7 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
             WP_CLI::line('Found: '.\count($uploads).' attachments.');
             WP_CLI::line('This may take a while...');
             foreach ($uploads as $index => $upload) {
-                $ascii_guid = Sanitizer::remove_accents($upload->guid, $assoc_args['sanitize']);
+                $ascii_guid = Sanitizer::removeAccents($upload->guid, $assoc_args['sanitize']);
 
                 // Replace all files and content if file is different after removing accents
                 if ($ascii_guid !== $upload->guid) {
@@ -128,10 +128,10 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
 
                     // Check filename without extension so we can replace all thumbnail sizes at once
                     $attachment_string = $file_info['dirname'].'/'.$file_info['filename'];
-                    $escaped_attachment_string = Sanitizer::remove_accents($attachment_string, $assoc_args['sanitize']);
+                    $escaped_attachment_string = Sanitizer::removeAccents($attachment_string, $assoc_args['sanitize']);
 
                     // We don't need to replace excerpt for example since it doesn't have attachments...
-                    WP_CLI::line("REPLACING: {$file_info['basename']} ---> ".Sanitizer::remove_accents($file_info['basename'],
+                    WP_CLI::line("REPLACING: {$file_info['basename']} ---> ".Sanitizer::removeAccents($file_info['basename'],
                             $assoc_args['sanitize']).' ');
                     $sql = $wpdb->prepare("UPDATE {$wpdb->prefix}posts SET post_content = REPLACE (post_content, '%s', '%s') WHERE post_content LIKE '%s';",
                         $attachment_string, $escaped_attachment_string,
@@ -161,13 +161,13 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
 
                     // Get full path for file and replace accents for the future filename
                     $full_path = get_attached_file($upload->ID);
-                    $ascii_full_path = Sanitizer::remove_accents($full_path, $assoc_args['sanitize']);
+                    $ascii_full_path = Sanitizer::removeAccents($full_path, $assoc_args['sanitize']);
 
                     // Move the file
                     WP_CLI::line("----> Checking image:     {$full_path}");
 
                     if (!isset($assoc_args['dry-run'])) {
-                        $old_file = Sanitizer::rename_accented_files_in_any_form($full_path, $ascii_full_path);
+                        $old_file = Sanitizer::renameAccentedFilesInAnyForm($full_path, $ascii_full_path);
                         if ($old_file) {
                             WP_CLI::line('----> Replaced file:      '.basename($old_file).' -> '.basename($ascii_full_path));
                         } else {
@@ -180,7 +180,7 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
                     $metadata = wp_get_attachment_metadata($upload->ID);
 
                     // Correct main file for later usage
-                    $ascii_file = Sanitizer::remove_accents($metadata['file'], $assoc_args['sanitize']);
+                    $ascii_file = Sanitizer::removeAccents($metadata['file'], $assoc_args['sanitize']);
                     $metadata['file'] = $ascii_file;
 
                     // Usually this is image but if this is document instead it won't have different thumbnail sizes
@@ -189,7 +189,7 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
                             $metadata['sizes'][$name]['file'];
                             $thumbnail_path = $file_path.'/'.$thumbnail['file'];
 
-                            $ascii_thumbnail = Sanitizer::remove_accents($thumbnail['file'], $assoc_args['sanitize']);
+                            $ascii_thumbnail = Sanitizer::removeAccents($thumbnail['file'], $assoc_args['sanitize']);
 
                             // Update metadata on thumbnail so we can push it back to database
                             $metadata['sizes'][$name]['file'] = $ascii_thumbnail;
@@ -199,7 +199,7 @@ class Sanitize_Command extends WP_CLI_Command implements AutoloadInterface
                             WP_CLI::line("----> Checking thumbnail: {$thumbnail_path}");
 
                             if (!isset($assoc_args['dry-run'])) {
-                                $old_file = Sanitizer::rename_accented_files_in_any_form($thumbnail_path,
+                                $old_file = Sanitizer::renameAccentedFilesInAnyForm($thumbnail_path,
                                     $ascii_thumbnail_path);
                                 if ($old_file) {
                                     WP_CLI::line('----> Replaced thumbnail: '.basename($old_file).' -> '.basename($ascii_thumbnail_path));
