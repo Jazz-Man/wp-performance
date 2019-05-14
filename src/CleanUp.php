@@ -86,8 +86,11 @@ class CleanUp implements AutoloadInterface
     {
         // Add post/page slug if not present
         if (is_single() || (is_page() && !is_front_page())) {
-            if (!\in_array(basename(get_permalink()), $classes)) {
-                $classes[] = basename(get_permalink());
+
+            $permalink = get_permalink();
+
+            if (!\in_array(basename($permalink), $classes)) {
+                $classes[] = basename($permalink);
             }
         }
         // Remove unnecessary classes
