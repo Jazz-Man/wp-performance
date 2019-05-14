@@ -18,36 +18,36 @@ class WP_Query_Performance implements AutoloadInterface
 
     public function load()
     {
-        add_action('pre_get_posts', [$this, 'order_by_rand_optimization']);
-        add_action('save_post', [$this, 'save_post_flush_cache']);
+        add_action('pre_get_posts', [$this, 'orderByRandOptimization']);
+        add_action('save_post', [$this, 'savePostFlushCache']);
 
-        add_filter('posts_orderby', [$this, 'sql_calc_found_rows_optimization'], 10, 2);
-        add_filter('found_posts', [$this, 'sql_calc_found_rows_caching'], 99, 2);
+        add_filter('posts_orderby', [$this, 'sqlCalcFoundRowsOptimization'], 10, 2);
+        add_filter('found_posts', [$this, 'sqlCalcFoundRowsCaching'], 99, 2);
 
-        add_filter('pre_get_posts', [$this, 'set_no_found_rows'], 10, 1);
-        add_filter('wp_link_query_args', [$this, 'set_no_found_rows'], 10, 1);
+        add_filter('pre_get_posts', [$this, 'setNoFoundRows'], 10, 1);
+        add_filter('wp_link_query_args', [$this, 'setNoFoundRows'], 10, 1);
 
-        add_filter('posts_clauses', [$this, 'wpartisan_set_found_posts'], 10, 2);
+        add_filter('posts_clauses', [$this, 'setFoundPosts'], 10, 2);
         add_filter( 'woocommerce_install_skip_create_files', '__return_true' );
     }
 
     /**
      * @param WP_Query $query
      */
-    public function order_by_rand_optimization(WP_Query $query)
+    public function orderByRandOptimization(WP_Query $query)
     {
         $orderby = $query->get('orderby', false);
 
         if ($orderby && 'rand' === $orderby) {
             $query_hash = $query->query_vars_hash;
             if (empty($query->query_vars['post__in'])) {
-                $global_invalidate_time = $this->get_invalidate_time();
-                $local_invalidate_time  = $this->get_time_random_posts($query_hash);
+                $global_invalidate_time = $this->getInvalidateTime();
+                $local_invalidate_time  = $this->getTimeRandomPosts($query_hash);
                 if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
-                    $this->delete_random_posts($query_hash);
+                    $this->deleteRandomPosts($query_hash);
                     $this->delete_time_random_posts($query_hash);
                 }
-                if (false === ($ids = $this->get_random_posts($query_hash))) {
+                if (false === ($ids = $this->getRandomPosts($query_hash))) {
                     $vars                           = $query->query_vars;
                     $vars['orderby']                = 'date';
                     $vars['order']                  = 'DESC';
@@ -58,8 +58,8 @@ class WP_Query_Performance implements AutoloadInterface
                     $vars['no_found_rows']          = true;
                     $vars['ignore_sticky_posts']    = true;
                     $ids                            = get_posts($vars);
-                    $this->set_random_posts($query_hash, $ids);
-                    $this->set_time_random_posts($query_hash);
+                    $this->setRandomPosts($query_hash, $ids);
+                    $this->setTimeRandomPosts($query_hash);
                 }
                 shuffle($ids);
 
@@ -78,26 +78,95 @@ class WP_Query_Performance implements AutoloadInterface
     }
 
     /**
+     * @return bool|mixed
+     */
+    private function getInvalidateTime()
+    {
+        return wp_cache_get('invalidate-time', $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     *
+     * @return bool|mixed
+     */
+    private function getTimeRandomPosts($query_hash)
+    {
+        return wp_cache_get("time-random-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     *
+     * @return bool
+     */
+    private function deleteRandomPosts($query_hash)
+    {
+        return wp_cache_delete("random-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     *
+     * @return bool
+     */
+    private function delete_time_random_posts($query_hash)
+    {
+        return wp_cache_delete("time-random-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     *
+     * @return bool|mixed
+     */
+    private function getRandomPosts($query_hash)
+    {
+        return wp_cache_get("random-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     * @param mixed  $data
+     *
+     * @return bool
+     */
+    private function setRandomPosts($query_hash, $data)
+    {
+        return wp_cache_set("random-posts-{$query_hash}", $data, $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     *
+     * @return bool|mixed
+     */
+    private function setTimeRandomPosts($query_hash)
+    {
+        return wp_cache_set("time-random-posts-{$query_hash}", time(), $this->cache_group);
+    }
+
+    /**
      * @param string   $orderby
      * @param WP_Query $query
      *
      * @return string
      */
-    public function sql_calc_found_rows_optimization($orderby, WP_Query $query)
+    public function sqlCalcFoundRowsOptimization($orderby, WP_Query $query)
     {
         if ($query->get('no_found_rows')) {
             $query_hash = $query->query_vars_hash;
 
-            $global_invalidate_time = $this->get_invalidate_time();
-            $local_invalidate_time  = $this->get_time_found_posts($query_hash);
+            $global_invalidate_time = $this->getInvalidateTime();
+            $local_invalidate_time  = $this->getTimeFoundPosts($query_hash);
 
             if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
-                $this->delete_cached_found_posts($query_hash);
-                $this->delete_time_found_posts($query_hash);
+                $this->deleteCachedFoundPosts($query_hash);
+                $this->deleteTimeFoundPosts($query_hash);
 
                 return $orderby;
             }
-            if (false !== ($found_posts = $this->get_cached_found_posts($query_hash))) {
+            if (false !== ($found_posts = $this->getCachedFoundPosts($query_hash))) {
                 $query->found_posts                 = $found_posts;
                 $query->max_num_pages               = ceil($query->found_posts / $query->query_vars['posts_per_page']);
                 $query->query_vars['no_found_rows'] = true;
@@ -107,6 +176,41 @@ class WP_Query_Performance implements AutoloadInterface
         return $orderby;
     }
 
+    /**
+     * @param string $query_hash
+     *
+     * @return bool|mixed
+     */
+    private function getTimeFoundPosts($query_hash)
+    {
+        return wp_cache_get("time-found-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     */
+    private function deleteCachedFoundPosts($query_hash)
+    {
+        wp_cache_delete("found-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     */
+    private function deleteTimeFoundPosts($query_hash)
+    {
+        wp_cache_delete("time-found-posts-{$query_hash}", $this->cache_group);
+    }
+
+    /**
+     * @param string $query_hash
+     *
+     * @return bool|mixed
+     */
+    private function getCachedFoundPosts(string $query_hash)
+    {
+        return wp_cache_get("found-posts-{$query_hash}", $this->cache_group);
+    }
 
     /**
      * Improve perfomance of the `_WP_Editors::wp_link_query` method
@@ -130,7 +234,7 @@ class WP_Query_Performance implements AutoloadInterface
     /**
      * @param WP_Query $wp_query
      */
-    public function set_no_found_rows(WP_Query $wp_query)
+    public function setNoFoundRows(WP_Query $wp_query)
     {
         $wp_query->set('no_found_rows', true);
     }
@@ -141,14 +245,14 @@ class WP_Query_Performance implements AutoloadInterface
      *
      * @return array
      */
-    public function wpartisan_set_found_posts($clauses, WP_Query $wp_query)
+    public function setFoundPosts($clauses, WP_Query $wp_query)
     {
         // Don't proceed if it's a singular page.
         if ($wp_query->is_singular()) {
             return $clauses;
         }
 
-        $found_posts = $this->get_cached_found_posts($wp_query->query_vars_hash);
+        $found_posts = $this->getCachedFoundPosts($wp_query->query_vars_hash);
 
         if (false === $found_posts) {
             global $wpdb;
@@ -181,7 +285,7 @@ class WP_Query_Performance implements AutoloadInterface
      *
      * @return int
      */
-    public function sql_calc_found_rows_caching($found_posts, WP_Query $query)
+    public function sqlCalcFoundRowsCaching($found_posts, WP_Query $query)
     {
         $query_hash = $query->query_vars_hash;
 
@@ -194,113 +298,8 @@ class WP_Query_Performance implements AutoloadInterface
     /**
      * @param int $post_id
      */
-    public function save_post_flush_cache($post_id)
+    public function savePostFlushCache($post_id)
     {
         wp_cache_set('invalidate-time', time(), $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool|mixed
-     */
-    private function get_random_posts($query_hash)
-    {
-        return wp_cache_get("random-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     * @param mixed  $data
-     *
-     * @return bool
-     */
-    private function set_random_posts($query_hash, $data)
-    {
-        return wp_cache_set("random-posts-{$query_hash}", $data, $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool
-     */
-    private function delete_random_posts($query_hash)
-    {
-        return wp_cache_delete("random-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool|mixed
-     */
-    private function get_time_random_posts($query_hash)
-    {
-        return wp_cache_get("time-random-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool|mixed
-     */
-    private function set_time_random_posts($query_hash)
-    {
-        return wp_cache_set("time-random-posts-{$query_hash}", time(), $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool
-     */
-    private function delete_time_random_posts($query_hash)
-    {
-        return wp_cache_delete("time-random-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool|mixed
-     */
-    private function get_cached_found_posts($query_hash)
-    {
-        return wp_cache_get("found-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     */
-    private function delete_cached_found_posts($query_hash)
-    {
-        wp_cache_delete("found-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     *
-     * @return bool|mixed
-     */
-    private function get_time_found_posts($query_hash)
-    {
-        return wp_cache_get("time-found-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @param string $query_hash
-     */
-    private function delete_time_found_posts($query_hash)
-    {
-        wp_cache_delete("time-found-posts-{$query_hash}", $this->cache_group);
-    }
-
-    /**
-     * @return bool|mixed
-     */
-    private function get_invalidate_time()
-    {
-        return wp_cache_get('invalidate-time', $this->cache_group);
     }
 }
