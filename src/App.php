@@ -4,6 +4,7 @@ namespace JazzMan\Performance;
 
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\Divi;
+use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
 use JazzMan\Performance\Optimization\Options;
@@ -38,7 +39,8 @@ class App
             Sanitizer::class,
             CleanUp::class,
             RestAPI::class,
-            Divi::class
+            Divi::class,
+            Enqueue::class,
         ]);
 
         if (self::isCli()) {
@@ -70,6 +72,27 @@ class App
     public static function isCron()
     {
         return \defined('DOING_CRON') && DOING_CRON;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public static function getRootDir()
+    {
+        static $path;
+        if (null === $path) {
+            $path = false;
+            if (file_exists(ABSPATH.'wp-config.php')) {
+                $path = ABSPATH;
+            } elseif (file_exists(\dirname(ABSPATH).'/wp-config.php') && !file_exists(\dirname(ABSPATH).'/wp-settings.php')) {
+                $path = \dirname(ABSPATH);
+            }
+            if ($path) {
+                $path = realpath($path);
+            }
+        }
+
+        return $path;
     }
 
     /**
