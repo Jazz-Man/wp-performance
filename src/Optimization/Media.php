@@ -20,6 +20,10 @@ class Media implements AutoloadInterface
 
         add_action('add_attachment', [$this, 'setMediaMonthsCache']);
 
+
+        // disable responsive images srcset
+        add_filter( 'wp_calculate_image_srcset_meta', '__return_empty_array',  PHP_INT_MAX );
+
         add_filter('upload_mimes', [$this, 'allowSvg']);
         add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 4);
 
