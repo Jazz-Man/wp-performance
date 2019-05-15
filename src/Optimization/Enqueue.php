@@ -27,25 +27,24 @@ class Enqueue implements AutoloadInterface
      */
     public function addScriptVersion($src)
     {
-        $current_host = (string) $_SERVER['HTTP_HOST'];
-        $url_info = (object) parse_url($src);
-        if ($current_host === $url_info->host) {
-            $path = $url_info->path;
-            $root = App::getRootDir();
-            $file = "{$root}{$path}";
+        if (!empty($src)) {
+            $current_host = (string) $_SERVER['HTTP_HOST'];
+            $url_info = (object) parse_url($src);
 
-            if (is_file($file)) {
-                $src = remove_query_arg('ver', $src);
+            if ($current_host === $url_info->host) {
+                $path = $url_info->path;
+                $root = App::getRootDir();
+                $file = "{$root}{$path}";
 
-                $theme = wp_get_theme();
-                $theme_version = $theme->get('Version');
-                $timestamp = is_file("{$file}.map") ? filemtime("{$file}.map") : filemtime($file);
+                if (is_file($file)) {
+                    $timestamp = is_file("{$file}.map") ? filemtime("{$file}.map") : filemtime($file);
 
-                $ver = "{$theme_version}.{$timestamp}";
+                    $src = add_query_arg([
+                        'ver' => $timestamp,
+                    ], $src);
 
-                $src = add_query_arg(compact('ver'), $src);
-
-                return esc_url($src);
+                    return esc_url($src);
+                }
             }
         }
 
