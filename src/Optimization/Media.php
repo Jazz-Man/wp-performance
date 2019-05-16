@@ -186,17 +186,21 @@ class Media implements AutoloadInterface
      */
     public function resizeImageOnTheFly($image, $id, $size)
     {
-        $path = get_attached_file($id);
+        $meta = wp_get_attachment_metadata($id);
 
-        if (\is_array($size) && file_exists($path)) {
+        if (\is_array($size) && !empty($meta)) {
             $upload = wp_upload_dir();
-            $path_info = pathinfo($path);
-            $base_url = $upload['baseurl'].str_replace($upload['basedir'], '', $path_info['dirname']);
+
+            $image_dirname = pathinfo($meta['file'],PATHINFO_DIRNAME);
+
+            $image_path = "{$upload['basedir']}/{$meta['file']}";
+
+            $image_base_url = "{$upload['baseurl']}/{$image_dirname}";
 
             list($width, $height) = $size;
-            $meta = wp_get_attachment_metadata($id);
 
             if (!empty($meta['sizes'])) {
+
                 foreach ($meta['sizes'] as $key => $value) {
                     if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
                         return $image;
@@ -205,14 +209,14 @@ class Media implements AutoloadInterface
             }
 
             // Generate new size
-            $resized = image_make_intermediate_size($path, $width, $height, true);
+            $resized = image_make_intermediate_size($image_path, $width, $height, true);
 
             if ($resized && !is_wp_error($resized)) {
                 $key = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
                 $meta['sizes'][$key] = $resized;
                 wp_update_attachment_metadata($id, $meta);
 
-                $image[0] = "{$base_url}/{$resized['file']}";
+                $image[0] = "{$image_base_url}/{$resized['file']}";
                 $image[1] = $resized['width'];
                 $image[2] = $resized['height'];
             }
