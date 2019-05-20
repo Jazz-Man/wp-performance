@@ -31,10 +31,10 @@ class Enqueue implements AutoloadInterface
     {
         if (!empty($src)) {
             $current_host = (string) $_SERVER['HTTP_HOST'];
-            $url_info = (object) parse_url($src);
+            $url_host = parse_url($src,PHP_URL_HOST);
 
-            if ($url_info->host !== null && $current_host === $url_info->host) {
-                $path = $url_info->path;
+            if (!empty($url_host) && $current_host === $url_host) {
+                $path = parse_url($src,PHP_URL_PATH);
                 $root = App::getRootDir();
                 $file = "{$root}{$path}";
 
