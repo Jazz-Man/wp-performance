@@ -16,8 +16,10 @@ class Enqueue implements AutoloadInterface
         add_action('wp_enqueue_scripts', [$this, 'registerJquery'], 100);
         add_action('wp_head', [$this, 'jqueryLocalFallback']);
 
-        add_filter('script_loader_src', [$this, 'addScriptVersion'], 15, 1);
-        add_filter('style_loader_src', [$this, 'addScriptVersion'], 15, 1);
+        if (!is_admin()){
+            add_filter('script_loader_src', [$this, 'addScriptVersion'], 15, 1);
+            add_filter('style_loader_src', [$this, 'addScriptVersion'], 15, 1);
+        }
     }
 
     /**
@@ -31,7 +33,7 @@ class Enqueue implements AutoloadInterface
             $current_host = (string) $_SERVER['HTTP_HOST'];
             $url_info = (object) parse_url($src);
 
-            if ($current_host === $url_info->host) {
+            if ($url_info->host !== null && $current_host === $url_info->host) {
                 $path = $url_info->path;
                 $root = App::getRootDir();
                 $file = "{$root}{$path}";
