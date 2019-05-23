@@ -12,7 +12,6 @@ use JazzMan\Performance\Optimization\PostMeta;
 use JazzMan\Performance\Optimization\TermCount;
 use JazzMan\Performance\Optimization\Update;
 use JazzMan\Performance\Optimization\WPQuery;
-use JazzMan\Performance\Security\RestAPI;
 use JazzMan\Performance\Security\Sanitizer;
 use JazzMan\Performance\Shortcode\Shortcode;
 use JazzMan\Performance\WP_CLI\Sanitize_Command;
@@ -38,7 +37,6 @@ class App
             TermCount::class,
             Sanitizer::class,
             CleanUp::class,
-            RestAPI::class,
             Divi::class,
             Enqueue::class,
         ]);
