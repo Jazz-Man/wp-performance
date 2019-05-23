@@ -25,7 +25,7 @@ class WPQuery implements AutoloadInterface
         add_filter('found_posts', [$this, 'sqlCalcFoundRowsCaching'], 99, 2);
 
         add_filter('pre_get_posts', [$this, 'setNoFoundRows'], 10, 1);
-        add_filter('wp_link_query_args', [$this, 'setNoFoundRows'], 10, 1);
+        add_filter('wp_link_query_args', [$this, 'wp_link_query_args'], 10, 1);
 
         add_filter('posts_clauses', [$this, 'setFoundPosts'], 10, 2);
         add_filter( 'woocommerce_install_skip_create_files', '__return_true' );
