@@ -18,11 +18,6 @@ class LastPostModified implements AutoloadInterface
 
     public function load()
     {
-        add_action('init', [$this, 'init']);
-    }
-
-    public function init()
-    {
         add_filter('pre_get_lastpostmodified', [$this, 'overrideGetLastPostModified'], 10, 3);
         add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
     }
