@@ -16,6 +16,7 @@ class CleanUp implements AutoloadInterface
          * Remove the WordPress version from RSS feeds
          */
         add_filter('the_generator', '__return_false');
+        add_filter( 'xmlrpc_enabled', '__return_false' );
 
         add_filter('language_attributes', [$this, 'language_attributes']);
         add_filter('body_class', [$this, 'body_class']);
@@ -142,6 +143,7 @@ class CleanUp implements AutoloadInterface
     public function filter_xmlrpc_method($methods)
     {
         unset($methods['pingback.ping']);
+        unset($methods['pingback.extensions.getPingbacks']);
 
         return $methods;
     }
