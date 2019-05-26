@@ -25,6 +25,7 @@ class Divi implements AutoloadInterface
         remove_action('pre_get_posts', 'et_builder_wc_pre_get_posts');
         remove_action('pre_get_posts', 'et_pb_custom_search');
         remove_action('pre_get_posts', 'et_custom_posts_per_page');
+        remove_action('wp_print_styles', 'et_builder_dequeue_minifieds_styles', 99999999);
 
         if (!is_admin()) {
             remove_action('pre_get_posts', 'exclude_premade_layouts_library');
@@ -54,6 +55,7 @@ class Divi implements AutoloadInterface
         remove_action('wp_head', 'et_maybe_add_scroll_to_anchor_fix', 9);
         remove_action('wp', 'et_divi_add_customizer_css');
         remove_action('wp_enqueue_scripts', 'et_divi_replace_stylesheet', 99999998);
+        remove_action('admin_init', 'et_divi_check_woocommerce_images');
     }
 
     public function removeDiviFilter()
@@ -61,7 +63,10 @@ class Divi implements AutoloadInterface
         add_filter('et_theme_image_sizes', '__return_false');
 
         remove_filter('template_include', 'et_builder_wc_template_include', 20);
+        remove_filter('et_load_unminified_scripts', 'et_divi_load_unminified_scripts');
+        remove_filter('et_divi_load_unminified_styles', 'et_divi_load_unminified_styles');
         remove_filter('pre_get_document_title', 'elegant_titles_filter');
+        add_filter('et_load_unminified_scripts','__return_false');
 
         remove_filter('wp_get_custom_css', 'et_epanel_handle_custom_css_output', 999);
         remove_filter('update_custom_css_data', 'et_update_custom_css_data_cb');
