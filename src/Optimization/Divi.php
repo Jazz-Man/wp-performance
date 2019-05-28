@@ -17,6 +17,8 @@ class Divi implements AutoloadInterface
         add_action('init', [$this, 'removeDiviFilter']);
         add_action('init', [$this, 'removeDiviImageSizes']);
 
+        add_action('et_fb_enqueue_assets', [$this, 'fixSiteUrl']);
+
         $this->removePluginsCompatibility();
     }
 
@@ -66,7 +68,7 @@ class Divi implements AutoloadInterface
         remove_filter('et_load_unminified_scripts', 'et_divi_load_unminified_scripts');
         remove_filter('et_divi_load_unminified_styles', 'et_divi_load_unminified_styles');
         remove_filter('pre_get_document_title', 'elegant_titles_filter');
-        add_filter('et_load_unminified_scripts','__return_false');
+        add_filter('et_load_unminified_scripts', '__return_false');
 
         remove_filter('wp_get_custom_css', 'et_epanel_handle_custom_css_output', 999);
         remove_filter('update_custom_css_data', 'et_update_custom_css_data_cb');
@@ -122,5 +124,12 @@ class Divi implements AutoloadInterface
                 add_filter("et_builder_plugin_compat_path_{$plugin_compat_name}", '__return_false');
             }
         }
+    }
+
+    public function fixSiteUrl()
+    {
+        add_filter('site_url', static function ($url, $path, $scheme) {
+            return empty($path) ? home_url($path, $scheme) : $url;
+        }, 10, 3);
     }
 }
