@@ -104,7 +104,7 @@ class ShortcodeParser
      */
     public function proceed()
     {
-        $next_token = $this->next_token();
+        $next_token = $this->nextToken();
         $token_type = $next_token['token_type'];
         $shortcode_name = $next_token['shortcode_name'];
         $attrs = $next_token['attrs'];
@@ -121,7 +121,7 @@ class ShortcodeParser
             case 'no-more-tokens':
                 // if not in a shortcode then flush output.
                 if (0 === $stack_depth) {
-                    $this->add_freeform();
+                    $this->addFreeform();
 
                     return false;
                 }
@@ -132,7 +132,7 @@ class ShortcodeParser
                  * and so we'll collapse the whole stack piecewise
                  */
                 while (0 < \count($this->stack)) {
-                    $this->add_shortcode_from_stack();
+                    $this->addShortcodeFromStack();
                 }
 
                 return false;
@@ -168,7 +168,7 @@ class ShortcodeParser
                     return true;
                 }
                 // otherwise we found an inner shortcode.
-                $this->add_inner_shortcode(
+                $this->addInnerShortcode(
                     new ShortcodeParserShortcode($shortcode_name, $attrs, [], $rawToken, '', []),
                     $start_offset,
                     $token_length
@@ -190,21 +190,21 @@ class ShortcodeParser
                  * This is an error
                  */
                 if (0 === $stack_depth) {
-                    $this->add_freeform($token_length);
+                    $this->addFreeform($token_length);
 
                     return false;
                 }
-                $stack_position = $this->find_last_in_stack($shortcode_name);
+                $stack_position = $this->findLastInStack($shortcode_name);
                 if (false === $stack_position) {
-                    $this->add_freeform($token_length);
+                    $this->addFreeform($token_length);
 
                     return true;
                 }
-                $this->reflow_to_self_closing($stack_position);
+                $this->reflowToSelfClosing($stack_position);
                 $stack_depth = \count($this->stack);
                 // if we're not nesting then this is easy - close the block.
                 if (1 === $stack_depth) {
-                    $this->add_shortcode_from_stack($start_offset, $start_offset + $token_length);
+                    $this->addShortcodeFromStack($start_offset, $start_offset + $token_length);
                     $this->offset = $start_offset + $token_length;
 
                     return true;
@@ -218,7 +218,7 @@ class ShortcodeParser
                 $html = substr($this->document, $stack_top->prev_offset, $start_offset - $stack_top->prev_offset);
                 $stack_top->shortcode->innerContent[] = $html;
                 $stack_top->prev_offset = $start_offset + $token_length;
-                $this->add_inner_shortcode(
+                $this->addInnerShortcode(
                     $stack_top->shortcode,
                     $stack_top->token_start,
                     $stack_top->token_length,
@@ -229,7 +229,7 @@ class ShortcodeParser
                 return true;
             default:
                 // This is an error.
-                $this->add_freeform();
+                $this->addFreeform();
 
                 return false;
         }
@@ -247,10 +247,10 @@ class ShortcodeParser
      *
      * @return array
      */
-    public function next_token()
+    public function nextToken()
     {
         $matches = null;
-        $regex = $this->build_tokenizer_regex();
+        $regex = $this->buildTokenizerRegex();
         $has_match = preg_match(
             $regex,
             $this->document,
@@ -277,7 +277,7 @@ class ShortcodeParser
         $name = $matches['name'][0];
         $has_attrs = isset($matches['attrs']) && -1 !== $matches['attrs'][1];
         $attrs = $has_attrs
-            ? $this->decode_attributes($matches['attrs'][0])
+            ? $this->decodeAttributes($matches['attrs'][0])
             : [];
         $type = 'error';
         if ($is_escaped) {
@@ -310,7 +310,7 @@ class ShortcodeParser
      *
      * @return string tokenizer regular expression
      */
-    public function build_tokenizer_regex()
+    public function buildTokenizerRegex()
     {
         /*
          * aye the magic
@@ -374,7 +374,7 @@ class ShortcodeParser
      *
      * @param null $length how many bytes of document text to output
      */
-    public function add_freeform($length = null)
+    public function addFreeform($length = null)
     {
         $length = $length ?: \strlen($this->document) - $this->offset;
         if (0 === $length) {
@@ -396,7 +396,7 @@ class ShortcodeParser
      * @param int                      $token_length byte length of entire shortcode from start of opening token to end of closing token
      * @param int|null                 $last_offset  last byte offset into document if continuing form earlier output
      */
-    public function add_inner_shortcode(ShortcodeParserShortcode $shortcode, $token_start, $token_length, $last_offset = null)
+    public function addInnerShortcode(ShortcodeParserShortcode $shortcode, $token_start, $token_length, $last_offset = null)
     {
         $parent = $this->stack[\count($this->stack) - 1];
         $parent->shortcode->innerShortcodes[] = (array) $shortcode;
@@ -422,7 +422,7 @@ class ShortcodeParser
      * @param int|null $end_offset byte offset into document for where we should stop sending text output as HTML
      * @param null     $end_tag
      */
-    public function add_shortcode_from_stack($end_offset = null, $end_tag = null)
+    public function addShortcodeFromStack($end_offset = null, $end_tag = null)
     {
         $stack_top = array_pop($this->stack);
         $prev_offset = $stack_top->prev_offset;
@@ -462,12 +462,12 @@ class ShortcodeParser
      *
      * @return bool|int
      */
-    public function find_last_in_stack($shortcode_name = '')
+    public function findLastInStack($shortcode_name = '')
     {
         $last_index = \count($this->stack) - 1;
         for ($i = $last_index; $i >= 0; --$i) {
             $name = $this->stack[$i]->shortcode->shortcodeName;
-            if ($name == $shortcode_name) {
+            if ($name === $shortcode_name) {
                 return $i;
             }
         }
@@ -478,12 +478,12 @@ class ShortcodeParser
     /**
      * @param int $index
      */
-    public function reflow_to_self_closing($index = 0)
+    public function reflowToSelfClosing($index = 0)
     {
         $to_reflow = array_splice($this->stack, $index + 1);
         foreach ($to_reflow as $stack_entry) {
             $this->debug('Reflowing to close: '.$stack_entry->shortcode->shortcodeName, [$stack_entry->token_start, $stack_entry->token_start + $stack_entry->token_length]);
-            $this->add_inner_shortcode(
+            $this->addInnerShortcode(
                 $stack_entry->shortcode,
                 $stack_entry->token_start,
                 $stack_entry->token_length
@@ -496,7 +496,7 @@ class ShortcodeParser
      *
      * @return array|string
      */
-    public function decode_attributes($raw_atts)
+    public function decodeAttributes($raw_atts)
     {
         return shortcode_parse_atts($raw_atts);
     }

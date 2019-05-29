@@ -11,25 +11,25 @@ class CleanUp implements AutoloadInterface
 {
     public function load()
     {
-        add_action('init', [$this, 'head_cleanup']);
+        add_action('init', [$this, 'headCleanup']);
         /*
          * Remove the WordPress version from RSS feeds
          */
         add_filter('the_generator', '__return_false');
         add_filter( 'xmlrpc_enabled', '__return_false' );
 
-        add_filter('language_attributes', [$this, 'language_attributes']);
-        add_filter('body_class', [$this, 'body_class']);
-        add_filter('embed_oembed_html', [$this, 'embed_wrap']);
-        add_filter('get_bloginfo_rss', [$this, 'remove_default_description']);
-        add_filter('xmlrpc_methods', [$this, 'filter_xmlrpc_method'], 10, 1);
-        add_filter('wp_headers', [$this, 'filter_headers'], 10, 1);
-        add_filter('rewrite_rules_array', [$this, 'filter_rewrites']);
-        add_filter('bloginfo_url', [$this, 'kill_pingback_url'], 10, 2);
-        add_action('xmlrpc_call', [$this, 'kill_xmlrpc']);
+        add_filter('language_attributes', [$this, 'languageAttributes']);
+        add_filter('body_class', [$this, 'bodyClass']);
+        add_filter('embed_oembed_html', [$this, 'embedWrap']);
+        add_filter('get_bloginfo_rss', [$this, 'removeDefaultDescription']);
+        add_filter('xmlrpc_methods', [$this, 'filterXmlrpcMethod'], 10, 1);
+        add_filter('wp_headers', [$this, 'filterHeaders'], 10, 1);
+        add_filter('rewrite_rules_array', [$this, 'filterRewrites']);
+        add_filter('bloginfo_url', [$this, 'killPingbackUrl'], 10, 2);
+        add_action('xmlrpc_call', [$this, 'killXmlrpc']);
     }
 
-    public function head_cleanup()
+    public function headCleanup()
     {
         // Originally from http://wpengineer.com/1438/wordpress-header/
         remove_action('wp_head', 'feed_links', 2);
@@ -62,7 +62,7 @@ class CleanUp implements AutoloadInterface
     /**
      * @return string
      */
-    public function language_attributes()
+    public function languageAttributes()
     {
         $attributes = [];
         if (is_rtl()) {
@@ -83,7 +83,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function body_class($classes)
+    public function bodyClass($classes)
     {
         // Add post/page slug if not present
         if (is_single() || (is_page() && !is_front_page())) {
@@ -114,7 +114,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return string
      */
-    public function embed_wrap($cache)
+    public function embedWrap($cache)
     {
         return '<div class="entry-content-asset">'.$cache.'</div>';
     }
@@ -126,7 +126,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return string
      */
-    public function remove_default_description($bloginfo)
+    public function removeDefaultDescription($bloginfo)
     {
         $default_tagline = 'Just another WordPress site';
 
@@ -140,7 +140,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function filter_xmlrpc_method($methods)
+    public function filterXmlrpcMethod($methods)
     {
         unset($methods['pingback.ping']);
         unset($methods['pingback.extensions.getPingbacks']);
@@ -155,7 +155,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function filter_headers($headers)
+    public function filterHeaders($headers)
     {
         if (isset($headers['X-Pingback'])) {
             unset($headers['X-Pingback']);
@@ -171,7 +171,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function filter_rewrites($rules)
+    public function filterRewrites($rules)
     {
         foreach ($rules as $rule => $rewrite) {
             if (preg_match('/trackback\/\?\$$/i', $rule)) {
@@ -190,7 +190,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return string
      */
-    public function kill_pingback_url($output, $show)
+    public function killPingbackUrl($output, $show)
     {
         if ('pingback_url' === $show) {
             $output = '';
@@ -204,7 +204,7 @@ class CleanUp implements AutoloadInterface
      *
      * @param string $action
      */
-    public function kill_xmlrpc($action)
+    public function killXmlrpc($action)
     {
         if ('pingback.ping' === $action) {
             wp_die('Pingbacks are not supported', 'Not Allowed!', ['response' => 403]);

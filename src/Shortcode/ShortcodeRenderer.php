@@ -18,7 +18,7 @@ class ShortcodeRenderer
      */
     public function render($tree)
     {
-        $rendered_shortcodes = array_map([$this, 'render_shortcode'], $tree);
+        $rendered_shortcodes = array_map([$this, 'renderShortcode'], $tree);
 
         return implode('', $rendered_shortcodes);
     }
@@ -36,7 +36,7 @@ class ShortcodeRenderer
      *
      * @return string
      */
-    public function render_shortcode($shortcode)
+    public function renderShortcode($shortcode)
     {
         global $shortcode_tags;
         $tag = '';
@@ -68,7 +68,7 @@ class ShortcodeRenderer
              * @param array        $shortcode shortcode tree node
              */
             !apply_filters('shortcode_disable_nested_rendering', false, $tag, $shortcode['attrs'], $shortcode)) {
-                $content = $this->interleave_shortcodes($shortcode['innerContent'], $shortcode['innerShortcodes']);
+                $content = $this->interleaveShortcodes($shortcode['innerContent'], $shortcode['innerShortcodes']);
             } else {
                 $content = $shortcode['rawContent'];
             }
@@ -135,7 +135,7 @@ class ShortcodeRenderer
      *
      * @return string
      */
-    public function interleave_shortcodes($content_parts, $shortcodes)
+    public function interleaveShortcodes($content_parts, $shortcodes)
     {
         $content = '';
         $j = 0;
@@ -147,7 +147,7 @@ class ShortcodeRenderer
                 $content .= $iValue;
             } else {
                 if ($j < $shortcodes_count) {
-                    $content .= $this->render_shortcode($shortcodes[$j]);
+                    $content .= $this->renderShortcode($shortcodes[$j]);
                 }
                 ++$j;
             }
@@ -155,7 +155,7 @@ class ShortcodeRenderer
         if ($j < $shortcodes_count) {
             // this is an error state, since interleaving failed
             for (; $j < $shortcodes_count; ++$j) {
-                $content .= $this->render_shortcode($shortcodes[$j]);
+                $content .= $this->renderShortcode($shortcodes[$j]);
             }
         }
 

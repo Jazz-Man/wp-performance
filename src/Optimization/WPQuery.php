@@ -25,7 +25,7 @@ class WPQuery implements AutoloadInterface
         add_filter('found_posts', [$this, 'sqlCalcFoundRowsCaching'], 99, 2);
 
         add_filter('pre_get_posts', [$this, 'setNoFoundRows'], 10, 1);
-        add_filter('wp_link_query_args', [$this, 'wp_link_query_args'], 10, 1);
+        add_filter('wp_link_query_args', [$this, 'wpLinkQueryArgs'], 10, 1);
 
         add_filter('posts_clauses', [$this, 'setFoundPosts'], 10, 2);
         add_filter( 'woocommerce_install_skip_create_files', '__return_true' );
@@ -45,7 +45,7 @@ class WPQuery implements AutoloadInterface
                 $local_invalidate_time  = $this->getTimeRandomPosts($query_hash);
                 if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
                     $this->deleteRandomPosts($query_hash);
-                    $this->delete_time_random_posts($query_hash);
+                    $this->deleteTimeRandomPosts($query_hash);
                 }
                 if (false === ($ids = $this->getRandomPosts($query_hash))) {
                     $vars                           = $query->query_vars;
@@ -110,7 +110,7 @@ class WPQuery implements AutoloadInterface
      *
      * @return bool
      */
-    private function delete_time_random_posts($query_hash)
+    private function deleteTimeRandomPosts($query_hash)
     {
         return wp_cache_delete("time-random-posts-{$query_hash}", $this->cache_group);
     }
@@ -224,7 +224,7 @@ class WPQuery implements AutoloadInterface
      *
      * @return array
      */
-    public function wp_link_query_args($query)
+    public function wpLinkQueryArgs($query)
     {
         $query['no_found_rows'] = true;
 

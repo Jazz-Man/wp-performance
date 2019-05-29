@@ -53,13 +53,13 @@ class TermCount implements AutoloadInterface
          *                                Defaults to ['publish'].
          */
         $this->counted_statuses = apply_filters('ltcu_counted_statuses', $this->counted_statuses);
-        add_action('transition_post_status', [$this, 'transition_post_status'], 10, 3);
-        add_action('added_term_relationship', [$this, 'added_term_relationship'], 10, 3);
-        add_action('deleted_term_relationships', [$this, 'deleted_term_relationships'], 10, 3);
+        add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
+        add_action('added_term_relationship', [$this, 'addedTermRelationship'], 10, 3);
+        add_action('deleted_term_relationships', [$this, 'deletedTermRelationships'], 10, 3);
         /*
          * Possibly recount posts for a term once it's been edited.
          */
-        add_action('edit_term', [$this, 'maybe_recount_posts_for_term'], 10, 3);
+        add_action('edit_term', [$this, 'maybeRecountPostsForTerm'], 10, 3);
     }
 
     /**
@@ -71,9 +71,9 @@ class TermCount implements AutoloadInterface
      * @param int    $tt_id     single term taxonomy ID
      * @param string $taxonomy  taxonomy slug
      */
-    public function added_term_relationship($object_id, $tt_id, $taxonomy)
+    public function addedTermRelationship($object_id, $tt_id, $taxonomy)
     {
-        $this->handle_term_relationship_change($object_id, (array) $tt_id, $taxonomy, 'increment');
+        $this->handleTermRelationshipChange($object_id, (array) $tt_id, $taxonomy, 'increment');
     }
 
     /**
@@ -85,9 +85,9 @@ class TermCount implements AutoloadInterface
      * @param array  $tt_ids    array of term taxonomy IDs
      * @param string $taxonomy  taxonomy slug
      */
-    public function deleted_term_relationships($object_id, $tt_ids, $taxonomy)
+    public function deletedTermRelationships($object_id, $tt_ids, $taxonomy)
     {
-        $this->handle_term_relationship_change($object_id, $tt_ids, $taxonomy, 'decrement');
+        $this->handleTermRelationshipChange($object_id, $tt_ids, $taxonomy, 'decrement');
     }
 
     /**
@@ -101,19 +101,19 @@ class TermCount implements AutoloadInterface
      * @param string $taxonomy        taxonomy slug
      * @param string $transition_type transition type (increment or decrement)
      */
-    protected function handle_term_relationship_change($object_id, $tt_ids, $taxonomy, $transition_type)
+    protected function handleTermRelationshipChange($object_id, $tt_ids, $taxonomy, $transition_type)
     {
         $post = get_post($object_id);
         if (!$post || !is_object_in_taxonomy($post->post_type, $taxonomy)) {
             // If this object isn't a post, we can jump right into counting it.
-            $this->quick_update_terms_count($object_id, $tt_ids, $taxonomy, $transition_type);
+            $this->quickUpdateTermsCount($object_id, $tt_ids, $taxonomy, $transition_type);
         } elseif (\in_array(get_post_status($post), $this->counted_statuses, true)) {
             // If this is a post, we only count it if it's in a counted status.
             // If the status changed, that will be caught by
             // `LTCU_Plugin::transition_post_status()`. Also note that we used
             // `get_post_status()` above because that checks the parent status
             // if the status is inherit.
-            $this->quick_update_terms_count($object_id, $tt_ids, $taxonomy, $transition_type);
+            $this->quickUpdateTermsCount($object_id, $tt_ids, $taxonomy, $transition_type);
         } else {
             clean_term_cache($tt_ids, $taxonomy, false);
         }
@@ -132,18 +132,18 @@ class TermCount implements AutoloadInterface
      *     @var string $post_type Post type.
      * }
      */
-    public function transition_post_status($new_status, $old_status, $post)
+    public function transitionPostStatus($new_status, $old_status, $post)
     {
         foreach (get_object_taxonomies($post->post_type) as $taxonomy) {
             $tt_ids = wp_get_object_terms($post->ID, $taxonomy, [
                 'fields' => 'tt_ids',
             ]);
             if (!empty($tt_ids) && !is_wp_error($tt_ids)) {
-                $this->quick_update_terms_count(
+                $this->quickUpdateTermsCount(
                     $post->ID,
                     $tt_ids,
                     $taxonomy,
-                    $this->transition_type($new_status, $old_status)
+                    $this->transitionType($new_status, $old_status)
                 );
             }
         }
@@ -163,7 +163,7 @@ class TermCount implements AutoloadInterface
             ]);
             if ($attachments->have_posts()) {
                 foreach ($attachments->posts as $attachment_id) {
-                    $this->transition_post_status($new_status, $old_status, (object) [
+                    $this->transitionPostStatus($new_status, $old_status, (object) [
                         'ID' => $attachment_id,
                         'post_type' => 'attachment',
                     ]);
@@ -182,7 +182,7 @@ class TermCount implements AutoloadInterface
      *
      * @return bool
      */
-    public function quick_update_terms_count($object_id, $tt_ids, $taxonomy, $transition_type)
+    public function quickUpdateTermsCount($object_id, $tt_ids, $taxonomy, $transition_type)
     {
         global $wpdb;
         if (!$transition_type) {
@@ -239,7 +239,7 @@ class TermCount implements AutoloadInterface
      *
      * @return string|bool 'increment', 'decrement', or false
      */
-    public function transition_type($new, $old)
+    public function transitionType($new, $old)
     {
         if (!\is_array($this->counted_statuses) || !$this->counted_statuses) {
             return false;
@@ -266,7 +266,7 @@ class TermCount implements AutoloadInterface
      *
      * @return bool false if the screen check fails, true otherwise
      */
-    public function maybe_recount_posts_for_term($term_id, $tt_id, $taxonomy)
+    public function maybeRecountPostsForTerm($term_id, $tt_id, $taxonomy)
     {
         $screen = \function_exists('get_current_screen') ? get_current_screen() : '';
         if (!($screen instanceof WP_Screen)) {

@@ -18,15 +18,15 @@ class Options implements AutoloadInterface
          *
          * @see https://core.trac.wordpress.org/ticket/31245
          */
-        add_action('added_option', [$this, 'update_option']);
-        add_action('updated_option', [$this, 'update_option']);
-        add_action('deleted_option', [$this, 'update_option']);
+        add_action('added_option', [$this, 'updateOption']);
+        add_action('updated_option', [$this, 'updateOption']);
+        add_action('deleted_option', [$this, 'updateOption']);
     }
 
     /**
      * @param $option
      */
-    public function update_option($option)
+    public function updateOption($option)
     {
         if (!wp_installing()) {
             $alloptions = wp_load_alloptions(); //alloptions should be cached at this point
