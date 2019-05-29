@@ -3,7 +3,6 @@
 namespace JazzMan\Performance;
 
 use JazzMan\Performance\Optimization\CleanUp;
-use JazzMan\Performance\Optimization\Divi;
 use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
@@ -37,7 +36,6 @@ class App
             TermCount::class,
             Sanitizer::class,
             CleanUp::class,
-            Divi::class,
             Enqueue::class,
         ]);
 
