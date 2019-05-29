@@ -25,7 +25,7 @@ class Media implements AutoloadInterface
         add_filter( 'wp_calculate_image_srcset_meta', '__return_empty_array',  PHP_INT_MAX );
 
         add_filter('upload_mimes', [$this, 'allowSvg']);
-        add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 4);
+        add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 3);
 
         // resize image on the fly
         add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
@@ -154,11 +154,10 @@ class Media implements AutoloadInterface
      * @param array|null  $data
      * @param static|null $file
      * @param string|null $filename
-     * @param array|null  $mimes
      *
      * @return array|null
      */
-    public function fixMimeTypeSvg($data = null, $file = null, $filename = null, $mimes = null)
+    public function fixMimeTypeSvg($data = null, $file = null, $filename = null)
     {
         $ext = !empty($data['ext']) ? $data['ext'] : '';
         if ('' === $ext) {
