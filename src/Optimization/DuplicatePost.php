@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\performance\Optimization;
+namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 
