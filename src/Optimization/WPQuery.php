@@ -24,7 +24,7 @@ class WPQuery implements AutoloadInterface
         add_filter('posts_orderby', [$this, 'sqlCalcFoundRowsOptimization'], 10, 2);
         add_filter('found_posts', [$this, 'sqlCalcFoundRowsCaching'], 99, 2);
 
-        add_filter('pre_get_posts', [$this, 'setNoFoundRows'], 10, 1);
+//        add_filter('pre_get_posts', [$this, 'setNoFoundRows'], 10, 1);
         add_filter('wp_link_query_args', [$this, 'wpLinkQueryArgs'], 10, 1);
 
         add_filter('posts_clauses', [$this, 'setFoundPosts'], 10, 2);
@@ -36,6 +36,7 @@ class WPQuery implements AutoloadInterface
      */
     public function orderByRandOptimization(WP_Query $query)
     {
+
         $orderby = $query->get('orderby', false);
 
         if ($orderby && 'rand' === $orderby) {
@@ -75,6 +76,23 @@ class WPQuery implements AutoloadInterface
             $query->query_vars['no_found_rows'] = true;
             $query->found_posts                 = \count($query->query_vars['post__in']);
         }
+
+    }
+
+
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    private function sanitizeKey(string $key){
+
+        $key = "{$key}_{$this->cache_group}";
+
+        $key = strtolower($key);
+
+       return (string)preg_replace('/[^a-z0-9_\-]/', '_', $key);
+
     }
 
     /**
@@ -82,7 +100,7 @@ class WPQuery implements AutoloadInterface
      */
     private function getInvalidateTime()
     {
-        return wp_cache_get('invalidate-time', $this->cache_group);
+        return get_transient($this->sanitizeKey('invalidate-time'));
     }
 
     /**
@@ -92,7 +110,7 @@ class WPQuery implements AutoloadInterface
      */
     private function getTimeRandomPosts($query_hash)
     {
-        return wp_cache_get("time-random-posts-{$query_hash}", $this->cache_group);
+        return get_transient($this->sanitizeKey("time-random-posts-{$query_hash}"));
     }
 
     /**
@@ -102,7 +120,7 @@ class WPQuery implements AutoloadInterface
      */
     private function deleteRandomPosts($query_hash)
     {
-        return wp_cache_delete("random-posts-{$query_hash}", $this->cache_group);
+        return delete_transient($this->sanitizeKey("random-posts-{$query_hash}"));
     }
 
     /**
@@ -112,7 +130,8 @@ class WPQuery implements AutoloadInterface
      */
     private function deleteTimeRandomPosts($query_hash)
     {
-        return wp_cache_delete("time-random-posts-{$query_hash}", $this->cache_group);
+
+        return delete_transient($this->sanitizeKey("time-random-posts-{$query_hash}"));
     }
 
     /**
@@ -122,7 +141,7 @@ class WPQuery implements AutoloadInterface
      */
     private function getRandomPosts($query_hash)
     {
-        return wp_cache_get("random-posts-{$query_hash}", $this->cache_group);
+        return get_transient($this->sanitizeKey("random-posts-{$query_hash}"));
     }
 
     /**
@@ -133,7 +152,8 @@ class WPQuery implements AutoloadInterface
      */
     private function setRandomPosts($query_hash, $data)
     {
-        return wp_cache_set("random-posts-{$query_hash}", $data, $this->cache_group);
+
+        return set_transient($this->sanitizeKey("random-posts-{$query_hash}"), $data);
     }
 
     /**
@@ -143,7 +163,8 @@ class WPQuery implements AutoloadInterface
      */
     private function setTimeRandomPosts($query_hash)
     {
-        return wp_cache_set("time-random-posts-{$query_hash}", time(), $this->cache_group);
+
+        return set_transient($this->sanitizeKey("time-random-posts-{$query_hash}"), time());
     }
 
     /**
@@ -167,10 +188,12 @@ class WPQuery implements AutoloadInterface
                 return $orderby;
             }
             if (false !== ($found_posts = $this->getCachedFoundPosts($query_hash))) {
+
                 $query->found_posts                 = $found_posts;
                 $query->max_num_pages               = ceil($query->found_posts / $query->query_vars['posts_per_page']);
                 $query->query_vars['no_found_rows'] = true;
             }
+
         }
 
         return $orderby;
@@ -183,7 +206,7 @@ class WPQuery implements AutoloadInterface
      */
     private function getTimeFoundPosts($query_hash)
     {
-        return wp_cache_get("time-found-posts-{$query_hash}", $this->cache_group);
+        return get_transient($this->sanitizeKey("time-found-posts-{$query_hash}"));
     }
 
     /**
@@ -191,7 +214,8 @@ class WPQuery implements AutoloadInterface
      */
     private function deleteCachedFoundPosts($query_hash)
     {
-        wp_cache_delete("found-posts-{$query_hash}", $this->cache_group);
+
+        delete_transient($this->sanitizeKey("found-posts-{$query_hash}"));
     }
 
     /**
@@ -199,7 +223,8 @@ class WPQuery implements AutoloadInterface
      */
     private function deleteTimeFoundPosts($query_hash)
     {
-        wp_cache_delete("time-found-posts-{$query_hash}", $this->cache_group);
+
+        delete_transient($this->sanitizeKey("time-found-posts-{$query_hash}"));
     }
 
     /**
@@ -209,7 +234,8 @@ class WPQuery implements AutoloadInterface
      */
     private function getCachedFoundPosts(string $query_hash)
     {
-        return wp_cache_get("found-posts-{$query_hash}", $this->cache_group);
+
+        return get_transient($this->sanitizeKey("found-posts-{$query_hash}"));
     }
 
     /**
@@ -254,6 +280,7 @@ class WPQuery implements AutoloadInterface
 
         $found_posts = $this->getCachedFoundPosts($wp_query->query_vars_hash);
 
+
         if (false === $found_posts) {
             global $wpdb;
 
@@ -289,8 +316,9 @@ class WPQuery implements AutoloadInterface
     {
         $query_hash = $query->query_vars_hash;
 
-        wp_cache_set("found-posts-{$query_hash}", $found_posts, 'query');
-        wp_cache_set("time-found-posts-{$query_hash}", time(), 'query');
+
+        set_transient($this->sanitizeKey("found-posts-{$query_hash}"), $found_posts);
+        set_transient($this->sanitizeKey("time-found-posts-{$query_hash}"), time());
 
         return $found_posts;
     }
@@ -300,6 +328,7 @@ class WPQuery implements AutoloadInterface
      */
     public function savePostFlushCache($post_id)
     {
-        wp_cache_set('invalidate-time', time(), $this->cache_group);
+
+        set_transient($this->sanitizeKey('invalidate-time'), time());
     }
 }
