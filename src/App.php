@@ -3,6 +3,7 @@
 namespace JazzMan\Performance;
 
 use JazzMan\Performance\Optimization\CleanUp;
+use JazzMan\performance\Optimization\DuplicatePost;
 use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
@@ -37,6 +38,7 @@ class App
             Sanitizer::class,
             CleanUp::class,
             Enqueue::class,
+            DuplicatePost::class
         ]);
 
         if (self::isCli()) {
