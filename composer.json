@@ -1,6 +1,7 @@
 {
     "name": "jazzman/wp-performance",
     "type": "wordpress-muplugin",
+    "license": "MIT",
     "authors": [
         {
             "name": "Vasyl Sokolyk",
