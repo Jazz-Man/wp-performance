@@ -192,17 +192,20 @@ class Media implements AutoloadInterface
     public function fixSvgSizeAttributes($out, $id, $size)
     {
         $image_url = wp_get_attachment_url($id);
-        $file_ext = pathinfo($image_url, PATHINFO_EXTENSION);
 
-        if ('svg' === $file_ext) {
-            $width = 60;
-            $height = 60;
+        if ($image_url){
+            $file_ext = pathinfo($image_url, PATHINFO_EXTENSION);
 
-            if (\is_array($size) && 2 === \count($size)) {
-                list($width, $height) = $size;
+            if ('svg' === $file_ext) {
+                $width = 60;
+                $height = 60;
+
+                if (\is_array($size) && 2 === \count($size)) {
+                    list($width, $height) = $size;
+                }
+
+                return [$image_url, $width, $height, false];
             }
-
-            return [$image_url, $width, $height, false];
         }
 
         return $out;
