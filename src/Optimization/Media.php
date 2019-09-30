@@ -26,6 +26,12 @@ class Media implements AutoloadInterface
         add_filter('upload_mimes', [$this, 'allowSvg']);
         add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 3);
         add_filter('image_downsize', [$this, 'fixSvgSizeAttributes'], 10, 3);
+        add_filter('cmb2_valid_img_types', static function ($valid_types){
+
+            $valid_types[] = 'svg';
+
+            return $valid_types;
+        });
 
         // resize image on the fly
         add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
