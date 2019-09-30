@@ -20,12 +20,12 @@ class Media implements AutoloadInterface
 
         add_action('add_attachment', [$this, 'setMediaMonthsCache']);
 
-
         // disable responsive images srcset
-        add_filter( 'wp_calculate_image_srcset_meta', '__return_empty_array',  PHP_INT_MAX );
+        add_filter('wp_calculate_image_srcset_meta', '__return_empty_array', PHP_INT_MAX);
 
         add_filter('upload_mimes', [$this, 'allowSvg']);
         add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 3);
+        add_filter('image_downsize', [$this, 'fixSvgSizeAttributes'], 10, 3);
 
         // resize image on the fly
         add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
@@ -177,6 +177,32 @@ class Media implements AutoloadInterface
     }
 
     /**
+     * @param bool       $out
+     * @param int        $id
+     * @param array|null $size
+     *
+     * @return array|bool
+     */
+    public function fixSvgSizeAttributes($out, $id, $size)
+    {
+        $image_url = wp_get_attachment_url($id);
+        $file_ext = pathinfo($image_url, PATHINFO_EXTENSION);
+
+        if ('svg' === $file_ext) {
+            $width = 60;
+            $height = 60;
+
+            if (\is_array($size) && 2 === \count($size)) {
+                list($width, $height) = $size;
+            }
+
+            return [$image_url, $width, $height, false];
+        }
+
+        return $out;
+    }
+
+    /**
      * @param array        $image
      * @param int          $id
      * @param string|array $size
@@ -190,7 +216,7 @@ class Media implements AutoloadInterface
         if (\is_array($size) && !empty($meta)) {
             $upload = wp_upload_dir();
 
-            $image_dirname = pathinfo($meta['file'],PATHINFO_DIRNAME);
+            $image_dirname = pathinfo($meta['file'], PATHINFO_DIRNAME);
 
             $image_path = "{$upload['basedir']}/{$meta['file']}";
 
@@ -199,7 +225,6 @@ class Media implements AutoloadInterface
             list($width, $height) = $size;
 
             if (!empty($meta['sizes'])) {
-
                 foreach ($meta['sizes'] as $key => $value) {
                     if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
                         return $image;
