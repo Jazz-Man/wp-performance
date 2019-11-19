@@ -26,7 +26,7 @@ class App
      */
     public function __construct()
     {
-        app_autoload_classes([
+        $classes = [
             Options::class,
             Update::class,
             Media::class,
@@ -38,14 +38,14 @@ class App
             Sanitizer::class,
             CleanUp::class,
             Enqueue::class,
-            DuplicatePost::class
-        ]);
+            DuplicatePost::class,
+        ];
 
         if (self::isCli()) {
-            app_autoload_classes([
-                Sanitize_Command::class,
-            ]);
+            $classes[] = Sanitize_Command::class;
         }
+
+        app_autoload_classes($classes);
     }
 
     /**
