@@ -220,16 +220,21 @@ class Media implements AutoloadInterface
      */
     public function resizeImageOnTheFly($image, $id, $size)
     {
+        if (is_admin()){
+            return $image;
+        }
+
         $meta = wp_get_attachment_metadata($id);
 
-        if (\is_array($size) && !empty($meta)) {
+        if (\is_array($size) && !empty($meta) && ($_file = get_attached_file($id)) && (file_exists($_file))) {
             $upload = wp_upload_dir();
 
-            $image_dirname = pathinfo($meta['file'], PATHINFO_DIRNAME);
+            $_file_path = ltrim($_file,$upload['basedir']);
 
-            $image_path = "{$upload['basedir']}/{$meta['file']}";
+            $image_dirname = pathinfo($_file_path,PATHINFO_DIRNAME);
 
             $image_base_url = "{$upload['baseurl']}/{$image_dirname}";
+
 
             list($width, $height) = $size;
 
@@ -241,8 +246,9 @@ class Media implements AutoloadInterface
                 }
             }
 
+
             // Generate new size
-            $resized = image_make_intermediate_size($image_path, $width, $height, true);
+            $resized = image_make_intermediate_size($_file, $width, $height, true);
 
             if ($resized && !is_wp_error($resized)) {
                 $key = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
