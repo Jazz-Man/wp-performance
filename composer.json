@@ -26,12 +26,12 @@
     "require-dev": {
         "roave/security-advisories": "dev-master"
     },
+    "suggest": {
+        "jazzman/wp-performance-shortcode": "Better Shortcode Parser"
+    },
     "autoload": {
         "psr-4": {
             "JazzMan\\Performance\\":"src"
-        },
-        "files": [
-            "src/helper.php"
-        ]
+        }
     }
 }
