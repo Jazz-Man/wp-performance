@@ -34,8 +34,14 @@ class Enqueue implements AutoloadInterface
 
             if (!empty($url_host) && $current_host === $url_host) {
                 $path = parse_url($src, PHP_URL_PATH);
+                $path = ltrim($path,'/');
                 $root = App::getRootDir();
-                $file = "{$root}{$path}";
+                
+                if (is_multisite() && ($blog = get_blog_details(null,false))){
+                    $path = ltrim($path,$blog->path);
+                }
+                
+                $file = "{$root}/{$path}";
 
                 if (is_file($file)) {
                     $timestamp = is_file("{$file}.map") ? filemtime("{$file}.map") : filemtime($file);
