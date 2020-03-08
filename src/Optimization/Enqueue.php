@@ -106,4 +106,22 @@ class Enqueue implements AutoloadInterface
             }
         }
     }
+
+    /**
+     * @param string $handle
+     * @param null   $new_url
+     */
+    public static function deregisterStyle(string $handle, $new_url = null)
+    {
+        $registered_style = wp_styles()->registered;
+
+        if (!empty($registered_style[$handle])){
+            /** @var \_WP_Dependency $css_lib */
+            $css_lib = $registered_style[$handle];
+
+            wp_dequeue_style($css_lib->handle);
+            wp_deregister_style($css_lib->handle);
+
+        }
+    }
 }
