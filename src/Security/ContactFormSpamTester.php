@@ -34,9 +34,7 @@ class ContactFormSpamTester implements AutoloadInterface
 
     public function load()
     {
-        if (\function_exists('wpcf7_get_current_contact_form')) {
-            add_filter('wpcf7_spam', [$this, 'wpcf7_spam']);
-        }
+        add_filter('wpcf7_spam', [$this, 'wpcf7_spam']);
     }
 
     /**
@@ -46,6 +44,10 @@ class ContactFormSpamTester implements AutoloadInterface
      */
     public function wpcf7_spam($spam)
     {
+        if (!\function_exists('wpcf7_get_current_contact_form')) {
+            return  $spam;
+        }
+
         /** @var WPCF7_ContactForm $contact_form */
         $contact_form = wpcf7_get_current_contact_form();
 
