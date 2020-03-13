@@ -12,6 +12,7 @@ use JazzMan\Performance\Optimization\PostMeta;
 use JazzMan\Performance\Optimization\TermCount;
 use JazzMan\Performance\Optimization\Update;
 use JazzMan\Performance\Optimization\WPQuery;
+use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\Sanitizer;
 use JazzMan\Performance\WP_CLI\Sanitize_Command;
 
@@ -34,6 +35,7 @@ class App
             LastPostModified::class,
             TermCount::class,
             Sanitizer::class,
+            ContactFormSpamTester::class,
             CleanUp::class,
             Enqueue::class,
             DuplicatePost::class,

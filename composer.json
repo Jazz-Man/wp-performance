@@ -17,14 +17,31 @@
     "conflict": {
         "roots/soil":"*"
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org"
+        }
+    ],
     "require": {
         "php": ">=7.1",
         "ext-intl": "*",
         "composer/installers": "^1",
-        "jazzman/autoload-interface": "^0.1.0"
+        "jazzman/autoload-interface": "^0.1.0",
+        "templateria/spamassassin": "dev-master"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-master",
+        "roots/wordpress": "^5.3",
+        "wpackagist-plugin/contact-form-7": "^5.1"
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+            "vendor/wp/wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
+            "vendor/wp/wp-content/themes/{$name}/": ["type:wordpress-theme"]
+        },
+        "wordpress-install-dir": "vendor/wp"
     },
     "suggest": {
         "jazzman/wp-performance-shortcode": "Better Shortcode Parser"
