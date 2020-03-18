@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\Performance\App;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use ReCaptcha\ReCaptcha;
@@ -61,7 +62,11 @@ class ContactFormSpamTester implements AutoloadInterface
     public function load()
     {
 
-        $this->recaptcha_enable = (bool)apply_filters('contact_form_recaptcha_enable', true);
+        if (App::isCli()){
+            $this->recaptcha_enable = false;
+        }else{
+            $this->recaptcha_enable = (bool)apply_filters('contact_form_recaptcha_enable', true);
+        }
 
         $this->recaptcha_site_key   = defined('RECAPTCHA_SITE_KEY') ? RECAPTCHA_SITE_KEY : '6LeTc6EUAAAAABNvNwjdbiho6ZatEQdMo5IH7uhd';
         $this->recaptcha_secret_key = defined('RECAPTCHA_SECRET_KEY') ? RECAPTCHA_SECRET_KEY : '6LeTc6EUAAAAAD01OZ98Kgv46VdRss7-aEIZ95bA';
@@ -122,7 +127,11 @@ class ContactFormSpamTester implements AutoloadInterface
      */
     public function wpcf7_spam($spam)
     {
-        if ($this->recaptcha_enable && !empty($_POST[$this->recaptcha_input_name])) {
+        if ($this->recaptcha_enable) {
+
+            if (empty($_POST[$this->recaptcha_input_name])){
+                return true;
+            }
 
             $recaptcha = new ReCaptcha($this->recaptcha_secret_key, new CurlPost());
 
