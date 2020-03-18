@@ -3,6 +3,8 @@
 namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 use Spamassassin\Client;
 use WPCF7_ContactForm;
 
@@ -45,7 +47,7 @@ class ContactFormSpamTester implements AutoloadInterface
     public function wpcf7_spam($spam)
     {
         if (!\function_exists('wpcf7_get_current_contact_form')) {
-            return  $spam;
+            return $spam;
         }
 
         /** @var WPCF7_ContactForm $contact_form */
@@ -91,6 +93,8 @@ class ContactFormSpamTester implements AutoloadInterface
      */
     public function getSpamReport()
     {
+        $phpmailer = new PHPMailer(true);
+
         $components = [
             'subject' => $this->get('subject', true),
             'sender' => $this->get('sender', true),
@@ -105,24 +109,77 @@ class ContactFormSpamTester implements AutoloadInterface
         $body = $components['body'];
         $additional_headers = trim($components['additional_headers']);
 
-        $mail = "From: {$sender}\n";
-        $mail .= "Subject: {$subject}\n";
-        $mail .= "To: {$recipient}\n";
+        $charset = get_bloginfo('charset');
 
-        if ($this->use_html) {
-            $mail .= "Content-Type: text/html\n";
-            $mail .= "X-WPCF7-Content-Type: text/html\n";
-        } else {
-            $mail .= "X-WPCF7-Content-Type: text/plain\n";
+        try {
+            $from = $phpmailer::parseAddresses($sender);
+
+            foreach ($from as $item) {
+                $phpmailer->setFrom($item['address'], $item['name']);
+            }
+
+            $to = $phpmailer::parseAddresses($recipient);
+
+            foreach ($to as $item) {
+                $phpmailer->addAddress($item['address'], $item['name']);
+            }
+
+            $phpmailer->CharSet = $charset;
+
+            $phpmailer->Subject = $subject;
+
+            if (!empty($additional_headers)) {
+                $additional_headers = $phpmailer->DKIM_HeaderC($additional_headers);
+
+                $additional_headers = explode("\n", $additional_headers);
+
+                foreach ($additional_headers as $header) {
+                    [$name, $content] = explode(':', trim($header), 2);
+
+                    $name = trim($name);
+                    $content = trim($content);
+
+                    switch (strtolower($name)) {
+                        case 'reply-to':
+
+                            $_reply = $phpmailer::parseAddresses($content);
+
+                            foreach ($_reply as $reply) {
+                                $phpmailer->addReplyTo($reply['address'], $reply['name']);
+                            }
+
+                            break;
+                        case 'cc':
+
+                            $_cc = $phpmailer::parseAddresses($content);
+
+                            foreach ($_cc as $cc) {
+                                $phpmailer->addCC($cc['address'], $cc['name']);
+                            }
+
+                            break;
+                        case 'bcc':
+                            $_bcc = $phpmailer::parseAddresses($content);
+
+                            foreach ($_bcc as $bcc) {
+                                $phpmailer->addBCC($bcc['address'], $bcc['name']);
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+            $phpmailer->msgHTML($body);
+
+            $phpmailer->preSend();
+
+            $_mail = $phpmailer->getSentMIMEMessage();
+
+            return $this->emailSpamTester->isSpam($_mail);
+        } catch (Exception $e) {
+            return false;
         }
-
-        if ($additional_headers) {
-            $mail .= $additional_headers."\n";
-        }
-
-        $mail .= "Message Body: {$body}\n";
-
-        return $this->emailSpamTester->isSpam($mail);
     }
 
     /**
@@ -201,4 +258,5 @@ class ContactFormSpamTester implements AutoloadInterface
 
         return wpcf7_mail_replace_tags($content, $args);
     }
+
 }
