@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\ParameterBag\ParameterBag;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use ReCaptcha\ReCaptcha;
@@ -123,21 +122,16 @@ class ContactFormSpamTester implements AutoloadInterface
      */
     public function wpcf7_spam($spam)
     {
-        if ($this->recaptcha_enable) {
+        if ($this->recaptcha_enable && !empty($_POST[$this->recaptcha_input_name])) {
 
-            $request = new ParameterBag($_POST);
+            $recaptcha = new ReCaptcha($this->recaptcha_secret_key, new CurlPost());
 
-            if ( ! $request->isEmpty()) {
+            $res = $recaptcha->setExpectedHostname($_SERVER['SERVER_NAME'])
+                             ->setExpectedAction($this->recaptcha_action)
+                             ->setScoreThreshold(0.5)
+                             ->verify($_POST[$this->recaptcha_input_name], $_SERVER['REMOTE_ADDR']);
 
-                $recaptcha = new ReCaptcha($this->recaptcha_secret_key, new CurlPost());
-
-                $res = $recaptcha->setExpectedHostname($_SERVER['SERVER_NAME'])
-                                 ->setExpectedAction($this->recaptcha_action)
-                                 ->setScoreThreshold(0.5)
-                                 ->verify($request->get($this->recaptcha_input_name, ''), $_SERVER['REMOTE_ADDR']);
-
-                return $res->isSuccess();
-            }
+            return $res->isSuccess();
 
         }
 
