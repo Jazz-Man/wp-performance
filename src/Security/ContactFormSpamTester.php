@@ -3,8 +3,11 @@
 namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\ParameterBag\ParameterBag;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
+use ReCaptcha\ReCaptcha;
+use ReCaptcha\RequestMethod\CurlPost;
 use Spamassassin\Client;
 use WPCF7_ContactForm;
 
@@ -13,6 +16,7 @@ use WPCF7_ContactForm;
  */
 class ContactFormSpamTester implements AutoloadInterface
 {
+
     /**
      * @var \Spamassassin\Client
      */
@@ -29,14 +33,87 @@ class ContactFormSpamTester implements AutoloadInterface
      * @var array
      */
     private $template;
+
+    /**
+     * @var string
+     */
+    private $recaptcha_input_name = 'g-recaptcha-response';
     /**
      * @var string
      */
     private $locale;
+    /**
+     * @var string|bool
+     */
+    private $recaptcha_site_key;
+    /**
+     * @var string|bool
+     */
+    private $recaptcha_secret_key;
+    /**
+     * @var string
+     */
+    private $recaptcha_action = 'upmedio';
+    /**
+     * @var bool
+     */
+    private $recaptcha_enable;
 
     public function load()
     {
+
+        $this->recaptcha_enable = (bool)apply_filters('contact_form_recaptcha_enable', true);
+
+        $this->recaptcha_site_key   = defined('RECAPTCHA_SITE_KEY') ? RECAPTCHA_SITE_KEY : '6LeTc6EUAAAAABNvNwjdbiho6ZatEQdMo5IH7uhd';
+        $this->recaptcha_secret_key = defined('RECAPTCHA_SECRET_KEY') ? RECAPTCHA_SECRET_KEY : '6LeTc6EUAAAAAD01OZ98Kgv46VdRss7-aEIZ95bA';
+
+
         add_filter('wpcf7_spam', [$this, 'wpcf7_spam']);
+
+        if ($this->recaptcha_enable) {
+            add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+
+            add_filter('wpcf7_form_hidden_fields', [$this, 'wpcf7_form_hidden_fields']);
+        }
+    }
+
+    public function enqueue_scripts()
+    {
+
+        wp_register_script('recaptcha', add_query_arg([
+            'render' => $this->recaptcha_site_key,
+        ], 'https://www.google.com/recaptcha/api.js'));
+
+
+        wp_add_inline_script('recaptcha', /** @lang JavaScript */ "        grecaptcha.ready(function() {
+          
+          var allRecaptchaInput = document.querySelectorAll('input[name={$this->recaptcha_input_name}]');
+          
+          if (allRecaptchaInput){
+            allRecaptchaInput.forEach(function(input) {
+              
+              grecaptcha.execute('{$this->recaptcha_site_key}', {action: '{$this->recaptcha_action}'}).then(function(token) {
+                input.value=token;
+              });
+              
+            })
+          }
+        });");
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return array
+     */
+    public function wpcf7_form_hidden_fields($fields)
+    {
+
+        wp_enqueue_script('recaptcha');
+
+        return array_merge($fields, [
+            $this->recaptcha_input_name => '',
+        ]);
     }
 
     /**
@@ -46,7 +123,26 @@ class ContactFormSpamTester implements AutoloadInterface
      */
     public function wpcf7_spam($spam)
     {
-        if (!\function_exists('wpcf7_get_current_contact_form')) {
+        if ($this->recaptcha_enable) {
+
+            $request = new ParameterBag($_POST);
+
+            if ( ! $request->isEmpty()) {
+
+                $recaptcha = new ReCaptcha($this->recaptcha_secret_key, new CurlPost());
+
+                $res = $recaptcha->setExpectedHostname($_SERVER['SERVER_NAME'])
+                                 ->setExpectedAction($this->recaptcha_action)
+                                 ->setScoreThreshold(0.5)
+                                 ->verify($request->get($this->recaptcha_input_name, ''), $_SERVER['REMOTE_ADDR']);
+
+                return $res->isSuccess();
+            }
+
+        }
+
+
+        if ( ! \function_exists('wpcf7_get_current_contact_form')) {
             return $spam;
         }
 
@@ -56,10 +152,10 @@ class ContactFormSpamTester implements AutoloadInterface
         $is_form = $contact_form instanceof WPCF7_ContactForm;
 
         $this->emailSpamTester = new Client([
-            'hostname' => 'localhost',
-            'port' => 783,
+            'hostname'        => 'localhost',
+            'port'            => 783,
             'protocolVersion' => '1.5',
-            'enableZlib' => false,
+            'enableZlib'      => false,
         ]);
 
         $is_ready = $is_form && $this->emailSpamTester->ping();
@@ -67,17 +163,17 @@ class ContactFormSpamTester implements AutoloadInterface
         if ($is_ready) {
             $template = $contact_form->prop('mail');
 
-            $this->use_html = !empty($template['use_html']);
+            $this->use_html = ! empty($template['use_html']);
 
-            $this->exclude_blank = !empty($template['exclude_blank']);
+            $this->exclude_blank = ! empty($template['exclude_blank']);
 
             $this->template = wp_parse_args($template, [
-                'subject' => '',
-                'sender' => '',
-                'body' => '',
-                'recipient' => '',
+                'subject'            => '',
+                'sender'             => '',
+                'body'               => '',
+                'recipient'          => '',
                 'additional_headers' => '',
-                'attachments' => '',
+                'attachments'        => '',
             ]);
 
             $this->locale = $contact_form->locale();
@@ -96,17 +192,17 @@ class ContactFormSpamTester implements AutoloadInterface
         $phpmailer = new PHPMailer(true);
 
         $components = [
-            'subject' => $this->get('subject', true),
-            'sender' => $this->get('sender', true),
-            'body' => $this->get('body', true),
-            'recipient' => $this->get('recipient', true),
+            'subject'            => $this->get('subject', true),
+            'sender'             => $this->get('sender', true),
+            'body'               => $this->get('body', true),
+            'recipient'          => $this->get('recipient', true),
             'additional_headers' => $this->get('additional_headers', true),
         ];
 
-        $subject = wpcf7_strip_newline($components['subject']);
-        $sender = wpcf7_strip_newline($components['sender']);
-        $recipient = wpcf7_strip_newline($components['recipient']);
-        $body = $components['body'];
+        $subject            = wpcf7_strip_newline($components['subject']);
+        $sender             = wpcf7_strip_newline($components['sender']);
+        $recipient          = wpcf7_strip_newline($components['recipient']);
+        $body               = $components['body'];
         $additional_headers = trim($components['additional_headers']);
 
         $charset = get_bloginfo('charset');
@@ -128,7 +224,7 @@ class ContactFormSpamTester implements AutoloadInterface
 
             $phpmailer->Subject = $subject;
 
-            if (!empty($additional_headers)) {
+            if ( ! empty($additional_headers)) {
                 $additional_headers = $phpmailer->DKIM_HeaderC($additional_headers);
 
                 $additional_headers = explode("\n", $additional_headers);
@@ -136,7 +232,7 @@ class ContactFormSpamTester implements AutoloadInterface
                 foreach ($additional_headers as $header) {
                     [$name, $content] = explode(':', trim($header), 2);
 
-                    $name = trim($name);
+                    $name    = trim($name);
                     $content = trim($content);
 
                     switch (strtolower($name)) {
@@ -183,25 +279,25 @@ class ContactFormSpamTester implements AutoloadInterface
     }
 
     /**
-     * @param $component
+     * @param      $component
      * @param bool $replace_tags
      *
      * @return array|mixed|string
      */
     private function get($component, $replace_tags = false)
     {
-        $use_html = ($this->use_html && 'body' === $component);
+        $use_html      = ($this->use_html && 'body' === $component);
         $exclude_blank = ($this->exclude_blank && 'body' === $component);
 
         $component = $this->template[$component] ?? '';
 
         if ($replace_tags) {
             $component = $this->replace_tags($component, [
-                'html' => $use_html,
+                'html'          => $use_html,
                 'exclude_blank' => $exclude_blank,
             ]);
 
-            if ($use_html && !preg_match('%<html[>\s].*</html>%is', $component)) {
+            if ($use_html && ! preg_match('%<html[>\s].*</html>%is', $component)) {
                 $component = $this->htmlize($component);
             }
         }
@@ -218,7 +314,7 @@ class ContactFormSpamTester implements AutoloadInterface
     {
         if ($this->locale) {
             $lang_atts = sprintf(' %s', wpcf7_format_atts([
-                'dir' => wpcf7_is_rtl($this->locale) ? 'rtl' : 'ltr',
+                'dir'  => wpcf7_is_rtl($this->locale) ? 'rtl' : 'ltr',
                 'lang' => str_replace('_', '-', $this->locale),
             ]));
         } else {
@@ -226,9 +322,9 @@ class ContactFormSpamTester implements AutoloadInterface
         }
 
         $header = apply_filters('wpcf7_mail_html_header', '<!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml"'.$lang_atts.'>
+<html xmlns="http://www.w3.org/1999/xhtml"' . $lang_atts . '>
 <head>
-<title>'.esc_html($this->get('subject', true)).'</title>
+<title>' . esc_html($this->get('subject', true)) . '</title>
 </head>
 <body>
 ', $this);
@@ -236,11 +332,11 @@ class ContactFormSpamTester implements AutoloadInterface
         $footer = apply_filters('wpcf7_mail_html_footer', '</body>
 </html>', $this);
 
-        return $header.wpautop($body).$footer;
+        return $header . wpautop($body) . $footer;
     }
 
     /**
-     * @param $content
+     * @param              $content
      * @param string|array $args
      *
      * @return array|string
@@ -252,7 +348,7 @@ class ContactFormSpamTester implements AutoloadInterface
         }
 
         $args = wp_parse_args($args, [
-            'html' => false,
+            'html'          => false,
             'exclude_blank' => false,
         ]);
 
