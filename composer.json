@@ -28,7 +28,6 @@
         "php": ">=7.1",
         "ext-intl": "*",
         "composer/installers": "^1",
-        "google/recaptcha": "^1.2",
         "jazzman/autoload-interface": "^0.1.0"
     },
     "require-dev": {
