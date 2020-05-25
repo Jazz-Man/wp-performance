@@ -36,11 +36,11 @@ class Enqueue implements AutoloadInterface
                 $path = parse_url($src, PHP_URL_PATH);
                 $path = ltrim($path,'/');
                 $root = App::getRootDir();
-                
+
                 if (is_multisite() && ($blog = get_blog_details(null,false))){
                     $path = ltrim($path,$blog->path);
                 }
-                
+
                 $file = "{$root}/{$path}";
 
                 if (is_file($file)) {
@@ -97,12 +97,6 @@ class Enqueue implements AutoloadInterface
 
             if (!empty($new_url)) {
                 wp_register_script($js_lib->handle, $new_url, $js_lib->deps, $js_lib->ver, true);
-
-                if (!empty($js_lib->extra) && \is_array($js_lib->extra)) {
-                    foreach ($js_lib->extra as $position => $data) {
-                        wp_add_inline_script($js_lib->handle, end($data), $position);
-                    }
-                }
             }
         }
     }
@@ -121,6 +115,10 @@ class Enqueue implements AutoloadInterface
 
             wp_dequeue_style($css_lib->handle);
             wp_deregister_style($css_lib->handle);
+
+            if (!empty($new_url)){
+                wp_register_style($css_lib->handle, $new_url, $css_lib->deps, $css_lib->ver,$css_lib->args);
+            }
 
         }
     }
