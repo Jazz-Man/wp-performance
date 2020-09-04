@@ -25,16 +25,16 @@ class Media implements AutoloadInterface
 
         add_filter('upload_mimes', [$this, 'allowSvg']);
         add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 3);
-        add_filter('image_downsize', [$this, 'fixSvgSizeAttributes'], 10, 3);
+        add_filter('wp_get_attachment_image_src', [$this, 'fixSvgSizeAttributes'], 10, 3);
+        // resize image on the fly
+        add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
+
         add_filter('cmb2_valid_img_types', static function ($valid_types){
 
             $valid_types[] = 'svg';
 
             return $valid_types;
         });
-
-        // resize image on the fly
-        add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
 
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
@@ -183,32 +183,34 @@ class Media implements AutoloadInterface
     }
 
     /**
-     * @param bool       $out
-     * @param int        $id
-     * @param array|null $size
+     * @param array        $image
+     * @param int          $attachment_id
+     * @param string|array $size
      *
      * @return array|bool
      */
-    public function fixSvgSizeAttributes($out, $id, $size)
+    public function fixSvgSizeAttributes($image, $attachment_id, $size)
     {
-        $image_url = wp_get_attachment_url($id);
-
-        if ($image_url){
-            $file_ext = pathinfo($image_url, PATHINFO_EXTENSION);
-
-            if ('svg' === $file_ext) {
-                $width = 60;
-                $height = 60;
-
-                if (\is_array($size) && 2 === \count($size)) {
-                    list($width, $height) = $size;
-                }
-
-                return [$image_url, $width, $height, false];
-            }
+        if (is_admin()){
+            return $image;
         }
 
-        return $out;
+        [$image_url, $width, $height, $resized] = $image;
+
+        $file_ext = pathinfo($image_url, PATHINFO_EXTENSION);
+
+        if ('svg' === $file_ext) {
+            $width = 60;
+            $height = 60;
+
+            if (\is_array($size) && 2 === \count($size)) {
+                [$width, $height] = $size;
+            }
+
+            return [$image_url, $width, $height, $resized];
+        }
+
+        return $image;
     }
 
     /**
@@ -236,7 +238,7 @@ class Media implements AutoloadInterface
             $image_base_url = "{$upload['baseurl']}/{$image_dirname}";
 
 
-            list($width, $height) = $size;
+            [$width, $height] = $size;
 
             if (!empty($meta['sizes'])) {
                 foreach ($meta['sizes'] as $key => $value) {
