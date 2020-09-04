@@ -16,7 +16,7 @@ class CleanUp implements AutoloadInterface
          * Remove the WordPress version from RSS feeds
          */
         add_filter('the_generator', '__return_false');
-        add_filter( 'xmlrpc_enabled', '__return_false' );
+        add_filter('xmlrpc_enabled', '__return_false');
 
         add_filter('language_attributes', [$this, 'languageAttributes']);
         add_filter('body_class', [$this, 'bodyClass']);
@@ -43,7 +43,8 @@ class CleanUp implements AutoloadInterface
         remove_action('wp_head', 'wlwmanifest_link');
         remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10);
         remove_action('wp_head', 'wp_generator');
-        remove_action('wp_head', 'wp_shortlink_wp_head', 10);
+        remove_action('wp_head', 'wp_shortlink_wp_head');
+        remove_action('template_redirect', 'wp_shortlink_header', 11);
         remove_action('wp_head', 'print_emoji_detection_script', 7);
         remove_action('admin_print_scripts', 'print_emoji_detection_script');
         remove_action('wp_print_styles', 'print_emoji_styles');
@@ -70,7 +71,7 @@ class CleanUp implements AutoloadInterface
         }
         $lang = get_bloginfo('language');
         if ($lang) {
-            $attributes[] = "lang=\"$lang\"";
+            $attributes[] = "lang=\"{$lang}\"";
         }
 
         return implode(' ', $attributes);
@@ -99,9 +100,8 @@ class CleanUp implements AutoloadInterface
             'page-template-default',
             $home_id_class,
         ];
-        $classes = array_diff($classes, $remove_classes);
 
-        return $classes;
+        return array_diff($classes, $remove_classes);
     }
 
     /**
@@ -142,8 +142,7 @@ class CleanUp implements AutoloadInterface
      */
     public function filterXmlrpcMethod($methods)
     {
-        unset($methods['pingback.ping']);
-        unset($methods['pingback.extensions.getPingbacks']);
+        unset($methods['pingback.ping'], $methods['pingback.extensions.getPingbacks']);
 
         return $methods;
     }
