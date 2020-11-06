@@ -15,43 +15,51 @@ class Enqueue implements AutoloadInterface
         add_action('wp_enqueue_scripts', [$this, 'jsToFooter']);
         add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn']);
 
-        if (!is_admin()) {
-            add_filter('script_loader_src', [$this, 'addScriptVersion'], 15, 1);
-            add_filter('style_loader_src', [$this, 'addScriptVersion'], 15, 1);
+        if (! is_admin()) {
+            add_filter('script_loader_src', [$this, 'addScriptVersion'], 15, 2);
+            add_filter('style_loader_src', [$this, 'addScriptVersion'], 15, 2);
         }
     }
 
     /**
      * @param string $src
+     * @param string $handle
      *
      * @return string
      */
-    public function addScriptVersion($src)
+    public function addScriptVersion($src, $handle)
     {
-        if (!empty($src)) {
-            $current_host = (string) $_SERVER['HTTP_HOST'];
-            $url_host = parse_url($src, PHP_URL_HOST);
 
-            if (!empty($url_host) && $current_host === $url_host) {
-                $path = parse_url($src, PHP_URL_PATH);
-                $path = ltrim($path,'/');
-                $root = App::getRootDir();
+        if (! empty($src)) {
+            $add_script_version = (bool) apply_filters('enqueue_add_script_version', true, $handle);
 
-                if (is_multisite() && ($blog = get_blog_details(null,false))){
-                    $path = ltrim($path,$blog->path);
+            if ($add_script_version) {
+                $current_host = (string) $_SERVER['HTTP_HOST'];
+                $url_host = \parse_url($src, PHP_URL_HOST);
+
+                if (! empty($url_host) && $current_host === $url_host) {
+                    $path = \parse_url($src, PHP_URL_PATH);
+                    $path = \ltrim($path, '/');
+                    $root = App::getRootDir();
+
+                    if (is_multisite() && ($blog = get_blog_details(null, false))) {
+                        $path = \ltrim($path, $blog->path);
+                    }
+
+                    $file = "{$root}/{$path}";
+
+                    if (\is_file($file)) {
+                        $timestamp = \is_file("{$file}.map") ? \filemtime("{$file}.map") : \filemtime($file);
+
+                        $src = add_query_arg([
+                            'ver' => $timestamp,
+                        ], $src);
+
+                        return esc_url($src);
+                    }
                 }
-
-                $file = "{$root}/{$path}";
-
-                if (is_file($file)) {
-                    $timestamp = is_file("{$file}.map") ? filemtime("{$file}.map") : filemtime($file);
-
-                    $src = add_query_arg([
-                        'ver' => $timestamp,
-                    ], $src);
-
-                    return esc_url($src);
-                }
+            }elseif (strpos( $src, '?ver=' )){
+                $src = remove_query_arg( 'ver', $src );
             }
         }
 
@@ -65,9 +73,9 @@ class Enqueue implements AutoloadInterface
         /** @var \_WP_Dependency $jquery_core */
         $jquery_core = $registered_scripts['jquery-core'];
 
-        $jquery_ver = trim($jquery_core->ver, '-wp');
+        $jquery_ver = \trim($jquery_core->ver, '-wp');
 
-        self::deregisterScript($jquery_core->handle, "https://code.jquery.com/jquery-2.2.4.min.js");
+        self::deregisterScript($jquery_core->handle, 'https://code.jquery.com/jquery-2.2.4.min.js');
         self::deregisterScript('jquery');
 
         wp_register_script('jquery', false, [$jquery_core->handle], $jquery_ver, true);
@@ -88,14 +96,14 @@ class Enqueue implements AutoloadInterface
     {
         $registered_scripts = wp_scripts()->registered;
 
-        if (!empty($registered_scripts[$handle])) {
+        if (! empty($registered_scripts[$handle])) {
             /** @var \_WP_Dependency $js_lib */
             $js_lib = $registered_scripts[$handle];
 
             wp_dequeue_script($js_lib->handle);
             wp_deregister_script($js_lib->handle);
 
-            if (!empty($new_url)) {
+            if (! empty($new_url)) {
                 wp_register_script($js_lib->handle, $new_url, $js_lib->deps, $js_lib->ver, true);
             }
         }
@@ -109,17 +117,16 @@ class Enqueue implements AutoloadInterface
     {
         $registered_style = wp_styles()->registered;
 
-        if (!empty($registered_style[$handle])){
+        if (! empty($registered_style[$handle])) {
             /** @var \_WP_Dependency $css_lib */
             $css_lib = $registered_style[$handle];
 
             wp_dequeue_style($css_lib->handle);
             wp_deregister_style($css_lib->handle);
 
-            if (!empty($new_url)){
-                wp_register_style($css_lib->handle, $new_url, $css_lib->deps, $css_lib->ver,$css_lib->args);
+            if (! empty($new_url)) {
+                wp_register_style($css_lib->handle, $new_url, $css_lib->deps, $css_lib->ver, $css_lib->args);
             }
-
         }
     }
 }
