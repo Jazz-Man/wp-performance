@@ -25,7 +25,7 @@
         "php": ">=7.1",
         "ext-intl": "*",
         "composer/installers": "^1",
-        "jazzman/autoload-interface": "^0.1.0"
+        "jazzman/autoload-interface": "^0.2"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
