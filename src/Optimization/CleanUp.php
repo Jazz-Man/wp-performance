@@ -36,8 +36,8 @@ class CleanUp implements AutoloadInterface
         remove_action('wp_head', 'feed_links_extra', 3);
         add_action('wp_head', 'ob_start', 1, 0);
         add_action('wp_head', static function () {
-            $pattern = '/.*'.preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
-            echo preg_replace($pattern, '', ob_get_clean());
+            $pattern = '/.*'.\preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
+            echo \preg_replace($pattern, '', \ob_get_clean());
         }, 3, 0);
         remove_action('wp_head', 'rsd_link');
         remove_action('wp_head', 'wlwmanifest_link');
@@ -45,6 +45,7 @@ class CleanUp implements AutoloadInterface
         remove_action('wp_head', 'wp_generator');
         remove_action('wp_head', 'wp_shortlink_wp_head');
         remove_action('template_redirect', 'wp_shortlink_header', 11);
+        remove_action('template_redirect', 'rest_output_link_header', 11);
         remove_action('wp_head', 'print_emoji_detection_script', 7);
         remove_action('admin_print_scripts', 'print_emoji_detection_script');
         remove_action('wp_print_styles', 'print_emoji_styles');
@@ -74,7 +75,7 @@ class CleanUp implements AutoloadInterface
             $attributes[] = "lang=\"{$lang}\"";
         }
 
-        return implode(' ', $attributes);
+        return \implode(' ', $attributes);
     }
 
     /**
@@ -87,11 +88,11 @@ class CleanUp implements AutoloadInterface
     public function bodyClass($classes)
     {
         // Add post/page slug if not present
-        if (is_single() || (is_page() && !is_front_page())) {
+        if (is_single() || (is_page() && ! is_front_page())) {
             $permalink = get_permalink();
 
-            if (!\in_array(basename($permalink), $classes)) {
-                $classes[] = basename($permalink);
+            if (! \in_array(\basename($permalink), $classes)) {
+                $classes[] = \basename($permalink);
             }
         }
         // Remove unnecessary classes
@@ -101,7 +102,7 @@ class CleanUp implements AutoloadInterface
             $home_id_class,
         ];
 
-        return array_diff($classes, $remove_classes);
+        return \array_diff($classes, $remove_classes);
     }
 
     /**
@@ -173,7 +174,7 @@ class CleanUp implements AutoloadInterface
     public function filterRewrites($rules)
     {
         foreach ($rules as $rule => $rewrite) {
-            if (preg_match('/trackback\/\?\$$/i', $rule)) {
+            if (\preg_match('/trackback\/\?\$$/i', $rule)) {
                 unset($rules[$rule]);
             }
         }
