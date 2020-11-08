@@ -12,6 +12,7 @@ class Enqueue implements AutoloadInterface
 {
     public function load()
     {
+        add_filter('app_preload_links', [$this, 'preloadLinks']);
         add_action('wp_enqueue_scripts', [$this, 'jsToFooter']);
         add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn']);
 
@@ -22,6 +23,24 @@ class Enqueue implements AutoloadInterface
     }
 
     /**
+     * @param array $links
+     * @return array
+     */
+    public function preloadLinks(array $links)
+    {
+        $dns_prefetch = [
+            'https://code.jquery.com',
+        ];
+
+        foreach ($dns_prefetch as $url) {
+            $links[] = Http::getDnsPrefetchLink($url);
+            $links[] = Http::getPreconnectLink($url);
+        }
+
+        return $links;
+    }
+
+    /**
      * @param string $src
      * @param string $handle
      *
@@ -29,7 +48,6 @@ class Enqueue implements AutoloadInterface
      */
     public function addScriptVersion($src, $handle)
     {
-
         if (! empty($src)) {
             $add_script_version = (bool) apply_filters('enqueue_add_script_version', true, $handle);
 
@@ -58,8 +76,8 @@ class Enqueue implements AutoloadInterface
                         return esc_url($src);
                     }
                 }
-            }elseif (strpos( $src, '?ver=' )){
-                $src = remove_query_arg( 'ver', $src );
+            } elseif (\strpos($src, '?ver=')) {
+                $src = remove_query_arg('ver', $src);
             }
         }
 
