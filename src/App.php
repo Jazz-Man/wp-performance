@@ -5,6 +5,7 @@ namespace JazzMan\Performance;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\DuplicatePost;
 use JazzMan\Performance\Optimization\Enqueue;
+use JazzMan\Performance\Optimization\Http;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
 use JazzMan\Performance\Optimization\Options;
@@ -27,6 +28,7 @@ class App
     public function __construct()
     {
         $classes = [
+            Http::class,
             Options::class,
             Update::class,
             Media::class,

@@ -25,9 +25,11 @@
         "php": ">=7.1",
         "ext-intl": "*",
         "composer/installers": "^1",
-        "jazzman/autoload-interface": "^0.3.0"
+        "jazzman/autoload-interface": "^0.3.0",
+        "symfony/web-link": "^5.1"
     },
     "require-dev": {
+        "dg/composer-cleaner": "^2.2",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.3"
     },
