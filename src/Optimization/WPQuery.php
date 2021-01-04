@@ -23,14 +23,21 @@ class WPQuery implements AutoloadInterface
      * @var string
      */
     private $found_posts_key = 'found-posts';
+    /**
+     * @var string
+     */
+    private $query_hash;
+    /**
+     * @var bool
+     */
+    private $rand = false;
 
     public function load()
     {
-        add_action('save_post', [$this, 'flushFoundRowsCach']);
+        add_action('save_post', [$this, 'flush_found_rows_cach']);
 
-        add_filter('posts_clauses_request', [$this, 'postsClausesRequest'], 10, 2);
-
-        add_filter('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
+        add_filter('pre_get_posts', [$this, 'set_query_params'], 10, 1);
+        add_filter('posts_clauses_request', [$this, 'posts_clauses_request'], 10, 2);
 
         add_filter('woocommerce_install_skip_create_files', '__return_true');
     }
@@ -38,25 +45,20 @@ class WPQuery implements AutoloadInterface
     /**
      * @param array     $clauses
      *
-     * @param \WP_Query $query
+     * @param \WP_Query $wp_query
      *
      * @return array
      */
-    public function postsClausesRequest($clauses, WP_Query $query)
+    public function posts_clauses_request($clauses, WP_Query $wp_query): array
     {
-        if ($query->is_main_query()) {
+        if ($wp_query->is_main_query()) {
             return $clauses;
         }
 
-        $query->set('no_found_rows', true);
+        $limit = $wp_query->get('posts_per_page');
 
-        $query_hash = md5(serialize($query->query_vars));
-
-        $orderby = $query->get('orderby', false);
-        $limit = $query->get('posts_per_page');
-
-        $this->invalidateFoundPostsCache($query_hash);
-        $ids = $this->getFoundPostsCache($query_hash);
+        $this->invalidate_found_posts_cache();
+        $ids = $this->get_found_posts_cache();
 
         if (false === $ids) {
             global $wpdb;
@@ -66,76 +68,109 @@ class WPQuery implements AutoloadInterface
 
             $ids = $wpdb->get_col("SELECT {$wpdb->posts}.ID FROM {$wpdb->posts} {$join} WHERE 1=1 {$where} GROUP BY {$wpdb->posts}.ID ORDER BY {$wpdb->posts}.post_date");
 
-            $ids = array_map(static function ($id) {
+            $ids = \array_map(static function ($id) {
                 return (int) $id;
             }, $ids);
 
-            $this->setFoundPostsCache($query_hash, $ids);
+            $this->set_found_posts_cache($ids);
         }
 
-        $found_posts_ids = $ids;
-
-        if ($orderby && 'rand' === $orderby) {
-            if (empty($query->get('post__in'))) {
-                shuffle($ids);
-
-                if ($limit > 0) {
-                    $ids = \array_slice($ids, 0, $limit);
-                }
-
-                $query->set('post__in', $ids);
-            } else {
-                shuffle($query->query_vars['post__in']);
-            }
-
-            $query->set('orderby', 'post__in');
-        }
-
-        $query->found_posts = \count($found_posts_ids);
-        if (!empty($clauses['limits'])) {
-            $query->max_num_pages = ceil($query->found_posts / $limit);
+        $wp_query->found_posts = \count($ids);
+        if (! empty($clauses['limits'])) {
+            $wp_query->max_num_pages = \ceil($wp_query->found_posts / $limit);
         }
 
         return $clauses;
     }
 
     /**
-     * @param \WP_Query $wp_query
-     * @return \WP_Query|void
+     * @param  \WP_Query  $wp_query
+     *
+     * @return WP_Query
      */
-    public function setQueryParams(WP_Query $wp_query)
+    public function set_query_params(WP_Query $wp_query)
     {
         if ($wp_query->is_main_query()) {
             return $wp_query;
         }
 
+        $limit = $wp_query->get('posts_per_page');
+
+        $orderby = $wp_query->get('orderby', false);
+        $this->rand = (isset($orderby) && 'rand' === $orderby);
+
+
         $wp_query->set('no_found_rows', true);
         $wp_query->set('showposts', null);
         $wp_query->set('posts_per_archive_page', null);
         $wp_query->set('ignore_sticky_posts', true);
+
+        $this->query_hash = \md5(\serialize($wp_query->query_vars));
+
+        if ($this->rand){
+
+            $ids = $this->get_found_posts_cache();
+
+            if ($ids){
+                if (empty($wp_query->get('post__in'))) {
+                    \shuffle($ids);
+
+                    if ($limit > 0) {
+                        $ids = \array_slice($ids, 0, $limit);
+                    }
+
+                    $wp_query->set('post__in', $ids);
+                } else {
+                    \shuffle($wp_query->query_vars['post__in']);
+                }
+
+                $wp_query->set('orderby', 'post__in');
+            }
+        }
+
+    }
+
+    /**
+     * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
+     *
+     * @since 4.0.0
+     *
+     * @param string $order The 'order' query variable.
+     * @return string The sanitized 'order' query variable.
+     */
+    protected function parse_order($order): string
+    {
+        if (! \is_string($order) || empty($order)) {
+            return 'DESC';
+        }
+
+        if ('ASC' === \strtoupper($order)) {
+            return 'ASC';
+        }
+
+        return 'DESC';
     }
 
     /**
      * @param int $post_id
      * @return void
      */
-    public function flushFoundRowsCach($post_id)
+    public function flush_found_rows_cach($post_id)
     {
-        set_transient($this->sanitizeKey($this->invalidate_time_key), time());
+        wp_cache_set($this->invalidate_time_key, \time(), $this->cache_group);
     }
 
     /**
-     * @param string $query_hash
      * @return bool
      */
-    private function invalidateFoundPostsCache(string $query_hash)
+    private function invalidate_found_posts_cache()
     {
-        $global_invalidate_time = $this->getInvalidateTime();
-        $local_invalidate_time = $this->getTimeFoundPosts($query_hash);
+        $global_invalidate_time = $this->get_invalidate_time();
+        $local_invalidate_time = $this->get_time_found_posts();
 
         if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
-            delete_transient($this->sanitizeKey("{$this->found_posts_key}-{$query_hash}"));
-            delete_transient($this->sanitizeKey("time-{$this->found_posts_key}-{$query_hash}"));
+            wp_cache_delete("{$this->found_posts_key}-{$this->query_hash}", $this->cache_group);
+            wp_cache_delete("time-{$this->found_posts_key}-{$this->query_hash}", $this->cache_group);
 
             return true;
         }
@@ -144,51 +179,37 @@ class WPQuery implements AutoloadInterface
     }
 
     /**
-     * @param string $query_hash
-     *
      * @return bool|mixed
      */
-    private function getFoundPostsCache($query_hash)
+    private function get_found_posts_cache()
     {
-        return get_transient($this->sanitizeKey("{$this->found_posts_key}-{$query_hash}"));
+        return wp_cache_get("{$this->found_posts_key}-{$this->query_hash}", $this->cache_group);
     }
 
     /**
-     * @param string $query_hash
-     * @param array  $ids
+     * @param  array  $ids
+     *
      * @return void
      */
-    private function setFoundPostsCache(string $query_hash, array $ids)
+    private function set_found_posts_cache(array $ids)
     {
-        set_transient($this->sanitizeKey("{$this->found_posts_key}-{$query_hash}"), $ids);
-        set_transient($this->sanitizeKey("time-{$this->found_posts_key}-{$query_hash}"), time());
+        wp_cache_set("{$this->found_posts_key}-{$this->query_hash}", $ids, $this->cache_group);
+        wp_cache_set("time-{$this->found_posts_key}-{$this->query_hash}", \time(), $this->cache_group);
     }
 
     /**
      * @return bool|mixed
      */
-    private function getInvalidateTime()
+    private function get_invalidate_time()
     {
-        return get_transient($this->sanitizeKey($this->invalidate_time_key));
+        return wp_cache_get($this->invalidate_time_key, $this->cache_group);
     }
 
     /**
-     * @param string $query_hash
      * @return bool|mixed
      */
-    private function getTimeFoundPosts(string $query_hash)
+    private function get_time_found_posts()
     {
-        return get_transient($this->sanitizeKey("time-{$this->found_posts_key}-{$query_hash}"));
-    }
-
-    /**
-     * @param string $key
-     * @return string
-     */
-    private function sanitizeKey(string $key)
-    {
-        $key = "{$key}_{$this->cache_group}";
-
-        return (string) sanitize_key($key);
+        return wp_cache_get("time-{$this->found_posts_key}-{$this->query_hash}", $this->cache_group);
     }
 }
