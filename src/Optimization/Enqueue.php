@@ -12,29 +12,29 @@ class Enqueue implements AutoloadInterface
 {
     public function load()
     {
-        add_filter('app_preload_links', [$this, 'preloadLinks']);
-        add_action('wp_enqueue_scripts', [$this, 'jsToFooter']);
-        add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn']);
+        add_filter('app_preload_links', [$this, 'preload_links']);
+        add_action('wp_enqueue_scripts', [$this, 'js_to_footer']);
+        add_action('wp_enqueue_scripts', [$this, 'jquery_from_cdn']);
 
         if (! is_admin()) {
-            add_filter('script_loader_src', [$this, 'addScriptVersion'], 15, 2);
-            add_filter('style_loader_src', [$this, 'addScriptVersion'], 15, 2);
+            add_filter('script_loader_src', [$this, 'add_script_version'], 15, 2);
+            add_filter('style_loader_src', [$this, 'add_script_version'], 15, 2);
         }
     }
 
-    /**
-     * @param array $links
-     * @return array
-     */
-    public function preloadLinks(array $links)
+    public function preload_links(array $links): array
     {
         $dns_prefetch = [
             'https://code.jquery.com',
+            'https://www.google.com',
+            'https://www.google-analytics.com',
+            'https://www.googletagmanager.com',
+            'https://www.gstatic.com',
         ];
 
         foreach ($dns_prefetch as $url) {
-            $links[] = Http::getDnsPrefetchLink($url);
-            $links[] = Http::getPreconnectLink($url);
+            $links[] = Http::get_dns_prefetch_link($url);
+            $links[] = Http::get_preconnect_link($url);
         }
 
         return $links;
@@ -46,16 +46,15 @@ class Enqueue implements AutoloadInterface
      *
      * @return string
      */
-    public function addScriptVersion($src, $handle)
+    public function add_script_version($src, $handle)
     {
-        if (! empty($src)) {
+        $is_current_host = Http::is_current_host($src);
+
+        if (\filter_var($src, FILTER_VALIDATE_URL)) {
             $add_script_version = (bool) apply_filters('enqueue_add_script_version', true, $handle);
 
             if ($add_script_version) {
-                $current_host = (string) $_SERVER['HTTP_HOST'];
-                $url_host = \parse_url($src, PHP_URL_HOST);
-
-                if (! empty($url_host) && $current_host === $url_host) {
+                if ($is_current_host) {
                     $path = \parse_url($src, PHP_URL_PATH);
                     $path = \ltrim($path, '/');
                     $root = App::getRootDir();
@@ -81,10 +80,14 @@ class Enqueue implements AutoloadInterface
             }
         }
 
+        if ($is_current_host) {
+            return wp_make_link_relative($src);
+        }
+
         return $src;
     }
 
-    public static function jqueryFromCdn()
+    public static function jquery_from_cdn()
     {
         $registered_scripts = wp_scripts()->registered;
 
@@ -93,13 +96,13 @@ class Enqueue implements AutoloadInterface
 
         $jquery_ver = \trim($jquery_core->ver, '-wp');
 
-        self::deregisterScript($jquery_core->handle, 'https://code.jquery.com/jquery-2.2.4.min.js');
-        self::deregisterScript('jquery');
+        self::deregister_script($jquery_core->handle, 'https://code.jquery.com/jquery-2.2.4.min.js');
+        self::deregister_script('jquery');
 
         wp_register_script('jquery', false, [$jquery_core->handle], $jquery_ver, true);
     }
 
-    public function jsToFooter()
+    public function js_to_footer()
     {
         remove_action('wp_head', 'wp_print_scripts');
         remove_action('wp_head', 'wp_print_head_scripts', 9);
@@ -107,10 +110,9 @@ class Enqueue implements AutoloadInterface
     }
 
     /**
-     * @param string $handle
-     * @param null   $new_url
+     * @param null $new_url
      */
-    public static function deregisterScript(string $handle, $new_url = null)
+    public static function deregister_script(string $handle, $new_url = null)
     {
         $registered_scripts = wp_scripts()->registered;
 
@@ -128,10 +130,10 @@ class Enqueue implements AutoloadInterface
     }
 
     /**
-     * @param string $handle
-     * @param null   $new_url
+     * @param  string  $handle
+     * @param  string|bool|null  $new_url
      */
-    public static function deregisterStyle(string $handle, $new_url = null)
+    public static function deregister_style(string $handle, string $new_url = null)
     {
         $registered_style = wp_styles()->registered;
 
