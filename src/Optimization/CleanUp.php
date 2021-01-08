@@ -34,6 +34,9 @@ class CleanUp implements AutoloadInterface
         // Originally from http://wpengineer.com/1438/wordpress-header/
         remove_action('wp_head', 'feed_links', 2);
         remove_action('wp_head', 'feed_links_extra', 3);
+        remove_action('wp_head', 'rest_output_link_wp_head', 10);
+        remove_action('template_redirect', 'wp_shortlink_header', 11);
+        remove_action('template_redirect', 'rest_output_link_header', 11);
         add_action('wp_head', 'ob_start', 1, 0);
         add_action('wp_head', static function () {
             $pattern = '/.*'.\preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
@@ -56,6 +59,7 @@ class CleanUp implements AutoloadInterface
         add_filter('use_default_gallery_style', '__return_false');
         add_filter('emoji_svg_url', '__return_false');
         add_filter('show_recent_comments_widget_style', '__return_false');
+        add_filter('rest_queried_resource_route', '__return_empty_string');
     }
 
     /**
