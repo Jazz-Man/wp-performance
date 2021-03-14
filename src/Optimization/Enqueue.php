@@ -24,29 +24,18 @@ class Enqueue implements AutoloadInterface
 
     public function preload_links(array $links): array
     {
-        $dns_prefetch = [
-            'https://code.jquery.com',
-            'https://www.google.com',
-            'https://www.google-analytics.com',
-            'https://www.googletagmanager.com',
-            'https://www.gstatic.com',
-        ];
-
-        foreach ($dns_prefetch as $url) {
-            $links[] = Http::get_dns_prefetch_link($url);
-            $links[] = Http::get_preconnect_link($url);
-        }
+        $links[] = Http::get_dns_prefetch_link('https://code.jquery.com');
 
         return $links;
     }
 
     /**
-     * @param string $src
-     * @param string $handle
+     * @param  string  $src
+     * @param  string  $handle
      *
      * @return string
      */
-    public function add_script_version($src, $handle)
+    public function add_script_version(string $src, string $handle)
     {
         $is_current_host = Http::is_current_host($src);
 
