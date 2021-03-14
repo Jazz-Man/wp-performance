@@ -85,7 +85,7 @@ class Enqueue implements AutoloadInterface
 
         $jquery_ver = \trim($jquery_core->ver, '-wp');
 
-        self::deregister_script($jquery_core->handle, 'https://code.jquery.com/jquery-2.2.4.min.js');
+        self::deregister_script($jquery_core->handle, "https://code.jquery.com/jquery-{$jquery_ver}.min.js");
         self::deregister_script('jquery');
 
         wp_register_script('jquery', false, [$jquery_core->handle], $jquery_ver, true);
