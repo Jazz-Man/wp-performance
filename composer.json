@@ -13,25 +13,20 @@
         "sort-packages": true,
         "preferred-install": "dist",
         "optimize-autoloader": true,
-        "classmap-authoritative": true
+        "classmap-authoritative": true,
+        "apcu-autoloader": true
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://wpackagist.org"
-        }
-    ],
     "require": {
         "php": ">=7.1",
         "ext-intl": "*",
         "composer/installers": "^1",
         "jazzman/autoload-interface": "^0.3.0",
-        "symfony/web-link": "^5.1"
+        "symfony/web-link": "^5.2"
     },
     "require-dev": {
         "dg/composer-cleaner": "^2.2",
         "roave/security-advisories": "dev-master",
-        "roots/wordpress": "^5.3"
+        "roots/wordpress": "^5"
     },
     "extra": {
         "installer-paths": {
