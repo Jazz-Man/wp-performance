@@ -35,9 +35,6 @@
         },
         "wordpress-install-dir": "vendor/wp"
     },
-    "suggest": {
-        "jazzman/wp-performance-shortcode": "Better Shortcode Parser"
-    },
     "autoload": {
         "psr-4": {
             "JazzMan\\Performance\\":"src"
