@@ -63,14 +63,16 @@ class WPQuery implements AutoloadInterface
         if (false === $ids) {
             global $wpdb;
 
+            $pdo = app_db_pdo();
+
             $where = $clauses['where'] ?? '';
             $join = $clauses['join'] ?? '';
 
-            $ids = $wpdb->get_col("SELECT {$wpdb->posts}.ID FROM {$wpdb->posts} {$join} WHERE 1=1 {$where} GROUP BY {$wpdb->posts}.ID ORDER BY {$wpdb->posts}.post_date");
+            $ids_st = $pdo->prepare("SELECT {$wpdb->posts}.ID FROM {$wpdb->posts} {$join} WHERE 1=1 {$where} GROUP BY {$wpdb->posts}.ID ORDER BY {$wpdb->posts}.post_date");
 
-            $ids = \array_map(static function ($id) {
-                return (int) $id;
-            }, $ids);
+            $ids_st->execute();
+
+            $ids = $ids_st->fetchAll(\PDO::FETCH_COLUMN);
 
             $this->set_found_posts_cache($ids);
         }
@@ -86,7 +88,7 @@ class WPQuery implements AutoloadInterface
     /**
      * @param  \WP_Query  $wp_query
      *
-     * @return WP_Query
+     * @return \WP_Query|void
      */
     public function set_query_params(WP_Query $wp_query)
     {
