@@ -18,7 +18,6 @@
     },
     "require": {
         "php": ">=7.1",
-        "ext-intl": "*",
         "composer/installers": "^1",
         "jazzman/autoload-interface": "^0.3.0",
         "symfony/web-link": "^5.2"
