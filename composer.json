@@ -18,9 +18,10 @@
     },
     "require": {
         "php": ">=7.1",
-        "ext-intl": "*",
         "composer/installers": "^1",
         "jazzman/autoload-interface": "^0.3.0",
+        "jazzman/wp-app-config": "^2.1",
+        "jazzman/wp-db-pdo": "^0.1.2",
         "symfony/web-link": "^5.2"
     },
     "require-dev": {
@@ -35,9 +36,6 @@
             "vendor/wp/wp-content/themes/{$name}/": ["type:wordpress-theme"]
         },
         "wordpress-install-dir": "vendor/wp"
-    },
-    "suggest": {
-        "jazzman/wp-performance-shortcode": "Better Shortcode Parser"
     },
     "autoload": {
         "psr-4": {

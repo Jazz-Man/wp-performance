@@ -14,36 +14,36 @@ class Update implements AutoloadInterface
     public function load()
     {
         // Stop wp-cron from looking out for new plugin versions
-        add_action('admin_init', [$this, 'remove_update_crons']);
-        add_action('admin_init', [$this, 'remove_schedule_hook']);
+        add_action('admin_init', [$this, 'removeUpdateCrons']);
+        add_action('admin_init', [$this, 'removeScheduleHook']);
 
         // Remove admin news dashboard widget
-        add_action('admin_init', [$this, 'remove_dashboards']);
+        add_action('admin_init', [$this, 'removeDashboards']);
 
         // Prevent users from even trying to update plugins and themes
-        add_filter('map_meta_cap', [$this, 'prevent_auto_updates'], 10, 2);
+        add_filter('map_meta_cap', [$this, 'preventAutoUpdates'], 10, 2);
 
         // Remove bulk action for updating themes/plugins.
-        add_filter('bulk_actions-plugins', [$this, 'remove_bulk_actions']);
-        add_filter('bulk_actions-themes', [$this, 'remove_bulk_actions']);
-        add_filter('bulk_actions-plugins-network', [$this, 'remove_bulk_actions']);
-        add_filter('bulk_actions-themes-network', [$this, 'remove_bulk_actions']);
+        add_filter('bulk_actions-plugins', [$this, 'removeBulkActions']);
+        add_filter('bulk_actions-themes', [$this, 'removeBulkActions']);
+        add_filter('bulk_actions-plugins-network', [$this, 'removeBulkActions']);
+        add_filter('bulk_actions-themes-network', [$this, 'removeBulkActions']);
 
         // Admin UI items.
-        add_action('admin_menu', [$this, 'admin_menu_items'], 9999);
-        add_action('network_admin_menu', [$this, 'ms_admin_menu_items'], 9999);
-        add_filter('install_plugins_tabs', [$this, 'plugin_add_tabs']);
+        add_action('admin_menu', [$this, 'removeUpdateCoreMenu'], 9999);
+        add_action('network_admin_menu', [$this, 'removeUpgradeMenuOnMultisite'], 9999);
+        add_filter('install_plugins_tabs', [$this, 'disablePluginAddTabs']);
 
         // Theme update API for different calls.
-        add_filter('themes_api_args', [$this, 'bypass_theme_api'], 10, 2);
+        add_filter('themes_api_args', [$this, 'bypassThemeApi'], 10, 2);
         add_filter('themes_api', '__return_false');
 
         // Time based transient checks.
-        add_filter('pre_site_transient_update_themes', [$this, 'last_checked_themes']);
-        add_filter('pre_site_transient_update_plugins', [$this, 'last_checked_plugins']);
-        add_filter('pre_site_transient_update_core', [$this, 'last_checked_core']);
-        add_filter('site_transient_update_themes', [$this, 'remove_update_array']);
-        add_filter('site_transient_update_plugins', [$this, 'remove_plugin_updates']);
+        add_filter('pre_site_transient_update_themes', [$this, 'lastCheckedThemes']);
+        add_filter('pre_site_transient_update_plugins', [$this, 'lastCheckedPlugins']);
+        add_filter('pre_site_transient_update_core', [$this, 'lastCheckedCore']);
+        add_filter('site_transient_update_themes', [$this, 'removeUpdateArray']);
+        add_filter('site_transient_update_plugins', [$this, 'removePluginUpdates']);
 
         // Removes update check wp-cron
         remove_action('init', 'wp_schedule_update_checks');
@@ -77,7 +77,7 @@ class Update implements AutoloadInterface
         // Run various hooks if the plugin should be enabled
         if (App::enabled()) {
             // Disable WordPress from fetching available languages
-            add_filter('pre_site_transient_available_translations', [$this, 'available_translations']);
+            add_filter('pre_site_transient_available_translations', [$this, 'availableTranslations']);
 
             // Hijack the themes api setup to bypass the API call.
             add_filter('themes_api', '__return_true');
@@ -112,7 +112,7 @@ class Update implements AutoloadInterface
     /**
      * Remove WordPress news dashboard widget.
      */
-    public function remove_dashboards()
+    public function removeDashboards()
     {
         remove_meta_box('dashboard_primary', 'dashboard', 'normal');
     }
@@ -120,7 +120,7 @@ class Update implements AutoloadInterface
     /**
      * Remove all the various places WP does the update checks. As you can see there are a lot of them.
      */
-    public function remove_update_crons()
+    public function removeUpdateCrons()
     {
         if (!App::enabled()) {
             return;
@@ -158,7 +158,7 @@ class Update implements AutoloadInterface
     /**
      * Remove all the various schedule hooks for themes, plugins, etc.
      */
-    public function remove_schedule_hook()
+    public function removeScheduleHook()
     {
         if (!App::enabled()) {
             return;
@@ -178,7 +178,7 @@ class Update implements AutoloadInterface
      *
      * @return array the user's filtered capabilities
      */
-    public function prevent_auto_updates($caps, $cap)
+    public function preventAutoUpdates(array $caps, string $cap): array
     {
         // Check for being enabled and look for specific cap requirements.
         if (App::enabled() && \in_array($cap, [
@@ -203,7 +203,7 @@ class Update implements AutoloadInterface
      *
      * @return array $actions  The remaining actions
      */
-    public function remove_bulk_actions($actions)
+    public function removeBulkActions(array $actions): array
     {
         if (App::enabled()) {
             return $actions;
@@ -227,7 +227,7 @@ class Update implements AutoloadInterface
     /**
      * Remove menu items for updates from a standard WP install.
      */
-    public function admin_menu_items()
+    public function removeUpdateCoreMenu()
     {
         // Bail if disabled, or on a multisite.
         if (!App::enabled() || is_multisite()) {
@@ -241,7 +241,7 @@ class Update implements AutoloadInterface
     /**
      * Remove menu items for updates from a multisite instance.
      */
-    public function ms_admin_menu_items()
+    public function removeUpgradeMenuOnMultisite()
     {
         // Bail if disabled or not on our network admin.
         if (!App::enabled() || !is_network_admin()) {
@@ -256,30 +256,30 @@ class Update implements AutoloadInterface
      * Remove the tabs on the plugin page to add new items
      * since they require the WP connection and will fail.
      *
-     * @param array $nonmenu_tabs all the tabs displayed
+     * @param array $tabs all the tabs displayed
      *
      * @return array $nonmenu_tabs  the remaining tabs
      */
-    public function plugin_add_tabs($nonmenu_tabs)
+    public function disablePluginAddTabs(array $tabs): array
     {
         // Bail if disabled.
         if (!App::enabled()) {
-            return $nonmenu_tabs;
+            return $tabs;
         }
 
         // Set an array of tabs to be removed with optional filter.
         if (false === $remove = apply_filters('core_blocker_bulk_items',
                 ['featured', 'popular', 'recommended', 'favorites', 'beta'])) {
-            return $nonmenu_tabs;
+            return $tabs;
         }
 
         // Loop the item array and unset each.
         foreach ($remove as $key) {
-            unset($nonmenu_tabs[$key]);
+            unset($tabs[$key]);
         }
 
         // Return the tabs.
-        return $nonmenu_tabs;
+        return $tabs;
     }
 
     /**
@@ -291,7 +291,7 @@ class Update implements AutoloadInterface
      *
      * @return bool|object true or false depending on the type of query
      */
-    public function bypass_theme_api($args, $action)
+    public function bypassThemeApi($args, string $action)
     {
         // Bail if disabled.
         if (!App::enabled()) {
@@ -307,7 +307,7 @@ class Update implements AutoloadInterface
      *
      * @return object|false the modified output with our information
      */
-    public function last_checked_themes()
+    public function lastCheckedThemes()
     {
         // Bail if disabled.
         if (!App::enabled()) {
@@ -320,7 +320,6 @@ class Update implements AutoloadInterface
         // Set a blank data array.
         $data = [];
 
-        /** @var \WP_Theme[] $themes */
         $themes = wp_get_themes();
 
         // Build my theme data array.
@@ -342,7 +341,7 @@ class Update implements AutoloadInterface
      *
      * @return object|false the modified output with our information
      */
-    public function last_checked_plugins()
+    public function lastCheckedPlugins()
     {
         // Bail if disabled.
         if (!App::enabled()) {
@@ -379,7 +378,7 @@ class Update implements AutoloadInterface
      *
      * @return object|false the modified output with our information
      */
-    public function last_checked_core()
+    public function lastCheckedCore()
     {
         // Bail if disabled.
         if (!App::enabled()) {
@@ -404,7 +403,7 @@ class Update implements AutoloadInterface
      *
      * @return array an empty array, or the original items if not enabled
      */
-    public function remove_update_array($items)
+    public function removeUpdateArray(array $items): array
     {
         return !App::enabled() ? $items : [];
     }
@@ -416,7 +415,7 @@ class Update implements AutoloadInterface
      *
      * @return array Lookalike data which is stored in site transient 'update_plugins'
      */
-    public function remove_plugin_updates($current)
+    public function removePluginUpdates($current)
     {
         if (!$current) {
             $current = new stdClass();
@@ -433,14 +432,14 @@ class Update implements AutoloadInterface
         return $current;
     }
 
-
     /**
      * Returns installed languages instead of all possibly available languages.
+     * @return array
      */
 
-    public function available_translations()
+    public function availableTranslations(): array
     {
-        $core_languges = self::core_blocker_get_languages();
+        $core_languges = self::coreBlockerGetLanguages();
         $installed     = get_available_languages();
 
         // Call the global WP version.
@@ -461,7 +460,11 @@ class Update implements AutoloadInterface
                 'strings'  => [
                     'continue' => __('Continue'),
                 ],
-                'package'  => "https://downloads.wordpress.org/translation/core/{$wp_version}/{$lang}.zip",
+                'package'  => sprintf(
+                    "https://downloads.wordpress.org/translation/core/%s/%s.zip",
+                    esc_attr($wp_version),
+                    esc_attr($lang)
+                ),
             ];
 
             $available[$lang] = array_merge($settings, $core_languges[$lang]);
@@ -472,8 +475,9 @@ class Update implements AutoloadInterface
 
     /**
      * Contains a predefined list of all 4.6 version languages so that we can deduce available languages from languages folder.
+     * @return \string[][]
      */
-    private static function core_blocker_get_languages()
+    private static function coreBlockerGetLanguages(): array
     {
         return [
             'ar' => ['english_name' => 'Arabic', 'native_name' => 'العربية'],

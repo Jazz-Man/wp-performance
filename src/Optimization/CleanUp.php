@@ -22,8 +22,8 @@ class CleanUp implements AutoloadInterface
         add_filter('body_class', [$this, 'bodyClass']);
         add_filter('embed_oembed_html', [$this, 'embedWrap']);
         add_filter('get_bloginfo_rss', [$this, 'removeDefaultDescription']);
-        add_filter('xmlrpc_methods', [$this, 'filterXmlrpcMethod'], 10, 1);
-        add_filter('wp_headers', [$this, 'filterHeaders'], 10, 1);
+        add_filter('xmlrpc_methods', [$this, 'filterXmlrpcMethod']);
+        add_filter('wp_headers', [$this, 'filterHeaders']);
         add_filter('rewrite_rules_array', [$this, 'filterRewrites']);
         add_filter('bloginfo_url', [$this, 'killPingbackUrl'], 10, 2);
         add_action('xmlrpc_call', [$this, 'killXmlrpc']);
@@ -65,18 +65,18 @@ class CleanUp implements AutoloadInterface
     /**
      * @return string
      */
-    public function languageAttributes()
+    public function languageAttributes(): string
     {
         $attributes = [];
         if (is_rtl()) {
-            $attributes[] = 'dir="rtl"';
+            $attributes['dir'] = 'rtl';
         }
         $lang = get_bloginfo('language');
         if ($lang) {
-            $attributes[] = "lang=\"{$lang}\"";
+            $attributes['lang'] = $lang;
         }
 
-        return \implode(' ', $attributes);
+        return app_add_attr_to_el($attributes);
     }
 
     /**
@@ -86,7 +86,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function bodyClass($classes)
+    public function bodyClass(array $classes): array
     {
         // Add post/page slug if not present
         if (is_single() || (is_page() && ! is_front_page())) {
@@ -97,10 +97,10 @@ class CleanUp implements AutoloadInterface
             }
         }
         // Remove unnecessary classes
-        $home_id_class = 'page-id-'.get_option('page_on_front');
+
         $remove_classes = [
             'page-template-default',
-            $home_id_class,
+            sprintf('page-id-%d',esc_attr(get_option('page_on_front'))),
         ];
 
         return \array_diff($classes, $remove_classes);
@@ -116,7 +116,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return string
      */
-    public function embedWrap($cache)
+    public function embedWrap($cache): string
     {
         return '<div class="entry-content-asset">'.$cache.'</div>';
     }
@@ -128,7 +128,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return string
      */
-    public function removeDefaultDescription($bloginfo)
+    public function removeDefaultDescription(string $bloginfo): string
     {
         $default_tagline = 'Just another WordPress site';
 
@@ -142,7 +142,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function filterXmlrpcMethod($methods)
+    public function filterXmlrpcMethod(array $methods): array
     {
         unset($methods['pingback.ping'], $methods['pingback.extensions.getPingbacks']);
 
@@ -156,7 +156,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function filterHeaders($headers)
+    public function filterHeaders(array $headers): array
     {
         if (isset($headers['X-Pingback'])) {
             unset($headers['X-Pingback']);
@@ -172,7 +172,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return array
      */
-    public function filterRewrites($rules)
+    public function filterRewrites(array $rules): array
     {
         foreach ($rules as $rule => $rewrite) {
             if (\preg_match('/trackback\/\?\$$/i', $rule)) {
@@ -191,7 +191,7 @@ class CleanUp implements AutoloadInterface
      *
      * @return string
      */
-    public function killPingbackUrl($output, $show)
+    public function killPingbackUrl(string $output, string $show): string
     {
         if ('pingback_url' === $show) {
             $output = '';
@@ -205,7 +205,7 @@ class CleanUp implements AutoloadInterface
      *
      * @param string $action
      */
-    public function killXmlrpc($action)
+    public function killXmlrpc(string $action)
     {
         if ('pingback.ping' === $action) {
             wp_die('Pingbacks are not supported', 'Not Allowed!', ['response' => 403]);
