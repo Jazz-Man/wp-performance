@@ -67,17 +67,19 @@ class AttachmentData
             $sql = (new QueryFactory())
                 ->select(
                     alias('i.ID', 'attachment_id'),
-                    alias('i.guid', 'full_url'),
+                    alias('file.meta_value', 'full_url'),
                     alias('metadata.meta_value', 'metadata'),
-                    alias('image_alt.meta_value', 'image_alt'),
+                    alias('image_alt.meta_value', 'image_alt')
                 )
                 ->from(alias($wpdb->posts, 'i'))
                 ->leftJoin(alias($wpdb->postmeta, 'metadata'), on('i.ID', 'metadata.post_id'))
                 ->leftJoin(alias($wpdb->postmeta, 'image_alt'), on('i.ID', 'image_alt.post_id'))
+                ->leftJoin(alias($wpdb->postmeta, 'file'), on('i.ID', 'file.post_id'))
                 ->where(
                     field('i.ID')->eq($attachment_id)
                         ->and(field('metadata.meta_key')->eq('_wp_attachment_metadata'))
                         ->and(field('image_alt.meta_key')->eq('_wp_attachment_image_alt'))
+                        ->and(field('file.meta_key')->eq('_wp_attached_file'))
                 )
                 ->limit(1)
                 ->groupBy('i.ID')
@@ -106,7 +108,7 @@ class AttachmentData
                 $this->full_webp_url = "{$this->upload_dir['baseurl']}/{$this->metadata['file_webp']}";
             }
 
-            $this->full_jpeg_url = $attachment_image->full_url;
+            $this->full_jpeg_url = "{$this->upload_dir['baseurl']}/{$attachment_image->full_url}";
             $this->image_alt = $attachment_image->image_alt;
         }
 
