@@ -53,15 +53,16 @@ class App
     /**
      * @return bool
      */
-    public static function isCli()
+    public static function isCli(): bool
     {
         return \defined('WP_CLI') && WP_CLI;
     }
 
     /**
      * Checks when plugin should be enabled This offers nice compatibilty with wp-cli.
+     * @return bool
      */
-    public static function enabled()
+    public static function enabled(): bool
     {
         return !self::isCron() && !self::isCli() && !self::isImporting();
     }
@@ -69,7 +70,7 @@ class App
     /**
      * @return bool
      */
-    public static function isCron()
+    public static function isCron(): bool
     {
         return \defined('DOING_CRON') && DOING_CRON;
     }
@@ -98,7 +99,7 @@ class App
     /**
      * @return bool
      */
-    public static function isImporting()
+    public static function isImporting(): bool
     {
         return \defined('WP_IMPORTING') && WP_IMPORTING;
     }
