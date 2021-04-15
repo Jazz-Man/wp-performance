@@ -22,9 +22,6 @@ use JazzMan\Performance\WP_CLI\Sanitize_Command;
  */
 class App
 {
-    /**
-     * App constructor.
-     */
     public function __construct()
     {
         $classes = [
@@ -50,26 +47,19 @@ class App
         app_autoload_classes($classes);
     }
 
-    /**
-     * @return bool
-     */
     public static function isCli(): bool
     {
         return \defined('WP_CLI') && WP_CLI;
     }
 
     /**
-     * Checks when plugin should be enabled This offers nice compatibilty with wp-cli.
-     * @return bool
+     * Checks when plugin should be enabled. This offers nice compatibilty with wp-cli.
      */
     public static function enabled(): bool
     {
         return !self::isCron() && !self::isCli() && !self::isImporting();
     }
 
-    /**
-     * @return bool
-     */
     public static function isCron(): bool
     {
         return \defined('DOING_CRON') && DOING_CRON;
@@ -96,9 +86,6 @@ class App
         return $path;
     }
 
-    /**
-     * @return bool
-     */
     public static function isImporting(): bool
     {
         return \defined('WP_IMPORTING') && WP_IMPORTING;
