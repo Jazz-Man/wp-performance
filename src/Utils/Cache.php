@@ -11,6 +11,11 @@ class Cache implements AutoloadInterface
 
     public function load()
     {
-        // TODO: Implement load() method.
+        add_action('save_post_attachment', [$this, 'resetAttachmentCache'], 10, 2);
+    }
+
+    public function resetAttachmentCache(int $post_id, \WP_Post $post)
+    {
+        wp_cache_delete("attachment_image_{$post_id}", self::CACHE_GROUP);
     }
 }
