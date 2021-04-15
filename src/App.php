@@ -15,6 +15,7 @@ use JazzMan\Performance\Optimization\Update;
 use JazzMan\Performance\Optimization\WPQuery;
 use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\SanitizeFileName;
+use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\WP_CLI\SanitizeFileNameCommand;
 
 /**
@@ -25,6 +26,7 @@ class App
     public function __construct()
     {
         $classes = [
+            Cache::class,
             Http::class,
             Options::class,
             Update::class,
