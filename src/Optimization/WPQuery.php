@@ -117,19 +117,16 @@ class WPQuery implements AutoloadInterface
         wp_cache_set($this->invalidateTimeKey, \time(), $this->cacheGroup);
     }
 
-    private function invalidateFoundPostsCache(): bool
+    private function invalidateFoundPostsCache(): void
     {
-        $global_invalidate_time = $this->getInvalidateTime();
-        $local_invalidate_time = $this->getTimeFoundPosts();
+        $globalInvalidateTime = $this->getInvalidateTime();
+        $localInvalidateTime = $this->getTimeFoundPosts();
 
-        if ($local_invalidate_time && $local_invalidate_time < $global_invalidate_time) {
+        if ($localInvalidateTime && $localInvalidateTime < $globalInvalidateTime) {
             wp_cache_delete("{$this->foundPostsKey}-{$this->queryHash}", $this->cacheGroup);
             wp_cache_delete("time-{$this->foundPostsKey}-{$this->queryHash}", $this->cacheGroup);
 
-            return true;
         }
-
-        return false;
     }
 
     /**
