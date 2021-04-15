@@ -41,6 +41,9 @@
     "autoload": {
         "psr-4": {
             "JazzMan\\Performance\\":"src"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     }
 }
