@@ -19,7 +19,8 @@ class Media implements AutoloadInterface
         add_filter('bp_core_fetch_avatar_no_grav', '__return_true');
 
         add_action('add_attachment', [$this, 'setMediaMonthsCache']);
-        add_filter('wp_insert_attachment_data', [$this, 'wp_insert_attachment_data'], 10, 2);
+        add_action('add_attachment', [$this, 'setAttachmentAltTitle']);
+        add_filter('wp_insert_attachment_data', [$this, 'setAttachmentTitle'], 10, 2);
 
         // disable responsive images srcset
         add_filter('wp_calculate_image_srcset_meta', '__return_empty_array', PHP_INT_MAX);
@@ -29,12 +30,16 @@ class Media implements AutoloadInterface
         add_filter('wp_get_attachment_image_src', [$this, 'fixSvgSizeAttributes'], 10, 3);
         // resize image on the fly
         add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
+        add_action( 'pre_get_posts', [$this,'filterQueryAttachmentFilenames'] );
 
-        add_filter('cmb2_valid_img_types', static function ($valid_types) {
-            $valid_types[] = 'svg';
+        add_filter(
+            'cmb2_valid_img_types',
+            static function ($valid_types) {
+                $valid_types[] = 'svg';
 
-            return $valid_types;
-        });
+                return $valid_types;
+            }
+        );
 
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
@@ -43,22 +48,40 @@ class Media implements AutoloadInterface
         }
     }
 
-    public function wp_insert_attachment_data(array $data, array $postarr): array
+    public function filterQueryAttachmentFilenames(): void
     {
-        if (! empty($postarr['file'])) {
+        remove_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+    }
+
+    /**
+     * @param  array  $data
+     * @param  array  $postarr
+     *
+     * @return array
+     */
+    public function setAttachmentTitle(array $data, array $postarr): array
+    {
+        if (!empty($postarr['file'])) {
             $url = \pathinfo($postarr['file']);
-            $extension = ! empty($url['extension']) ? ".{$url['extension']}" : false;
+            $extension = !empty($url['extension']) ? ".{$url['extension']}" : false;
 
-            $attachment_title = ! empty($extension) ? \rtrim($data['post_title'], $extension) : $data['post_title'];
+            $title = !empty($extension) ? \rtrim($data['post_title'], $extension) : $data['post_title'];
 
-            $human_friendly = \ucwords(\strtolower(\str_replace(['-', '_'], ' ', $attachment_title)));
-
-            $attachment_title = \trim(\preg_replace('/\s{2,}/siu', ' ', $human_friendly));
-
-            $data['post_title'] = $attachment_title;
+            $data['post_title'] = app_trim_string(app_get_human_friendly($title));
         }
 
         return $data;
+    }
+
+    public function setAttachmentAltTitle(int $post_id)
+    {
+        $image_title = get_the_title($post_id);
+
+        $image_alt = get_post_meta($post_id, '_wp_attachment_image_alt', true);
+
+        if (empty($image_alt)) {
+            update_post_meta($post_id, '_wp_attachment_image_alt', $image_title);
+        }
     }
 
     /**
@@ -73,19 +96,20 @@ class Media implements AutoloadInterface
      *
      * @return string `<img>` tag for the user's avatar
      */
-    public function replaceGravatar($avatar, $id_or_email, $size, $default, $alt)
+    public function replaceGravatar(string $avatar, $id_or_email, int $size, string $default, string $alt): string
     {
         // Bail if disabled.
-        if (! App::enabled()) {
+        if (!App::enabled()) {
             return $avatar;
         }
 
-        // Swap out the file for a base64 encoded image.
-        $image = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        $avatar = "<img alt='{$alt}' src='{$image}' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' style='background:#eee;' />";
-
         // Return the avatar.
-        return $avatar;
+        return sprintf(
+            '<img alt="%1$s" src="%2$s" class="avatar avatar-%3$s photo" height="%3$s" width="%3$s" style="background:#eee;" />',
+            esc_attr($alt),
+            'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+            esc_attr($size)
+        );
     }
 
     /**
@@ -95,22 +119,22 @@ class Media implements AutoloadInterface
      *
      * @return string Updated list with images removed
      */
-    public function defaultAvatar($avatar_list)
+    public function defaultAvatar(string $avatar_list): string
     {
         // Bail if disabled.
-        if (! App::enabled()) {
+        if (!App::enabled()) {
             return $avatar_list;
         }
 
         // Remove images.
-        $avatar_list = \preg_replace('|<img([^>]+)> |i', '', $avatar_list);
-
         // Send back the list.
-        return $avatar_list;
+        return \preg_replace('|<img([^>]+)> |i', '', $avatar_list);
     }
 
     /**
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L39
+     *
+     * @param  int  $post_id
      */
     public function setMediaMonthsCache(int $post_id)
     {
@@ -118,50 +142,51 @@ class Media implements AutoloadInterface
             return;
         }
 
-        // Grab the transient to see if it needs updating
-        $media_months = get_transient('wpcom_media_months_array');
+        // Grab the cache to see if it needs updating
+        $media_months = wp_cache_get('wpcom_media_months_array');
 
-        // Make sure month and year exists in transient before comparing
-        $cached_latest_year = ! empty($media_months[0]->year) ? $media_months[0]->year : '';
-        $cached_latest_month = ! empty($media_months[0]->month) ? $media_months[0]->month : '';
+        if (!empty($media_months)){
+            // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
+            $latest_year = get_the_time('Y', $post_id) === $media_months['year'];
+            $latest_month = get_the_time('n', $post_id) === $media_months['month'];
 
-        // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
-        $matches_latest_year = get_the_time('Y', $post_id) === $cached_latest_year;
-        $matches_latest_month = get_the_time('n', $post_id) === $cached_latest_month;
-
-        if (false !== $media_months && (! $matches_latest_year || ! $matches_latest_month)) {
-            // the new attachment is not in the same month/year as the data in our transient
-            delete_transient('wpcom_media_months_array');
-        }
-
-        $image_title = get_the_title($post_id);
-
-        $image_alt = get_post_meta($post_id, '_wp_attachment_image_alt', true);
-
-        if (empty($image_alt)) {
-            update_post_meta($post_id, '_wp_attachment_image_alt', $image_title);
+            if (!$latest_year || !$latest_month) {
+                // the new attachment is not in the same month/year as the data in our cache
+                wp_cache_delete('wpcom_media_months_array');
+            }
         }
     }
 
     /**
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
      *
-     * @return array|mixed|object|null
+     * @return null|array|mixed|object
      */
     public function mediaLibraryMonthsWithFiles()
     {
-        global $wpdb;
-
-        $months = get_transient('wpcom_media_months_array');
+        $months = wp_cache_get('wpcom_media_months_array');
 
         if (false === $months) {
-            $months = $wpdb->get_results($wpdb->prepare("
-            		     SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-            			FROM $wpdb->posts
-            			WHERE post_type = %s
-            			ORDER BY post_date DESC
-        			", 'attachment'));
-            set_transient('wpcom_media_months_array', $months);
+            global $wpdb;
+            $pdo = app_db_pdo();
+
+            $st = $pdo->prepare(
+                <<<SQL
+select 
+  distinct year( post_date ) as year, 
+  month( post_date ) as month
+from $wpdb->posts
+where post_type = 'attachment'
+order by post_date desc 
+limit 1
+SQL
+            );
+
+            $st->execute();
+
+            $months = $st->fetch(\PDO::FETCH_ASSOC);
+
+            wp_cache_set('wpcom_media_months_array', $months);
         }
 
         return $months;
@@ -172,7 +197,7 @@ class Media implements AutoloadInterface
      *
      * @return array
      */
-    public function allowSvg($mimes)
+    public function allowSvg(array $mimes): array
     {
         $mimes['svg'] = 'image/svg+xml';
         $mimes['svgz'] = 'image/svg+xml';
@@ -181,15 +206,15 @@ class Media implements AutoloadInterface
     }
 
     /**
-     * @param array|null  $data
-     * @param static|null $file
-     * @param string|null $filename
+     * @param  array  $data
+     * @param  string  $file
+     * @param  string  $filename
      *
-     * @return array|null
+     * @return array
      */
-    public function fixMimeTypeSvg($data = null, $file = null, $filename = null)
+    public function fixMimeTypeSvg(array $data, string $file, string $filename): array
     {
-        $ext = ! empty($data['ext']) ? $data['ext'] : '';
+        $ext = !empty($data['ext']) ? $data['ext'] : '';
         if ('' === $ext) {
             $exploded = \explode('.', $filename);
             $ext = \strtolower(\end($exploded));
@@ -207,13 +232,13 @@ class Media implements AutoloadInterface
     }
 
     /**
-     * @param array        $image
+     * @param array|false        $image
      * @param int          $attachment_id
-     * @param string|array $size
+     * @param array|string $size
      *
      * @return array|bool
      */
-    public function fixSvgSizeAttributes($image, $attachment_id, $size)
+    public function fixSvgSizeAttributes($image, int $attachment_id, $size)
     {
         if (is_admin()) {
             return $image;
@@ -238,21 +263,21 @@ class Media implements AutoloadInterface
     }
 
     /**
-     * @param array        $image
-     * @param int          $id
-     * @param string|array $size
+     * @param  array|false  $image
+     * @param  int  $attachment_id
+     * @param  array|string  $size
      *
-     * @return array
+     * @return array|false
      */
-    public function resizeImageOnTheFly($image, $id, $size)
+    public function resizeImageOnTheFly($image, int $attachment_id, $size)
     {
         if (is_admin()) {
             return $image;
         }
 
-        $meta = wp_get_attachment_metadata($id);
+        $meta = wp_get_attachment_metadata($attachment_id);
 
-        if (\is_array($size) && ! empty($meta) && ($_file = get_attached_file($id)) && (\file_exists($_file))) {
+        if (\is_array($size) && !empty($meta) && ($_file = get_attached_file($attachment_id)) && (\file_exists($_file))) {
             $upload = wp_upload_dir();
 
             $_file_path = \ltrim($_file, $upload['basedir']);
@@ -263,7 +288,7 @@ class Media implements AutoloadInterface
 
             [$width, $height] = $size;
 
-            if (! empty($meta['sizes'])) {
+            if (!empty($meta['sizes'])) {
                 foreach ($meta['sizes'] as $key => $value) {
                     if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
                         return $image;
@@ -274,10 +299,10 @@ class Media implements AutoloadInterface
             // Generate new size
             $resized = image_make_intermediate_size($_file, $width, $height, true);
 
-            if ($resized && ! is_wp_error($resized)) {
+            if ($resized && !is_wp_error($resized)) {
                 $key = \sprintf('resized-%dx%d', $resized['width'], $resized['height']);
                 $meta['sizes'][$key] = $resized;
-                wp_update_attachment_metadata($id, $meta);
+                wp_update_attachment_metadata($attachment_id, $meta);
 
                 $image[0] = "{$image_base_url}/{$resized['file']}";
                 $image[1] = $resized['width'];

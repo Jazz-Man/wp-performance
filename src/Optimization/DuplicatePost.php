@@ -26,23 +26,23 @@ class DuplicatePost implements AutoloadInterface
         add_action("admin_action_{$this->action}", [$this, 'duplicate_post_as_draft']);
     }
 
-    /**
-     * @param array    $actions
-     * @param \WP_Post $post
-     *
-     * @return array
-     */
-    public function duplicate_post_link($actions, $post)
+    public function duplicate_post_link(array $actions, \WP_Post $post): array
     {
         if ('publish' === $post->post_status && current_user_can('edit_posts')) {
-            $url = add_query_arg([
-                'action' => $this->action,
-                'post' => $post->ID,
-            ], 'admin.php');
-
-            $url = wp_nonce_url($url, basename(__FILE__), $this->nonce);
-
-            $actions['duplicate'] = "<a href='{$url}' title='Duplicate this item' rel='permalink'>Duplicate</a>";
+            $actions['duplicate'] = sprintf(
+                '<a href="%s" title="Duplicate this item" rel="permalink">Duplicate</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        [
+                            'action' => $this->action,
+                            'post' => $post->ID,
+                        ],
+                        'admin.php'
+                    ),
+                    basename(__FILE__),
+                    $this->nonce
+                )
+            );
         }
 
         return $actions;
@@ -52,18 +52,16 @@ class DuplicatePost implements AutoloadInterface
     {
         check_ajax_referer(basename(__FILE__), $this->nonce);
 
-        if (!(isset($_REQUEST['post']) || (isset($_REQUEST['action']) && $this->action === $_REQUEST['action']))) {
+        $request = app_get_request_data();
+
+        $post_id = $request->getDigits('post');
+        $action = $request->get('action');
+
+        if (!($post_id || ($this->action === $action))) {
             wp_die('No post to duplicate has been supplied!');
         }
 
-        /*
-         * get the original post id
-         */
-        $post_id = absint($_REQUEST['post']);
-
-        /*
-         * and all the original post data then
-         */
+        // get the original post data
         $post = get_post($post_id);
 
         /*
@@ -73,13 +71,9 @@ class DuplicatePost implements AutoloadInterface
         $current_user = wp_get_current_user();
         $new_post_author = $current_user->ID;
 
-        /*
-         * if post data exists, create the post duplicate
-         */
+        // if post data exists, create the post duplicate
         if (!empty($post)) {
-            /*
-             * new post data array
-             */
+            // new post data array
             $args = [
                 'comment_status' => $post->comment_status,
                 'ping_status' => $post->ping_status,
@@ -119,12 +113,20 @@ class DuplicatePost implements AutoloadInterface
                 }
             }
 
-            /*
-             * finally, redirect to the edit post screen for the new draft
-             */
+            // finally, redirect to the edit post screen for the new draft
             wp_redirect(get_edit_post_link($new_post_id, 'edit'));
+
             exit;
         }
-        wp_die('Post creation failed, could not find original post: '.$post_id);
+
+        $title = 'Post creation failed!';
+        wp_die(
+            sprintf(
+                '<span>%s</span>> could not find original post: %d',
+                $title,
+                esc_attr($post_id)
+            ),
+            $title
+        );
     }
 }

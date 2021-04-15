@@ -12,9 +12,8 @@ use WP_Post;
  */
 class LastPostModified implements AutoloadInterface
 {
-    const DEFAULT_TIMEZONE = 'gmt';
-    const LOCK_TIME_IN_SECONDS = 30;
-    const OPTION_PREFIX = 'lastpostmodified';
+    public const LOCK_TIME_IN_SECONDS = 30;
+    public const OPTION_PREFIX = 'lastpostmodified';
 
     public function load()
     {
@@ -22,11 +21,6 @@ class LastPostModified implements AutoloadInterface
         add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
     }
 
-    /**
-     * @param string  $new_status
-     * @param string  $old_status
-     * @param WP_Post $post
-     */
     public function transitionPostStatus(string $new_status, string $old_status, WP_Post $post)
     {
         if (!\in_array('publish', [$old_status, $new_status])) {
@@ -43,12 +37,7 @@ class LastPostModified implements AutoloadInterface
         $this->bumpLastPostModified($post);
     }
 
-    /**
-     * @param string $post_type
-     *
-     * @return bool
-     */
-    private function isLocked(string $post_type)
+    private function isLocked(string $post_type): bool
     {
         $key = $this->getLockName($post_type);
 
@@ -56,9 +45,11 @@ class LastPostModified implements AutoloadInterface
         return false === wp_cache_add($key, 1, false, self::LOCK_TIME_IN_SECONDS);
     }
 
-    /**
-     * @param \WP_Post $post
-     */
+    private function getLockName(string $post_type): string
+    {
+        return sprintf('%s_%s_lock', self::OPTION_PREFIX, $post_type);
+    }
+
     private function bumpLastPostModified(WP_Post $post)
     {
         // Update default of `any`
@@ -71,70 +62,40 @@ class LastPostModified implements AutoloadInterface
         $this->updateLastPostModified($post->post_modified, 'blog', $post->post_type);
     }
 
-    /**
-     * @param string $post_type
-     *
-     * @return string
-     */
-    private function getLockName(string $post_type)
+    public function updateLastPostModified(string $time, string $timezone, string $postType = 'any'): bool
     {
-        return sprintf('%s_%s_lock', self::OPTION_PREFIX, $post_type);
+        return update_option($this->getOptionName($timezone, $postType), $time, false);
+    }
+
+    private function getOptionName(string $timezone, string $post_type): string
+    {
+        return sprintf('%s_%s_%s', self::OPTION_PREFIX, strtolower($timezone), $post_type);
     }
 
     /**
-     * @param string $time
-     * @param string $timezone
-     * @param string $post_type
-     *
-     * @return bool
-     */
-    public function updateLastPostModified(string $time, string $timezone, string $post_type = 'any')
-    {
-        $option_name = $this->getOptionName($timezone, $post_type);
-
-        return update_option($option_name, $time, false);
-    }
-
-    /**
-     * @param string $timezone
-     * @param string $post_type
-     *
-     * @return string
-     */
-    private function getOptionName(string $timezone, string $post_type)
-    {
-        $timezone = strtolower($timezone);
-
-        return sprintf('%s_%s_%s', self::OPTION_PREFIX, $timezone, $post_type);
-    }
-
-    /**
-     * @param bool   $boolean
-     * @param string $timezone
-     * @param string $post_type
+     * @param  bool  $boolean
+     * @param  string  $timezone
+     * @param  string  $postType
      *
      * @return bool|mixed
      */
-    public function overrideGetLastPostModified(bool $boolean, string $timezone, string $post_type)
+    public function overrideGetLastPostModified(bool $boolean, string $timezone, string $postType)
     {
-        $stored_lastpostmodified = $this->getLastPostModified($timezone, $post_type);
-        if (false === $stored_lastpostmodified) {
+        $lastPostModified = $this->getLastPostModified($timezone, $postType);
+        if (false === $lastPostModified) {
             return $boolean;
         }
 
-        return $stored_lastpostmodified;
+        return $lastPostModified;
     }
 
     /**
-     * @param string $timezone
-     * @param string $post_type
-     *
+     * @param  string  $timezone
+     * @param  string  $post_type
      * @return mixed
      */
-    public function getLastPostModified($timezone, $post_type)
+    private function getLastPostModified(string $timezone, string $post_type)
     {
-        $option_name = $this->getOptionName($timezone, $post_type);
-
-        return get_option($option_name);
+        return get_option($this->getOptionName($timezone, $post_type), false);
     }
 }

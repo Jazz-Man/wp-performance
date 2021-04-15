@@ -24,7 +24,7 @@ class Enqueue implements AutoloadInterface
 
     public function preload_links(array $links): array
     {
-        $links[] = Http::get_dns_prefetch_link('https://code.jquery.com');
+        $links[] = Http::dnsPrefetchLink('https://code.jquery.com');
 
         return $links;
     }
@@ -35,9 +35,9 @@ class Enqueue implements AutoloadInterface
      *
      * @return string
      */
-    public function add_script_version(string $src, string $handle)
+    public function add_script_version(string $src, string $handle): string
     {
-        $is_current_host = Http::is_current_host($src);
+        $is_current_host = app_is_current_host($src);
 
         if (\filter_var($src, FILTER_VALIDATE_URL)) {
             $add_script_version = (bool) apply_filters('enqueue_add_script_version', true, $handle);
@@ -76,7 +76,7 @@ class Enqueue implements AutoloadInterface
         return $src;
     }
 
-    public static function jquery_from_cdn()
+    public static function jquery_from_cdn(): void
     {
         $registered_scripts = wp_scripts()->registered;
 
@@ -91,7 +91,7 @@ class Enqueue implements AutoloadInterface
         wp_register_script('jquery', false, [$jquery_core->handle], $jquery_ver, true);
     }
 
-    public function js_to_footer()
+    public function js_to_footer(): void
     {
         remove_action('wp_head', 'wp_print_scripts');
         remove_action('wp_head', 'wp_print_head_scripts', 9);
@@ -99,9 +99,10 @@ class Enqueue implements AutoloadInterface
     }
 
     /**
-     * @param null $new_url
+     * @param  string  $handle
+     * @param  string|null  $new_url
      */
-    public static function deregister_script(string $handle, $new_url = null)
+    public static function deregister_script(string $handle, string $new_url = null): void
     {
         $registered_scripts = wp_scripts()->registered;
 
@@ -120,7 +121,7 @@ class Enqueue implements AutoloadInterface
 
     /**
      * @param  string  $handle
-     * @param  string|bool|null  $new_url
+     * @param  string|null  $new_url
      */
     public static function deregister_style(string $handle, string $new_url = null)
     {
