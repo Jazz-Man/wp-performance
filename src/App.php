@@ -9,6 +9,7 @@ use JazzMan\Performance\Optimization\Http;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
 use JazzMan\Performance\Optimization\Options;
+use JazzMan\Performance\Optimization\PostGuid;
 use JazzMan\Performance\Optimization\PostMeta;
 use JazzMan\Performance\Optimization\TermCount;
 use JazzMan\Performance\Optimization\Update;
@@ -17,6 +18,7 @@ use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\SanitizeFileName;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\WPBlocks;
+use JazzMan\Performance\WP_CLI\FixPostGuidCommand;
 use JazzMan\Performance\WP_CLI\SanitizeFileNameCommand;
 
 /**
@@ -29,6 +31,7 @@ class App
         $classes = [
             Cache::class,
             WPBlocks::class,
+            PostGuid::class,
             Http::class,
             Options::class,
             Update::class,
@@ -46,6 +49,7 @@ class App
 
         if (self::isCli()) {
             $classes[] = SanitizeFileNameCommand::class;
+            $classes[] = FixPostGuidCommand::class;
         }
 
         app_autoload_classes($classes);
