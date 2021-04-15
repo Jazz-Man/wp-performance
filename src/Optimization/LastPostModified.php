@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\Performance\Utils\Cache;
 use WP_Post;
 
 /**
@@ -42,7 +43,7 @@ class LastPostModified implements AutoloadInterface
         $key = $this->getLockName($post_type);
 
         // if the add fails, then we already have a lock set
-        return false === wp_cache_add($key, 1, false, self::LOCK_TIME_IN_SECONDS);
+        return false === wp_cache_add($key, 1, Cache::CACHE_GROUP, self::LOCK_TIME_IN_SECONDS);
     }
 
     private function getLockName(string $post_type): string

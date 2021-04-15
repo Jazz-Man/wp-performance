@@ -4,6 +4,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\App;
+use JazzMan\Performance\Utils\Cache;
 
 /**
  * Class Media.
@@ -143,7 +144,7 @@ class Media implements AutoloadInterface
         }
 
         // Grab the cache to see if it needs updating
-        $media_months = wp_cache_get('wpcom_media_months_array');
+        $media_months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (!empty($media_months)){
             // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
@@ -152,7 +153,7 @@ class Media implements AutoloadInterface
 
             if (!$latest_year || !$latest_month) {
                 // the new attachment is not in the same month/year as the data in our cache
-                wp_cache_delete('wpcom_media_months_array');
+                wp_cache_delete('wpcom_media_months_array',Cache::CACHE_GROUP);
             }
         }
     }
@@ -164,13 +165,13 @@ class Media implements AutoloadInterface
      */
     public function mediaLibraryMonthsWithFiles()
     {
-        $months = wp_cache_get('wpcom_media_months_array');
+        $months = wp_cache_get('wpcom_media_months_array',Cache::CACHE_GROUP);
 
         if (false === $months) {
             global $wpdb;
             $pdo = app_db_pdo();
 
-            $st = $pdo->prepare(
+            $statement = $pdo->prepare(
                 <<<SQL
 select 
   distinct year( post_date ) as year, 
@@ -182,11 +183,11 @@ limit 1
 SQL
             );
 
-            $st->execute();
+            $statement->execute();
 
-            $months = $st->fetch(\PDO::FETCH_ASSOC);
+            $months = $statement->fetch(\PDO::FETCH_ASSOC);
 
-            wp_cache_set('wpcom_media_months_array', $months);
+            wp_cache_set('wpcom_media_months_array', $months,Cache::CACHE_GROUP);
         }
 
         return $months;
