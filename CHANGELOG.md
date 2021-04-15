@@ -1,7 +1,20 @@
 
+2.2.0 / 2021-04-15
+==================
+
+  * show reusable blocks in admin panel
+  * add helper file for images
+  * add CACHE_GROUP
+  * reset attachment cache on save
+  * init AttachmentData class utils
+  * add Cache utils class
+  * add Cache utils class
+  * installed jazzman/custom-post-type
+
 2.1.0 / 2021-04-15
 ==================
 
+  * add CHANGELOG
   * rename addScriptVersion to setScriptVersion
   * update return type for invalidateFoundPostsCache
   * update naming
