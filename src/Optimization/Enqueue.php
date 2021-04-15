@@ -17,8 +17,8 @@ class Enqueue implements AutoloadInterface
         add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn']);
 
         if (!is_admin()) {
-            add_filter('script_loader_src', [$this, 'addScriptVersion'], 15, 2);
-            add_filter('style_loader_src', [$this, 'addScriptVersion'], 15, 2);
+            add_filter('script_loader_src', [$this, 'setScriptVersion'], 15, 2);
+            add_filter('style_loader_src', [$this, 'setScriptVersion'], 15, 2);
         }
     }
 
@@ -29,7 +29,7 @@ class Enqueue implements AutoloadInterface
         return $links;
     }
 
-    public function addScriptVersion(string $src, string $handle): string
+    public function setScriptVersion(string $src, string $handle): string
     {
         $isCurrentHost = app_is_current_host($src);
 
