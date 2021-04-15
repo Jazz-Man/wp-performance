@@ -49,7 +49,7 @@ class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterfac
      */
     public function all($args, $assoc_args)
     {
-        $result = self::replace_content($args, $assoc_args);
+        $result = self::replaceContent($args, $assoc_args);
 
         if (isset($assoc_args['dry-run'])) {
             WP_CLI::success(
@@ -80,7 +80,7 @@ class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterfac
      *
      * @return array
      */
-    private static function replace_content($args, $assoc_args)
+    private static function replaceContent($args, $assoc_args)
     {
         if (isset($assoc_args['without-sanitize'])) {
             $assoc_args['sanitize'] = false;
