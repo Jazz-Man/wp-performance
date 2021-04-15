@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\Performance\Utils\Cache;
 use WP_Query;
 
 /**
@@ -13,16 +14,12 @@ class WPQuery implements AutoloadInterface
     /**
      * @var string
      */
-    private $cacheGroup = 'query';
-    /**
-     * @var string
-     */
-    private $invalidateTimeKey = 'invalidate-time';
+    public const INVALIDATE_TIME_KEY = 'invalidate-time';
 
     /**
      * @var string
      */
-    private $foundPostsKey = 'found-posts';
+    public const FOUND_POSTS_KEY = 'found-posts';
     /**
      * @var string
      */
@@ -114,7 +111,7 @@ class WPQuery implements AutoloadInterface
 
     public function flushFoundRowsCach(int $post_id): void
     {
-        wp_cache_set($this->invalidateTimeKey, \time(), $this->cacheGroup);
+        wp_cache_set(self::INVALIDATE_TIME_KEY, \time(), Cache::QUERY_CACHE_GROUP);
     }
 
     private function invalidateFoundPostsCache(): void
@@ -123,9 +120,8 @@ class WPQuery implements AutoloadInterface
         $localInvalidateTime = $this->getTimeFoundPosts();
 
         if ($localInvalidateTime && $localInvalidateTime < $globalInvalidateTime) {
-            wp_cache_delete("{$this->foundPostsKey}-{$this->queryHash}", $this->cacheGroup);
-            wp_cache_delete("time-{$this->foundPostsKey}-{$this->queryHash}", $this->cacheGroup);
-
+            wp_cache_delete(sprintf('%s-%s', self::FOUND_POSTS_KEY, $this->queryHash), Cache::QUERY_CACHE_GROUP);
+            wp_cache_delete(sprintf('time-%s-%s', self::FOUND_POSTS_KEY, $this->queryHash), Cache::QUERY_CACHE_GROUP);
         }
     }
 
@@ -134,13 +130,17 @@ class WPQuery implements AutoloadInterface
      */
     private function getFoundPostsCache()
     {
-        return wp_cache_get("{$this->foundPostsKey}-{$this->queryHash}", $this->cacheGroup);
+        return wp_cache_get(sprintf('%s-%s', self::FOUND_POSTS_KEY, $this->queryHash), Cache::QUERY_CACHE_GROUP);
     }
 
     private function setFoundPostsCache(array $ids)
     {
-        wp_cache_set("{$this->foundPostsKey}-{$this->queryHash}", $ids, $this->cacheGroup);
-        wp_cache_set("time-{$this->foundPostsKey}-{$this->queryHash}", \time(), $this->cacheGroup);
+        wp_cache_set(sprintf('%s-%s', self::FOUND_POSTS_KEY, $this->queryHash), $ids, Cache::QUERY_CACHE_GROUP);
+        wp_cache_set(
+            sprintf('time-%s-%s', self::FOUND_POSTS_KEY, $this->queryHash),
+            \time(),
+            Cache::QUERY_CACHE_GROUP
+        );
     }
 
     /**
@@ -148,7 +148,7 @@ class WPQuery implements AutoloadInterface
      */
     private function getInvalidateTime()
     {
-        return wp_cache_get($this->invalidateTimeKey, $this->cacheGroup);
+        return wp_cache_get(self::INVALIDATE_TIME_KEY, Cache::QUERY_CACHE_GROUP);
     }
 
     /**
@@ -156,6 +156,6 @@ class WPQuery implements AutoloadInterface
      */
     private function getTimeFoundPosts()
     {
-        return wp_cache_get("time-{$this->foundPostsKey}-{$this->queryHash}", $this->cacheGroup);
+        return wp_cache_get(sprintf('time-%s-%s', self::FOUND_POSTS_KEY, $this->queryHash), Cache::QUERY_CACHE_GROUP);
     }
 }
