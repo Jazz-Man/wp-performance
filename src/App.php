@@ -16,6 +16,7 @@ use JazzMan\Performance\Optimization\WPQuery;
 use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\SanitizeFileName;
 use JazzMan\Performance\Utils\Cache;
+use JazzMan\Performance\Utils\WPBlocks;
 use JazzMan\Performance\WP_CLI\SanitizeFileNameCommand;
 
 /**
@@ -27,6 +28,7 @@ class App
     {
         $classes = [
             Cache::class,
+            WPBlocks::class,
             Http::class,
             Options::class,
             Update::class,
