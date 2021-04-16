@@ -1,10 +1,9 @@
 <?php
 
-namespace JazzMan\Performance\WP_CLI;
+namespace JazzMan\Performance\Cli;
 
 use JazzMan\Performance\Security\SanitizeFileName;
 use WP_CLI;
-use WP_CLI_Command;
 
 /**
  * Class Sanitize_Command.
@@ -36,10 +35,9 @@ class SanitizeFileNameCommand extends Command
      *
      * @synopsis [--dry-run] [--without-sanitize] [--verbose]
      *
-     * @param mixed $args
-     * @param mixed $assoc_args
+     * @param  mixed  $args
+     * @param  mixed  $assoc_args
      *
-     * @throws \WP_CLI\ExitException
      */
     public function all($args, $assoc_args)
     {
@@ -67,10 +65,8 @@ class SanitizeFileNameCommand extends Command
     /**
      * Helper: Removes accents from all attachments and posts where those attachments were used.
      *
-     * @param array $args
-     * @param array $assoc_args
-     *
-     * @throws \WP_CLI\ExitException
+     * @param  array  $args
+     * @param  array  $assoc_args
      *
      * @return array
      */

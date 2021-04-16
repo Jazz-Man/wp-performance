@@ -1,8 +1,9 @@
 <?php
 
-namespace JazzMan\Performance\WP_CLI;
+namespace JazzMan\Performance\Cli;
 
 use JazzMan\Performance\Optimization\PostGuid;
+use WP_CLI;
 
 class FixPostGuidCommand extends Command
 {

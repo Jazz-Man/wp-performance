@@ -19,8 +19,8 @@ use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\SanitizeFileName;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\WPBlocks;
-use JazzMan\Performance\WP_CLI\FixPostGuidCommand;
-use JazzMan\Performance\WP_CLI\SanitizeFileNameCommand;
+use JazzMan\Performance\Cli\FixPostGuidCommand;
+use JazzMan\Performance\Cli\SanitizeFileNameCommand;
 
 /**
  * Class App.

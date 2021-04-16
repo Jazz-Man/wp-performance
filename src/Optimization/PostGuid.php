@@ -4,6 +4,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\App;
+use WP_CLI;
 
 class PostGuid implements AutoloadInterface
 {
