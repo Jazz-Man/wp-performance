@@ -8,6 +8,7 @@ use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\Http;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
+use JazzMan\Performance\Optimization\NavMenuCache;
 use JazzMan\Performance\Optimization\Options;
 use JazzMan\Performance\Optimization\PostGuid;
 use JazzMan\Performance\Optimization\PostMeta;
@@ -30,6 +31,7 @@ class App
     {
         $classes = [
             Cache::class,
+            NavMenuCache::class,
             WPBlocks::class,
             PostGuid::class,
             Http::class,
