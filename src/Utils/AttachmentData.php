@@ -69,16 +69,19 @@ class AttachmentData
                     alias('i.ID', 'attachment_id'),
                     alias('file.meta_value', 'full_url'),
                     alias('metadata.meta_value', 'metadata'),
-                    alias('image_alt.meta_value', 'image_alt')
+                    alias('alt.meta_value', 'image_alt')
                 )
                 ->from(alias($wpdb->posts, 'i'))
                 ->leftJoin(alias($wpdb->postmeta, 'metadata'), on('i.ID', 'metadata.post_id'))
-                ->leftJoin(alias($wpdb->postmeta, 'image_alt'), on('i.ID', 'image_alt.post_id'))
                 ->leftJoin(alias($wpdb->postmeta, 'file'), on('i.ID', 'file.post_id'))
+                ->leftJoin(
+                    alias($wpdb->postmeta, 'alt'),
+                    on('i.ID', 'alt.post_id')
+                        ->and(field('alt.meta_key')->eq('_wp_attachment_image_alt'))
+                )
                 ->where(
                     field('i.ID')->eq($attachment_id)
                         ->and(field('metadata.meta_key')->eq('_wp_attachment_metadata'))
-                        ->and(field('image_alt.meta_key')->eq('_wp_attachment_image_alt'))
                         ->and(field('file.meta_key')->eq('_wp_attached_file'))
                 )
                 ->limit(1)
