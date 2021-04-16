@@ -147,9 +147,13 @@ class Media implements AutoloadInterface
         $media_months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (!empty($media_months)){
+
+            $cached_latest_year = ! empty($media_months[0]->year) ? $media_months[0]->year : '';
+            $cached_latest_month = ! empty($media_months[0]->month) ? $media_months[0]->month : '';
+
             // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
-            $latest_year = get_the_time('Y', $post_id) === $media_months['year'];
-            $latest_month = get_the_time('n', $post_id) === $media_months['month'];
+            $latest_year = get_the_time('Y', $post_id) === $cached_latest_year;
+            $latest_month = get_the_time('n', $post_id) === $cached_latest_month;
 
             if (!$latest_year || !$latest_month) {
                 // the new attachment is not in the same month/year as the data in our cache
@@ -179,13 +183,12 @@ select
 from $wpdb->posts
 where post_type = 'attachment'
 order by post_date desc 
-limit 1
 SQL
             );
 
             $statement->execute();
 
-            $months = $statement->fetch(\PDO::FETCH_ASSOC);
+            $months = $statement->fetchAll(\PDO::FETCH_OBJ);
 
             wp_cache_set('wpcom_media_months_array', $months,Cache::CACHE_GROUP);
         }
