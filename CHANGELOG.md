@@ -1,7 +1,13 @@
 
+2.2.4 / 2021-04-16
+==================
+
+  * check if metadata not empty
+
 2.2.3 / 2021-04-16
 ==================
 
+  * update CHANGELOG.md
   * add NavMenuCache class
   * update phpdoc
   * update list of helpers functions
