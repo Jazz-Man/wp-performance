@@ -1,7 +1,21 @@
 
+2.2.3 / 2021-04-16
+==================
+
+  * add NavMenuCache class
+  * update phpdoc
+  * update list of helpers functions
+  * fix sql join for imageAlt and refactor naming
+  * update wp-cli commands
+  * join meta table if _wp_attachment_image_alt is exist
+  * fix image urls
+  * fix post guid
+  * fix media library Months data
+
 2.2.0 / 2021-04-15
 ==================
 
+  * update CHANGELOG
   * show reusable blocks in admin panel
   * add helper file for images
   * add CACHE_GROUP
