@@ -2,31 +2,16 @@
 
 namespace JazzMan\Performance\WP_CLI;
 
-use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Optimization\PostGuid;
 
-class FixPostGuidCommand extends WP_CLI_Command implements AutoloadInterface
+class FixPostGuidCommand extends Command
 {
-    public function load()
-    {
-        // TODO: Implement load() method.
-    }
-
     public function all($args, $assoc_args)
     {
-        if (is_multisite()) {
-            $sites = get_sites([
-                'fields' => 'ids',
-            ]);
-        } else {
-            $sites = [get_current_blog_id()];
-        }
+        $sites = $this->getAllSites();
 
         foreach ($sites as $site_id) {
-            if (is_multisite()) {
-                WP_CLI::line(sprintf('Processing network site: %d', esc_attr($site_id)));
-                switch_to_blog($site_id);
-            }
+            $this->maybeSwitchToBlog($site_id);
 
             global $wpdb;
 

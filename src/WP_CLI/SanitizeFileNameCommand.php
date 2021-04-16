@@ -2,7 +2,6 @@
 
 namespace JazzMan\Performance\WP_CLI;
 
-use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Security\SanitizeFileName;
 use WP_CLI;
 use WP_CLI_Command;
@@ -10,12 +9,8 @@ use WP_CLI_Command;
 /**
  * Class Sanitize_Command.
  */
-class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterface
+class SanitizeFileNameCommand extends Command
 {
-    public function load()
-    {
-        // TODO: Implement load() method.
-    }
 
     /**
      * Makes all currently uploaded filenames and urls sanitized. Also replaces corresponding files from wp_posts and
@@ -32,7 +27,6 @@ class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterfac
      * [--without-sanitize]
      * : This doesn't make files to lower case and doesn't strip special chars
      *
-     * [--network]
      * : More output from replacing.
      *
      * // EXAMPLES
@@ -40,7 +34,7 @@ class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterfac
      *     wp sanitize all
      *     wp sanitize all --dry-run
      *
-     * @synopsis [--dry-run] [--without-sanitize] [--verbose] [--network]
+     * @synopsis [--dry-run] [--without-sanitize] [--verbose]
      *
      * @param mixed $args
      * @param mixed $assoc_args
@@ -80,7 +74,7 @@ class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterfac
      *
      * @return array
      */
-    private static function replaceContent($args, $assoc_args)
+    private function replaceContent($args, $assoc_args)
     {
         if (isset($assoc_args['without-sanitize'])) {
             $assoc_args['sanitize'] = false;
@@ -88,28 +82,14 @@ class SanitizeFileNameCommand extends WP_CLI_Command implements AutoloadInterfac
             $assoc_args['sanitize'] = true;
         }
 
-        if (isset($assoc_args['network'])) {
-            if (is_multisite()) {
-                $sites = get_sites();
-            } else {
-                WP_CLI::error('This is not multisite installation.');
-
-                return 0;
-            }
-        } else {
-            // This way we can use it in network but only to one site
-            $sites = ['blog_id' => get_current_blog_id()];
-        }
+        $sites = $this->getAllSites();
 
         // Replace mysql later
         global $wpdb;
 
         // Loop all sites
-        foreach ($sites as $site) {
-            if (is_multisite()) {
-                WP_CLI::line(sprintf('Processing network site: %d', esc_attr($site['blog_id'])));
-                switch_to_blog($site['blog_id']);
-            }
+        foreach ($sites as $site_id) {
+            $this->maybeSwitchToBlog($site_id);
 
             // Get all uploads
             $uploads = get_posts(
