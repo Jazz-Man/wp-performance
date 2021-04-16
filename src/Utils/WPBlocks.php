@@ -36,6 +36,7 @@ class WPBlocks implements AutoloadInterface
         });
 
         add_action('admin_menu', [$this, 'reusableBlocks']);
+        add_action("save_post_{$this->post_type}", [$this, 'resetWpBlockCache'], 10, 2);
     }
 
     public function reusableBlocks()
@@ -56,5 +57,14 @@ class WPBlocks implements AutoloadInterface
         add_menu_page($page_title, $page_title, $capability, $wp_block_slug, '', 'dashicons-editor-table', 22);
 
         add_submenu_page($wp_block_slug, $tax_title, $tax_title, $capability, $wp_block_tax_slug);
+    }
+
+    /**
+     * @param  int  $post_id
+     * @param  \WP_Post  $post
+     */
+    public function resetWpBlockCache(int $post_id, \WP_Post $post)
+    {
+        wp_cache_delete("{$post->post_type}_{$post->post_name}", Cache::CACHE_GROUP);
     }
 }
