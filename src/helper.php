@@ -8,7 +8,8 @@ use function Latitude\QueryBuilder\field;
 
 if (!function_exists('app_get_image_data_array')) {
     /**
-     * @param array|string $size
+     * @param  int  $attachment_id
+     * @param  array|string  $size
      *
      * @return array|bool
      */
@@ -61,6 +62,9 @@ if (!function_exists('app_get_image_data_array')) {
 
 if (!function_exists('app_get_attachment_image_url')) {
     /**
+     * @param  int  $attachment_id
+     * @param  string  $size
+     *
      * @return false|string
      */
     function app_get_attachment_image_url(int $attachment_id, string $size = AttachmentData::SIZE_THUMBNAIL)
@@ -80,7 +84,10 @@ if (!function_exists('app_get_attachment_image_url')) {
 
 if (!function_exists('app_get_attachment_image')) {
     /**
-     * @param array|string $attributes
+     * @param  int  $attachment_id
+     * @param  string  $size
+     * @param  array|string  $attributes
+     * @return string
      */
     function app_get_attachment_image(
         int $attachment_id,
@@ -143,6 +150,8 @@ if (!function_exists('app_get_attachment_image')) {
 
 if (!function_exists('app_get_term_link')) {
     /**
+     * @param  int  $term_id
+     * @param  string  $taxonomy
      * @return string|WP_Error
      */
     function app_get_term_link(int $term_id, string $taxonomy)
