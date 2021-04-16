@@ -183,7 +183,7 @@ class AttachmentData
             $sizeArray['sizes'] = false;
         }
 
-        if ($addDirData) {
+        if ($addDirData && !empty($this->metadata['file'])) {
             $dirname = _wp_get_attachment_relative_path($this->metadata['file']);
 
             $sizeArray['dirname'] = trailingslashit($dirname);
@@ -232,6 +232,10 @@ class AttachmentData
 
         // Bail early if error/no width.
         if ($imageWidth < 1) {
+            return false;
+        }
+
+        if (empty($sizeData['dirname']) || empty($sizeData['image_baseurl'])){
             return false;
         }
 
