@@ -1,7 +1,13 @@
 
+2.2.5 / 2021-04-16
+==================
+
+  * install WP_CLI as dev dependency
+
 2.2.4 / 2021-04-16
 ==================
 
+  * update CHANGELOG.md
   * check if metadata not empty
 
 2.2.3 / 2021-04-16

@@ -1,8 +1,10 @@
 <?php
 
-namespace JazzMan\Performance\WP_CLI;
+namespace JazzMan\Performance\Cli;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use WP_CLI;
+use WP_CLI_Command;
 
 abstract class Command extends WP_CLI_Command implements AutoloadInterface
 {
