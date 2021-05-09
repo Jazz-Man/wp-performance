@@ -115,7 +115,7 @@ if (!function_exists('app_get_attachment_image')) {
             }
 
             // Add `loading` attribute.
-            if (wp_lazy_loading_enabled('img', 'wp_get_attachment_image')) {
+            if (function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled('img', 'wp_get_attachment_image')) {
                 $defaultAttributes['loading'] = 'lazy';
             }
 
