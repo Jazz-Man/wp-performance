@@ -225,7 +225,7 @@ class NavMenuCache implements AutoloadInterface
                     $containerAttributes['id'] = $args->container_id;
                 }
 
-                if ('nav' === $args->container && $args->container_aria_label) {
+                if ('nav' === $args->container && !empty($args->container_aria_label)) {
                     $containerAttributes['aria-label'] = $args->container_aria_label;
                 }
 
