@@ -40,7 +40,7 @@ class Enqueue implements AutoloadInterface
                 if ($isCurrentHost) {
                     $path = \parse_url($src, PHP_URL_PATH);
                     $path = \ltrim($path, '/');
-                    $root = App::getRootDir();
+                    $root = app_locate_root_dir();
 
                     if (is_multisite() && ($blog = get_blog_details(null, false))) {
                         $path = \ltrim($path, $blog->path);
