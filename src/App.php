@@ -75,27 +75,6 @@ class App
         return \defined('DOING_CRON') && DOING_CRON;
     }
 
-    /**
-     * @return bool|string
-     */
-    public static function getRootDir()
-    {
-        static $path;
-        if (null === $path) {
-            $path = false;
-            if (file_exists(ABSPATH.'wp-config.php')) {
-                $path = ABSPATH;
-            } elseif (file_exists(\dirname(ABSPATH).'/wp-config.php') && !file_exists(\dirname(ABSPATH).'/wp-settings.php')) {
-                $path = \dirname(ABSPATH);
-            }
-            if ($path) {
-                $path = realpath($path);
-            }
-        }
-
-        return $path;
-    }
-
     public static function isImporting(): bool
     {
         return \defined('WP_IMPORTING') && WP_IMPORTING;
