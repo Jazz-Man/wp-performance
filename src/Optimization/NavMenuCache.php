@@ -170,7 +170,7 @@ class NavMenuCache implements AutoloadInterface
             $menuItem->type_label = $object->labels->singular_name;
 
             $menuItem->title = $menuItem->name;
-            $menuItem->url = app_get_term_link((int) $menuItem, (string) $menuItem->taxonomy);
+            $menuItem->url = app_get_term_link((int) $menuItem->term_id, (string) $menuItem->taxonomy);
             $menuItem->target = '';
             $menuItem->attr_title = '';
             $menuItem->description = get_term_field('description', $menuItem->term_id, $menuItem->taxonomy);
@@ -264,7 +264,7 @@ class NavMenuCache implements AutoloadInterface
         if (!empty($args->menu_id)) {
             $wrapId = $args->menu_id;
         } else {
-            $wrapId = 'menu-'.$menu->slug;
+            $wrapId = "menu-{$menu->slug}";
 
             while (\in_array($wrapId, $menuIdSlugs, true)) {
                 if (\preg_match('#-(\d+)$#', $wrapId, $matches)) {
@@ -309,110 +309,132 @@ class NavMenuCache implements AutoloadInterface
         if (false === $menuItems) {
             global $wpdb;
 
-            $pdo = app_db_pdo();
+            try {
+                $pdo = app_db_pdo();
 
-            $sql = (new QueryFactory())
-                ->select(
-                    'm.ID',
-                    'm.post_title',
-                    'm.post_name',
-                    'm.post_parent',
-                    'm.menu_order',
-                    'm.post_type',
-                    'm.post_content',
-                    'm.post_excerpt',
-                    alias('classes.meta_value', 'classes'),
-                    alias('menu_item_parent.meta_value', 'menu_item_parent'),
-                    alias('object.meta_value', 'object'),
-                    alias('object_id.meta_value', 'object_id'),
-                    alias('target.meta_value', 'target'),
-                    alias('type.meta_value', 'type'),
-                    alias('url.meta_value', 'url'),
-                    alias('xfn.meta_value', 'xfn'),
-                    alias('hide_link.meta_value', 'hide_link'),
-                    alias('image_link.meta_value', 'image_link')
-                )
-                ->from(alias($wpdb->posts, 'm'))
-                ->leftJoin(alias($wpdb->term_relationships, 'tr'), on('m.ID', 'tr.object_id'))
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'classes'),
-                    on('m.ID', 'classes.post_id')
-                        ->and(field('classes.meta_key')->eq('_menu_item_classes'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'menu_item_parent'),
-                    on('m.ID', 'menu_item_parent.post_id')
-                        ->and(field('menu_item_parent.meta_key')->eq('_menu_item_menu_item_parent'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'object'),
-                    on('m.ID', 'object.post_id')
-                        ->and(field('object.meta_key')->eq('_menu_item_object'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'object_id'),
-                    on('m.ID', 'object_id.post_id')
-                        ->and(field('object_id.meta_key')->eq('_menu_item_object_id'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'target'),
-                    on('m.ID', 'target.post_id')
-                        ->and(field('target.meta_key')->eq('_menu_item_target'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'type'),
-                    on('m.ID', 'type.post_id')
-                        ->and(field('type.meta_key')->eq('_menu_item_type'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'url'),
-                    on('m.ID', 'url.post_id')
-                        ->and(field('url.meta_key')->eq('_menu_item_url'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'xfn'),
-                    on('m.ID', 'xfn.post_id')
-                        ->and(field('xfn.meta_key')->eq('_menu_item_xfn'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'hide_link'),
-                    on('m.ID', 'hide_link.post_id')
-                        ->and(field('hide_link.meta_key')->eq('menu-item-mm-hide-link'))
-                )
-                ->leftJoin(
-                    alias($wpdb->postmeta, 'image_link'),
-                    on('m.ID', 'image_link.post_id')
-                        ->and(field('image_link.meta_key')->eq('menu-item-mm-image-link'))
-                )
-                ->where(
-                    field('tr.term_taxonomy_id')
-                        ->eq($menuObject->term_taxonomy_id)
-                        ->and(field('m.post_type')->eq('nav_menu_item'))
-                        ->and(field('m.post_status')->eq('publish'))
-                )
-                ->groupBy('m.ID', 'm.menu_order')
-                ->orderBy('m.menu_order', 'asc')
-                ->compile()
-            ;
+                $sql = (new QueryFactory())
+                    ->select(
+                        'm.ID',
+                        'm.post_title',
+                        'm.post_name',
+                        'm.post_parent',
+                        'm.menu_order',
+                        'm.post_type',
+                        'm.post_content',
+                        'm.post_excerpt',
+                        alias('classes.meta_value', 'classes'),
+                        alias('menu_item_parent.meta_value', 'menu_item_parent'),
+                        alias('object.meta_value', 'object'),
+                        alias('object_id.meta_value', 'object_id'),
+                        alias('target.meta_value', 'target'),
+                        alias('type.meta_value', 'type'),
+                        alias('url.meta_value', 'url'),
+                        alias('xfn.meta_value', 'xfn'),
+                        alias('hide_link.meta_value', 'hide_link'),
+                        alias('image_link.meta_value', 'image_link')
+                    )
+                    ->from(alias($wpdb->posts, 'm'))
+                    ->leftJoin(alias($wpdb->term_relationships, 'tr'), on('m.ID', 'tr.object_id'))
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'classes'),
+                        on('m.ID', 'classes.post_id')
+                            ->and(field('classes.meta_key')->eq('_menu_item_classes'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'menu_item_parent'),
+                        on('m.ID', 'menu_item_parent.post_id')
+                            ->and(field('menu_item_parent.meta_key')->eq('_menu_item_menu_item_parent'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'object'),
+                        on('m.ID', 'object.post_id')
+                            ->and(field('object.meta_key')->eq('_menu_item_object'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'object_id'),
+                        on('m.ID', 'object_id.post_id')
+                            ->and(field('object_id.meta_key')->eq('_menu_item_object_id'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'target'),
+                        on('m.ID', 'target.post_id')
+                            ->and(field('target.meta_key')->eq('_menu_item_target'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'type'),
+                        on('m.ID', 'type.post_id')
+                            ->and(field('type.meta_key')->eq('_menu_item_type'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'url'),
+                        on('m.ID', 'url.post_id')
+                            ->and(field('url.meta_key')->eq('_menu_item_url'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'xfn'),
+                        on('m.ID', 'xfn.post_id')
+                            ->and(field('xfn.meta_key')->eq('_menu_item_xfn'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'hide_link'),
+                        on('m.ID', 'hide_link.post_id')
+                            ->and(field('hide_link.meta_key')->eq('menu-item-mm-hide-link'))
+                    )
+                    ->leftJoin(
+                        alias($wpdb->postmeta, 'image_link'),
+                        on('m.ID', 'image_link.post_id')
+                            ->and(field('image_link.meta_key')->eq('menu-item-mm-image-link'))
+                    )
+                    ->where(
+                        field('tr.term_taxonomy_id')
+                            ->eq($menuObject->term_taxonomy_id)
+                            ->and(field('m.post_type')->eq('nav_menu_item'))
+                            ->and(field('m.post_status')->eq('publish'))
+                    )
+                    ->groupBy('m.ID', 'm.menu_order')
+                    ->orderBy('m.menu_order', 'asc')
+                    ->compile();
 
-            $navStatement = $pdo->prepare($sql->sql());
+                $navStatement = $pdo->prepare($sql->sql());
 
-            $navStatement->execute($sql->params());
+                $navStatement->execute($sql->params());
 
-            $menuItems = $navStatement->fetchAll(\PDO::FETCH_OBJ);
+                $menuItems = $navStatement->fetchAll(\PDO::FETCH_OBJ);
 
-            $menuItems = apply_filters('app_nav_menu_cache_items', $menuItems, $menuObject);
+                $menuItems = apply_filters('app_nav_menu_cache_items', $menuItems, $menuObject);
 
-            $menuItems = \array_map([__CLASS__, 'setupNavMenuItem'], $menuItems);
+                $menuItems = \array_map([__CLASS__, 'setupNavMenuItem'], $menuItems);
 
-            wp_cache_set($cacheKey, $menuItems, 'menu_items');
+                wp_cache_set($cacheKey, $menuItems, 'menu_items');
+
+            }catch (\Exception $exception){
+                $item = new \stdClass();
+                $item->_invalid = true;
+
+                $menuItems = [];
+                $menuItems[] = $item;
+
+                app_error_log($exception,__METHOD__);
+            }
         }
 
         return $menuItems;
     }
 
     /**
-     * @param \stdClass[] $menuItems
+     * @param \stdClass[] $menuItems {
+     * @type bool $current
+     * @type bool $current_item_ancestor
+     * @type bool $current_item_parent
+     * @type string|array $classes
+     * @type string $type
+     * @type string $object
+     * @type int $object_id
+     * @type int $db_id
+     * @type int $menu_item_parent
+     * @type int $post_parent
+     *
+     * }
      */
     private function setMenuItemClassesByContext(array &$menuItems)
     {
@@ -495,8 +517,8 @@ class NavMenuCache implements AutoloadInterface
 
             $classes = (array) $menuItem->classes;
             $classes[] = 'menu-item';
-            $classes[] = 'menu-item-type-'.$menuItem->type;
-            $classes[] = 'menu-item-object-'.$menuItem->object;
+            $classes[] = "menu-item-type-{$menuItem->type}";
+            $classes[] = "menu-item-object-{$menuItem->object}";
 
             if ('post_type' === $menuItem->type) {
                 if ($frontPageId === (int) $menuItem->object_id) {
@@ -540,7 +562,7 @@ class NavMenuCache implements AutoloadInterface
 
                 if ('post_type' === $menuItem->type && 'page' === $menuItem->object) {
                     $classes[] = 'page_item';
-                    $classes[] = 'page-item-'.$menuItem->object_id;
+                    $classes[] = "page-item-{$menuItem->object_id}";
                     $classes[] = 'current_page_item';
                 }
 
@@ -554,7 +576,7 @@ class NavMenuCache implements AutoloadInterface
                     $activeAncestorItemIds[] = (int) $menuItem->db_id;
                 }
                 $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
-            } elseif ('custom' === $menuItem->object && isset($_SERVER['HTTP_HOST'])) {
+            } elseif ('custom' === $menuItem->object && filter_input(INPUT_SERVER,'HTTP_HOST')) {
                 $rootRelativeCurrent = app_get_current_relative_url();
 
                 $currentUrl = app_get_current_url();
@@ -642,11 +664,11 @@ class NavMenuCache implements AutoloadInterface
                         && (!isset($queriedObject->term_id) || $parentItem->object_id !== $queriedObject->term_id))
                 )
             ) {
-                if (!empty($queriedObject->taxonomy)) {
-                    $classes[] = 'current-'.$queriedObject->taxonomy.'-ancestor';
-                } else {
-                    $classes[] = 'current-'.$queriedObject->post_type.'-ancestor';
-                }
+
+                $classes[] = sprintf(
+                    'current-%s-ancestor',
+                    $queriedObject->taxonomy?: $queriedObject->post_type
+                );
             }
 
             if (\in_array((int) $parentItem->db_id, $activeAncestorItemIds, true)) {
