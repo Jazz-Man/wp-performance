@@ -31,7 +31,7 @@ class SanitizeFileName implements AutoloadInterface
     public static function renameAccentedFilesInAnyForm(string $oldFile, string $newFile)
     {
         // Try to move the file without any hacks before continuing
-        $result = @rename($oldFile, $newFile);
+        $result = rename($oldFile, $newFile);
 
         if ($result) {
             return $oldFile;
@@ -50,7 +50,7 @@ class SanitizeFileName implements AutoloadInterface
 
             foreach ($possibleOldFiles as $possibleOldFile) {
                 // Rename the file if it exists, ignore errors because this is encoding bingo
-                $result = @rename($possibleOldFile, $newFile);
+                $result = rename($possibleOldFile, $newFile);
 
                 // Stop immediately if we found a solution
                 if ($result) {
@@ -88,12 +88,12 @@ class SanitizeFileName implements AutoloadInterface
         // Check which one $filename uses and use it
         // If $filename doesn't use FORM_D or FORM_C don't convert errors
         if (Normalizer::isNormalized($filename, Normalizer::FORM_D)) {
-            $error_chars = array_map(static function ($n) {
-                return Normalizer::normalize($n, Normalizer::FORM_D);
+            $error_chars = array_map(static function ($string) {
+                return Normalizer::normalize($string, Normalizer::FORM_D);
             }, $error_chars);
         } elseif (Normalizer::isNormalized($filename)) {
-            $error_chars = array_map(static function ($n) {
-                return Normalizer::normalize($n);
+            $error_chars = array_map(static function ($string) {
+                return Normalizer::normalize($string);
             }, $error_chars);
         }
 
