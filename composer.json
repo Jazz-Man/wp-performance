@@ -29,7 +29,7 @@
         "dg/composer-cleaner": "^2.2",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.7",
-        "wp-cli/wp-cli": "^2.4"
+        "wp-cli/wp-cli": "^2.5"
     },
     "extra": {
         "installer-paths": {
