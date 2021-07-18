@@ -32,17 +32,17 @@ class CleanUp implements AutoloadInterface
         // Originally from http://wpengineer.com/1438/wordpress-header/
         remove_action('wp_head', 'feed_links', 2);
         remove_action('wp_head', 'feed_links_extra', 3);
-        remove_action('wp_head', 'rest_output_link_wp_head', 10);
+        remove_action('wp_head', 'rest_output_link_wp_head');
         remove_action('template_redirect', 'wp_shortlink_header', 11);
         remove_action('template_redirect', 'rest_output_link_header', 11);
         add_action('wp_head', 'ob_start', 1, 0);
         add_action('wp_head', static function () {
-            $pattern = '/.*'.\preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
-            echo \preg_replace($pattern, '', \ob_get_clean());
+            $pattern = '/.*'.preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
+            echo preg_replace($pattern, '', ob_get_clean());
         }, 3, 0);
         remove_action('wp_head', 'rsd_link');
         remove_action('wp_head', 'wlwmanifest_link');
-        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10);
+        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
         remove_action('wp_head', 'wp_generator');
         remove_action('wp_head', 'wp_shortlink_wp_head');
         remove_action('wp_head', 'print_emoji_detection_script', 7);
@@ -83,13 +83,13 @@ class CleanUp implements AutoloadInterface
         if (is_single() || (is_page() && ! is_front_page())) {
             $permalink = get_permalink();
 
-            if ( ! \in_array(\basename($permalink), $classes)) {
-                $classes[] = \basename($permalink);
+            if ( ! in_array(basename($permalink), $classes)) {
+                $classes[] = basename($permalink);
             }
         }
         // Remove unnecessary classes
 
-        return \array_diff($classes, [
+        return array_diff($classes, [
             'page-template-default',
             sprintf('page-id-%d', esc_attr(get_option('page_on_front'))),
         ]);
@@ -102,6 +102,8 @@ class CleanUp implements AutoloadInterface
      * @see http://www.readability.com/publishers/guidelines#publisher
      *
      * @param $cache
+     *
+     * @return string
      */
     public function embedWrap($cache): string
     {
@@ -144,7 +146,7 @@ class CleanUp implements AutoloadInterface
     public function filterRewrites(array $rules): array
     {
         foreach ($rules as $rule => $rewrite) {
-            if (\preg_match('/trackback\/\?\$$/i', $rule)) {
+            if (preg_match('/trackback\/\?\$$/i', $rule)) {
                 unset($rules[$rule]);
             }
         }
