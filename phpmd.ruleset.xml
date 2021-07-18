@@ -14,11 +14,6 @@
   </rule>
 
   <rule ref="rulesets/cleancode.xml/ElseExpression"/>
-  <rule ref="rulesets/cleancode.xml/StaticAccess">
-    <properties>
-      <property name="exceptions" value="\JazzMan\Performance\App" />
-    </properties>
-  </rule>
   <rule ref="rulesets/cleancode.xml/IfStatementAssignment"/>
   <rule ref="rulesets/cleancode.xml/DuplicatedArrayKey"/>
   <rule ref="rulesets/cleancode.xml/ErrorControlOperator"/>
@@ -62,11 +57,11 @@
       <property name="allow-underscore-test" value="true"/>
     </properties>
   </rule>
-<!--  <rule ref="rulesets/controversial.xml/CamelCaseVariableName">-->
-<!--    <properties>-->
-<!--      <property name="allow-underscore" value="true"/>-->
-<!--    </properties>-->
-<!--  </rule>-->
+  <rule ref="rulesets/controversial.xml/CamelCaseVariableName">
+    <properties>
+      <property name="allow-underscore" value="true"/>
+    </properties>
+  </rule>
 
 
   <rule ref="rulesets/naming.xml/LongClassName"/>
@@ -75,6 +70,7 @@
   <rule ref="rulesets/naming.xml/ShortMethodName"/>
   <rule ref="rulesets/naming.xml/ConstructorWithNameAsEnclosingClass"/>
   <rule ref="rulesets/naming.xml/ConstantNamingConventions"/>
+  <rule ref="rulesets/naming.xml/BooleanGetMethodName"/>
   <rule ref="rulesets/naming.xml/ShortVariable">
     <properties>
       <!-- common in WP -->
