@@ -18,7 +18,7 @@ abstract class Command extends WP_CLI_Command implements AutoloadInterface
      */
     protected function getAllSites(): array
     {
-        return is_multisite() ? get_sites(['fields' => 'ids']) : (array) get_current_blog_id();
+        return is_multisite() ? (array) get_sites(['fields' => 'ids']) : (array) get_current_blog_id();
     }
 
     protected function maybeSwitchToBlog(int $siteId)
