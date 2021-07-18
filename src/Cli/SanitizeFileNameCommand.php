@@ -36,14 +36,14 @@ class SanitizeFileNameCommand extends Command
      * @synopsis [--dry-run] [--without-sanitize] [--verbose]
      *
      * @param  mixed  $args
-     * @param  mixed  $assoc_args
+     * @param  mixed  $assocArgs
      *
      */
-    public function all($args, $assoc_args)
+    public function all($args, $assocArgs)
     {
-        $result = self::replaceContent($args, $assoc_args);
+        $result = self::replaceContent($args, $assocArgs);
 
-        if (isset($assoc_args['dry-run'])) {
+        if (isset($assocArgs['dry-run'])) {
             WP_CLI::success(
                 sprintf(
                     'Found %s from %s attachments to replace.',
@@ -66,26 +66,29 @@ class SanitizeFileNameCommand extends Command
      * Helper: Removes accents from all attachments and posts where those attachments were used.
      *
      * @param  array  $args
-     * @param  array  $assoc_args
+     * @param  array  $assocArgs
      *
      * @return array
      */
-    private function replaceContent($args, $assoc_args)
+    private function replaceContent($args, $assocArgs)
     {
-        if (isset($assoc_args['without-sanitize'])) {
-            $assoc_args['sanitize'] = false;
+        if (isset($assocArgs['without-sanitize'])) {
+            $assocArgs['sanitize'] = false;
         } else {
-            $assoc_args['sanitize'] = true;
+            $assocArgs['sanitize'] = true;
         }
 
         $sites = $this->getAllSites();
+
+        $replacedCount = 0;
+        $allPostsCount = 0;
 
         // Replace mysql later
         global $wpdb;
 
         // Loop all sites
-        foreach ($sites as $site_id) {
-            $this->maybeSwitchToBlog($site_id);
+        foreach ($sites as $siteId) {
+            $this->maybeSwitchToBlog($siteId);
 
             // Get all uploads
             $uploads = get_posts(
@@ -95,18 +98,18 @@ class SanitizeFileNameCommand extends Command
                 ]
             );
 
-            $all_posts_count = \count($uploads);
+            $allPostsCount = \count($uploads);
 
-            $replaced_count = 0;
+            $replacedCount = 0;
 
             WP_CLI::line(sprintf('Found: %d attachments.', esc_attr(count($uploads))));
             WP_CLI::line('This may take a while...');
             foreach ($uploads as $index => $upload) {
-                $ascii_guid = SanitizeFileName::removeAccents($upload->guid, $assoc_args['sanitize']);
+                $asciiGuid = SanitizeFileName::removeAccents($upload->guid, $assocArgs['sanitize']);
 
                 // Replace all files and content if file is different after removing accents
-                if ($ascii_guid !== $upload->guid) {
-                    ++$replaced_count;
+                if ($asciiGuid !== $upload->guid) {
+                    ++$replacedCount;
 
                     /**
                      * Replace all thumbnail sizes of this file from all post contents
@@ -114,13 +117,13 @@ class SanitizeFileNameCommand extends Command
                      * More ofter it's like file-800x500.jpg
                      * Only search for the file basename like /wp-content/uploads/2017/01/file without extension.
                      */
-                    $file_info = pathinfo($upload->guid);
+                    $fileInfo = pathinfo($upload->guid);
 
                     // Check filename without extension so we can replace all thumbnail sizes at once
-                    $attachment_string = $file_info['dirname'].'/'.$file_info['filename'];
-                    $escaped_attachment_string = SanitizeFileName::removeAccents(
-                        $attachment_string,
-                        $assoc_args['sanitize']
+                    $attachmentString = $fileInfo['dirname'].'/'.$fileInfo['filename'];
+                    $escapedAttachmentString = SanitizeFileName::removeAccents(
+                        $attachmentString,
+                        $assocArgs['sanitize']
                     );
 
                     // We don't need to replace excerpt for example since it doesn't have attachments...
@@ -128,23 +131,23 @@ class SanitizeFileNameCommand extends Command
                     WP_CLI::line(
                         sprintf(
                             'REPLACING: %s ---> %s',
-                            esc_attr($file_info['basename']),
-                            esc_attr($escaped_attachment_string)
+                            esc_attr($fileInfo['basename']),
+                            esc_attr($escapedAttachmentString)
                         )
                     );
 
                     $sql = $wpdb->prepare(
                         "UPDATE {$wpdb->prefix}posts SET post_content = REPLACE (post_content, '%s', '%s') WHERE post_content LIKE '%s';",
-                        $attachment_string,
-                        $escaped_attachment_string,
-                        '%'.$wpdb->esc_like($attachment_string).'%'
+                        $attachmentString,
+                        $escapedAttachmentString,
+                        '%'.$wpdb->esc_like($attachmentString).'%'
                     );
 
-                    if (isset($assoc_args['verbose'])) {
+                    if (isset($assocArgs['verbose'])) {
                         self::verboseSql($sql);
                     }
 
-                    if (!isset($assoc_args['dry-run'])) {
+                    if (!isset($assocArgs['dry-run'])) {
                         $wpdb->query($sql);
                     }
 
@@ -152,95 +155,95 @@ class SanitizeFileNameCommand extends Command
                     // This will be done later
                     $sql = $wpdb->prepare(
                         "UPDATE {$wpdb->prefix}postmeta SET meta_value = REPLACE (meta_value, '%s', '%s') WHERE meta_value LIKE '%s' AND meta_key!='_wp_attachment_metadata' AND meta_key!='_wp_attached_file';",
-                        $attachment_string,
-                        $escaped_attachment_string,
-                        '%'.$wpdb->esc_like($attachment_string).'%'
+                        $attachmentString,
+                        $escapedAttachmentString,
+                        '%'.$wpdb->esc_like($attachmentString).'%'
                     );
 
-                    if (isset($assoc_args['verbose'])) {
+                    if (isset($assocArgs['verbose'])) {
                         self::verboseSql($sql);
                     }
 
-                    if (!isset($assoc_args['dry-run'])) {
+                    if (!isset($assocArgs['dry-run'])) {
                         $wpdb->query($sql);
                     }
 
                     // Get full path for file and replace accents for the future filename
-                    $full_path = get_attached_file($upload->ID);
-                    $ascii_full_path = SanitizeFileName::removeAccents($full_path, $assoc_args['sanitize']);
+                    $fullPath = get_attached_file($upload->ID);
+                    $asciiFullPath = SanitizeFileName::removeAccents($fullPath, $assocArgs['sanitize']);
 
                     // Move the file
                     WP_CLI::line(
                         sprintf(
                             '----> Checking image:     %s',
-                            esc_attr($full_path)
+                            esc_attr($fullPath)
                         )
                     );
 
-                    if (!isset($assoc_args['dry-run'])) {
-                        $old_file = SanitizeFileName::renameAccentedFilesInAnyForm($full_path, $ascii_full_path);
-                        if ($old_file) {
+                    if (!isset($assocArgs['dry-run'])) {
+                        $oldFile = SanitizeFileName::renameAccentedFilesInAnyForm($fullPath, $asciiFullPath);
+                        if ($oldFile) {
                             WP_CLI::line(
                                 sprintf(
                                     '----> Replaced file:      %s -> %s',
-                                    esc_attr(basename($old_file)),
-                                    esc_attr(basename($ascii_full_path))
+                                    esc_attr(basename($oldFile)),
+                                    esc_attr(basename($asciiFullPath))
                                 )
                             );
                         } else {
                             WP_CLI::line(
                                 sprintf(
                                     "----> ERROR: File can't be found: %s",
-                                    esc_attr(basename($full_path))
+                                    esc_attr(basename($fullPath))
                                 )
                             );
                         }
                     }
 
                     // Replace thumbnails too
-                    $file_path = \dirname($full_path);
+                    $filePath = \dirname($fullPath);
                     $metadata = wp_get_attachment_metadata($upload->ID);
 
                     // Correct main file for later usage
-                    $ascii_file = SanitizeFileName::removeAccents($metadata['file'], $assoc_args['sanitize']);
-                    $metadata['file'] = $ascii_file;
+                    $asciiFile = SanitizeFileName::removeAccents($metadata['file'], $assocArgs['sanitize']);
+                    $metadata['file'] = $asciiFile;
 
                     // Usually this is image but if this is document instead it won't have different thumbnail sizes
                     if (isset($metadata['sizes'])) {
                         foreach ($metadata['sizes'] as $name => $thumbnail) {
                             $metadata['sizes'][$name]['file'];
-                            $thumbnail_path = $file_path.'/'.$thumbnail['file'];
+                            $thumbnailPath = $filePath.'/'.$thumbnail['file'];
 
-                            $ascii_thumbnail = SanitizeFileName::removeAccents(
+                            $asciiThumbnail = SanitizeFileName::removeAccents(
                                 $thumbnail['file'],
-                                $assoc_args['sanitize']
+                                $assocArgs['sanitize']
                             );
 
                             // Update metadata on thumbnail so we can push it back to database
-                            $metadata['sizes'][$name]['file'] = $ascii_thumbnail;
+                            $metadata['sizes'][$name]['file'] = $asciiThumbnail;
 
-                            $ascii_thumbnail_path = $file_path.'/'.$ascii_thumbnail;
+                            $asciiThumbnailPath = $filePath.'/'.$asciiThumbnail;
 
-                            WP_CLI::line(sprintf('----> Checking thumbnail: %s', esc_attr($thumbnail_path)));
+                            WP_CLI::line(sprintf('----> Checking thumbnail: %s', esc_attr($thumbnailPath)));
 
-                            if (!isset($assoc_args['dry-run'])) {
-                                $old_file = SanitizeFileName::renameAccentedFilesInAnyForm(
-                                    $thumbnail_path,
-                                    $ascii_thumbnail_path
+                            if (!isset($assocArgs['dry-run'])) {
+                                $oldFile = SanitizeFileName::renameAccentedFilesInAnyForm(
+                                    $thumbnailPath,
+                                    $asciiThumbnailPath
                                 );
-                                if ($old_file) {
+                                if ($oldFile) {
                                     WP_CLI::line(
                                         sprintf(
                                             '----> Replaced thumbnail: %s -> %s',
-                                            esc_attr(basename($old_file)),
-                                            esc_attr(basename($ascii_thumbnail_path))
+                                            esc_attr(basename($oldFile)),
+                                            esc_attr(basename($asciiThumbnailPath))
                                         )
                                     );
                                 } else {
                                     WP_CLI::line(
                                         sprintf(
                                             "----> ERROR: File can't be found: %s",
-                                            esc_attr(basename($thumbnail_path))
+                                            esc_attr(basename($thumbnailPath))
                                         )
                                     );
                                 }
@@ -249,23 +252,23 @@ class SanitizeFileNameCommand extends Command
                     }
 
                     // Serialize fixed metadata so that we can insert it back to database
-                    $fixed_metadata = serialize($metadata);
+                    $fixedMetadata = serialize($metadata);
 
                     // Replace Database
-                    if (isset($assoc_args['verbose'])) {
+                    if (isset($assocArgs['verbose'])) {
                         WP_CLI::line(sprintf('Replacing attachment %d data in database...', esc_attr($upload->ID)));
                     }
 
-                    if (!isset($assoc_args['dry-run'])) {
+                    if (!isset($assocArgs['dry-run'])) {
                         // Replace guid
 
-                        $wpdb->update($wpdb->posts, ['guid' => $ascii_guid], ['ID' => $upload->ID], ['%s'], ['%d']);
+                        $wpdb->update($wpdb->posts, ['guid' => $asciiGuid], ['ID' => $upload->ID], ['%s'], ['%d']);
 
                         // Replace upload name
 
                         $wpdb->update(
                             $wpdb->postmeta,
-                            ['meta_value' => $ascii_file],
+                            ['meta_value' => $asciiFile],
                             ['post_id' => '%d', 'meta_key' => '_wp_attached_file'],
                             ['%s'],
                             ['%d']
@@ -275,7 +278,7 @@ class SanitizeFileNameCommand extends Command
 
                         $wpdb->update(
                             $wpdb->postmeta,
-                            ['meta_value' => $fixed_metadata],
+                            ['meta_value' => $fixedMetadata],
                             ['post_id' => '%d', 'meta_key' => '_wp_attachment_metadata'],
                             ['%s'],
                             ['%d']
@@ -283,17 +286,17 @@ class SanitizeFileNameCommand extends Command
                     }
 
                     // Calculate remaining files
-                    $remaining_files = $all_posts_count - $index - 1;
+                    $remainingFiles = $allPostsCount - $index - 1;
 
                     // Show some kind of progress to wp-cli user
                     WP_CLI::line();
-                    WP_CLI::line(sprintf('Remaining workload: %s attachments...', esc_attr($remaining_files)));
+                    WP_CLI::line(sprintf('Remaining workload: %s attachments...', esc_attr($remainingFiles)));
                     WP_CLI::line();
                 }
             }
         }
 
-        return ['replaced_count' => $replaced_count, 'considered_count' => $all_posts_count];
+        return ['replaced_count' => $replacedCount, 'considered_count' => $allPostsCount];
     }
 
     private static function verboseSql(string $sqlString)
