@@ -48,7 +48,7 @@ class Http implements AutoloadInterface
                         }
                     }
 
-                    \printf('<link %s/>', app_add_attr_to_el($attributes));
+                    printf('<link %s/>', app_add_attr_to_el($attributes));
                 }
             }
         }
@@ -56,30 +56,30 @@ class Http implements AutoloadInterface
 
     public function preloadLinks(): void
     {
-        if (\headers_sent()) {
+        if (headers_sent()) {
             return;
         }
 
         $this->preloadLinks = (array) apply_filters('app_preload_links', $this->preloadLinks);
 
         if (!empty($this->preloadLinks)) {
-            $link_provider = new GenericLinkProvider($this->preloadLinks);
+            $linkProvider = new GenericLinkProvider($this->preloadLinks);
 
-            $header = (new HttpHeaderSerializer())->serialize($link_provider->getLinks());
+            $header = (new HttpHeaderSerializer())->serialize($linkProvider->getLinks());
 
             if (!empty($header)) {
-                \header(\sprintf('Link: %s', $header), false);
+                header(sprintf('Link: %s', $header), false);
             }
         }
 
         // @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control
-        \header('X-DNS-Prefetch-Control: on');
+        header('X-DNS-Prefetch-Control: on');
     }
 
-    public static function preloadLink(string $href, string $as, string $rel = Link::REL_PRELOAD): Link
+    public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
     {
-        return (new Link($rel, self::makeLinkRelative($href)))
-            ->withAttribute('as', $as)
+        return (new Link($relAttribute, self::makeLinkRelative($href)))
+            ->withAttribute('as', $asAttribute)
             ->withAttribute('importance', 'high')
         ;
     }
