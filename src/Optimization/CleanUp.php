@@ -12,9 +12,7 @@ class CleanUp implements AutoloadInterface
     public function load()
     {
         add_action('init', [$this, 'headCleanup']);
-        /*
-         * Remove the WordPress version from RSS feeds
-         */
+        // Remove the WordPress version from RSS feeds
         add_filter('the_generator', '__return_false');
         add_filter('xmlrpc_enabled', '__return_false');
 
@@ -62,9 +60,6 @@ class CleanUp implements AutoloadInterface
         add_filter('rest_queried_resource_route', '__return_empty_string');
     }
 
-    /**
-     * @return string
-     */
     public function languageAttributes(): string
     {
         $attributes = [];
@@ -81,10 +76,6 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Add and remove body_class() classes.
-     *
-     * @param array $classes
-     *
-     * @return array
      */
     public function bodyClass(array $classes): array
     {
@@ -92,18 +83,16 @@ class CleanUp implements AutoloadInterface
         if (is_single() || (is_page() && ! is_front_page())) {
             $permalink = get_permalink();
 
-            if (! \in_array(\basename($permalink), $classes)) {
+            if ( ! \in_array(\basename($permalink), $classes)) {
                 $classes[] = \basename($permalink);
             }
         }
         // Remove unnecessary classes
 
-        $remove_classes = [
+        return \array_diff($classes, [
             'page-template-default',
-            sprintf('page-id-%d',esc_attr(get_option('page_on_front'))),
-        ];
-
-        return \array_diff($classes, $remove_classes);
+            sprintf('page-id-%d', esc_attr(get_option('page_on_front'))),
+        ]);
     }
 
     /**
@@ -113,8 +102,6 @@ class CleanUp implements AutoloadInterface
      * @see http://www.readability.com/publishers/guidelines#publisher
      *
      * @param $cache
-     *
-     * @return string
      */
     public function embedWrap($cache): string
     {
@@ -123,24 +110,14 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Don't return the default description in the RSS feed if it hasn't been changed.
-     *
-     * @param string $bloginfo
-     *
-     * @return string
      */
     public function removeDefaultDescription(string $bloginfo): string
     {
-        $default_tagline = 'Just another WordPress site';
-
-        return ($bloginfo === $default_tagline) ? '' : $bloginfo;
+        return ('Just another WordPress site' === $bloginfo) ? '' : $bloginfo;
     }
 
     /**
      * Disable pingback XMLRPC method.
-     *
-     * @param array $methods
-     *
-     * @return array
      */
     public function filterXmlrpcMethod(array $methods): array
     {
@@ -151,10 +128,6 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Remove pingback header.
-     *
-     * @param array $headers
-     *
-     * @return array
      */
     public function filterHeaders(array $headers): array
     {
@@ -167,10 +140,6 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Kill trackback rewrite rule.
-     *
-     * @param array $rules
-     *
-     * @return array
      */
     public function filterRewrites(array $rules): array
     {
@@ -185,11 +154,6 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Kill bloginfo('pingback_url').
-     *
-     * @param string $output
-     * @param string $show
-     *
-     * @return string
      */
     public function killPingbackUrl(string $output, string $show): string
     {
@@ -202,8 +166,6 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Disable XMLRPC call.
-     *
-     * @param string $action
      */
     public function killXmlrpc(string $action)
     {
