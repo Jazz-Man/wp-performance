@@ -18,8 +18,22 @@ class CleanUp implements AutoloadInterface
 
         add_filter('language_attributes', [$this, 'languageAttributes']);
         add_filter('body_class', [$this, 'bodyClass']);
-        add_filter('embed_oembed_html', [$this, 'embedWrap']);
-        add_filter('get_bloginfo_rss', [$this, 'removeDefaultDescription']);
+
+        /*
+         * Wrap embedded media as suggested by Readability.
+         *
+         * @see https://gist.github.com/965956
+         * @see http://www.readability.com/publishers/guidelines#publisher
+         *
+         */
+        add_filter('embed_oembed_html', static function ($cache) {
+            return '<div class="entry-content-asset">'.$cache.'</div>';
+        });
+
+        // Don't return the default description in the RSS feed if it hasn't been changed.
+        add_filter('get_bloginfo_rss', static function (string $bloginfo) {
+            return ('Just another WordPress site' === $bloginfo) ? '' : $bloginfo;
+        });
         add_filter('xmlrpc_methods', [$this, 'filterXmlrpcMethod']);
         add_filter('wp_headers', [$this, 'filterHeaders']);
         add_filter('rewrite_rules_array', [$this, 'filterRewrites']);
@@ -93,29 +107,6 @@ class CleanUp implements AutoloadInterface
             'page-template-default',
             sprintf('page-id-%d', esc_attr(get_option('page_on_front'))),
         ]);
-    }
-
-    /**
-     * Wrap embedded media as suggested by Readability.
-     *
-     * @see https://gist.github.com/965956
-     * @see http://www.readability.com/publishers/guidelines#publisher
-     *
-     * @param $cache
-     *
-     * @return string
-     */
-    public function embedWrap($cache): string
-    {
-        return '<div class="entry-content-asset">'.$cache.'</div>';
-    }
-
-    /**
-     * Don't return the default description in the RSS feed if it hasn't been changed.
-     */
-    public function removeDefaultDescription(string $bloginfo): string
-    {
-        return ('Just another WordPress site' === $bloginfo) ? '' : $bloginfo;
     }
 
     /**
