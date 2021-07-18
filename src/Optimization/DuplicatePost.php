@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use WP_Post;
 
 /**
  * Class DuplicatePost.
@@ -20,17 +21,17 @@ class DuplicatePost implements AutoloadInterface
 
     public function load()
     {
-        add_filter('post_row_actions', [$this, 'duplicate_post_link'], 10, 2);
-        add_filter('page_row_actions', [$this, 'duplicate_post_link'], 10, 2);
+        add_filter('post_row_actions', [$this, 'duplicatePostLink'], 10, 2);
+        add_filter('page_row_actions', [$this, 'duplicatePostLink'], 10, 2);
 
-        add_action("admin_action_{$this->action}", [$this, 'duplicate_post_as_draft']);
+        add_action("admin_action_$this->action", [$this, 'duplicatePostAsDraft']);
     }
 
-    public function duplicate_post_link(array $actions, \WP_Post $post): array
+    public function duplicatePostLink(array $actions, WP_Post $post): array
     {
         if ('publish' === $post->post_status && current_user_can('edit_posts')) {
             $actions['duplicate'] = sprintf(
-                '<a href="%s" title="Duplicate this item" rel="permalink">Duplicate</a>',
+                '<a href="%s" title="%s" rel="permalink">%s</a>',
                 wp_nonce_url(
                     add_query_arg(
                         [
@@ -41,43 +42,45 @@ class DuplicatePost implements AutoloadInterface
                     ),
                     basename(__FILE__),
                     $this->nonce
-                )
+                ),
+                esc_attr__('Duplicate this item'),
+                esc_attr__('Duplicate')
             );
         }
 
         return $actions;
     }
 
-    public function duplicate_post_as_draft()
+    public function duplicatePostAsDraft()
     {
         check_ajax_referer(basename(__FILE__), $this->nonce);
 
         $request = app_get_request_data();
 
-        $post_id = $request->getDigits('post');
+        $postId = $request->getDigits('post');
         $action = $request->get('action');
 
-        if (!($post_id || ($this->action === $action))) {
+        if ( ! ($postId || ($this->action === $action))) {
             wp_die('No post to duplicate has been supplied!');
         }
 
         // get the original post data
-        $post = get_post($post_id);
+        $post = get_post($postId);
 
         /*
          * if you don't want current user to be the new post author,
          * then change next couple of lines to this: $new_post_author = $post->post_author;
          */
-        $current_user = wp_get_current_user();
-        $new_post_author = $current_user->ID;
+        $currentUser = wp_get_current_user();
+        $newPostAuthor = $currentUser->ID;
 
         // if post data exists, create the post duplicate
-        if (!empty($post)) {
+        if ( ! empty($post)) {
             // new post data array
             $args = [
                 'comment_status' => $post->comment_status,
                 'ping_status' => $post->ping_status,
-                'post_author' => $new_post_author,
+                'post_author' => $newPostAuthor,
                 'post_content' => $post->post_content,
                 'post_excerpt' => $post->post_excerpt,
                 'post_name' => $post->post_name,
@@ -90,31 +93,31 @@ class DuplicatePost implements AutoloadInterface
                 'menu_order' => $post->menu_order,
             ];
 
-            $new_post_id = wp_insert_post($args, true);
+            $newPostId = wp_insert_post($args, true);
 
-            if (is_wp_error($new_post_id)) {
-                wp_die($new_post_id->get_error_message());
+            if (is_wp_error($newPostId)) {
+                wp_die($newPostId->get_error_message());
             }
 
             $taxonomies = get_object_taxonomies($post->post_type);
             foreach ($taxonomies as $taxonomy) {
-                $post_terms = wp_get_object_terms($post_id, $taxonomy, ['fields' => 'slugs']);
+                $postTerms = wp_get_object_terms($postId, $taxonomy, ['fields' => 'slugs']);
 
-                if (!empty($post_terms)) {
-                    wp_set_object_terms($new_post_id, $post_terms, $taxonomy, false);
+                if ( ! empty($postTerms)) {
+                    wp_set_object_terms($newPostId, $postTerms, $taxonomy, false);
                 }
             }
 
-            $data = get_post_custom($post_id);
+            $data = get_post_custom($postId);
 
             foreach ($data as $key => $values) {
                 foreach ($values as $value) {
-                    add_post_meta($new_post_id, $key, $value);
+                    add_post_meta($newPostId, $key, $value);
                 }
             }
 
             // finally, redirect to the edit post screen for the new draft
-            wp_redirect(get_edit_post_link($new_post_id, 'edit'));
+            wp_redirect(get_edit_post_link($newPostId, 'edit'));
 
             exit;
         }
@@ -124,7 +127,7 @@ class DuplicatePost implements AutoloadInterface
             sprintf(
                 '<span>%s</span>> could not find original post: %d',
                 $title,
-                esc_attr($post_id)
+                esc_attr($postId)
             ),
             $title
         );
