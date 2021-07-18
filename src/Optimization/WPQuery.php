@@ -4,6 +4,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
+use PDO;
 use WP_Query;
 
 /**
@@ -54,20 +55,21 @@ class WPQuery implements AutoloadInterface
             $where = $clauses['where'] ?? '';
             $join = $clauses['join'] ?? '';
 
+            /** @noinspection SqlConstantCondition */
             $idsStatement = $pdo->prepare(
-                "SELECT {$wpdb->posts}.ID FROM {$wpdb->posts} {$join} WHERE 1=1 {$where} GROUP BY {$wpdb->posts}.ID ORDER BY {$wpdb->posts}.post_date"
+                "SELECT $wpdb->posts.ID FROM $wpdb->posts $join WHERE 1=1 $where GROUP BY $wpdb->posts.ID ORDER BY $wpdb->posts.post_date"
             );
 
             $idsStatement->execute();
 
-            $ids = $idsStatement->fetchAll(\PDO::FETCH_COLUMN);
+            $ids = $idsStatement->fetchAll(PDO::FETCH_COLUMN);
 
             $this->setFoundPostsCache($ids);
         }
 
-        $query->found_posts = \count($ids);
+        $query->found_posts = count($ids);
         if (!empty($clauses['limits'])) {
-            $query->max_num_pages = \ceil($query->found_posts / $limit);
+            $query->max_num_pages = ceil($query->found_posts / $limit);
         }
 
         return $clauses;
@@ -85,24 +87,24 @@ class WPQuery implements AutoloadInterface
             $query->set('posts_per_archive_page', null);
             $query->set('ignore_sticky_posts', true);
 
-            $this->queryHash = \md5(\serialize($query->query_vars));
+            $this->queryHash = md5(serialize($query->query_vars));
 
             if ('rand' === $orderby) {
                 $ids = $this->getFoundPostsCache();
 
                 if ($ids) {
                     if (empty($query->get('post__in'))) {
-                        \shuffle($ids);
+                        shuffle($ids);
 
                         if ($limit > 0) {
-                            $ids = \array_slice($ids, 0, $limit);
+                            $ids = array_slice($ids, 0, $limit);
                         }
 
                         $query->set('post__in', $ids);
                     }
 
                     if (!empty($query->query_vars['post__in'])){
-                        \shuffle($query->query_vars['post__in']);
+                        shuffle($query->query_vars['post__in']);
                     }
 
                     $query->set('orderby', 'post__in');
@@ -111,9 +113,16 @@ class WPQuery implements AutoloadInterface
         }
     }
 
+    /**
+     * @param  int  $postId
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @noinspection PhpUnusedParameterInspection
+     */
+
     public function flushFoundRowsCach(int $postId): void
     {
-        wp_cache_set(self::INVALIDATE_TIME_KEY, \time(), Cache::QUERY_CACHE_GROUP);
+        wp_cache_set(self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP);
     }
 
     private function invalidateFoundPostsCache(): void
@@ -140,7 +149,7 @@ class WPQuery implements AutoloadInterface
         wp_cache_set(sprintf('%s-%s', self::FOUND_POSTS_KEY, $this->queryHash), $ids, Cache::QUERY_CACHE_GROUP);
         wp_cache_set(
             sprintf('time-%s-%s', self::FOUND_POSTS_KEY, $this->queryHash),
-            \time(),
+            time(),
             Cache::QUERY_CACHE_GROUP
         );
     }
