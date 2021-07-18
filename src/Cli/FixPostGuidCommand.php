@@ -7,7 +7,11 @@ use WP_CLI;
 
 class FixPostGuidCommand extends Command
 {
-    public function all($args, $assoc_args)
+    /**
+     * @param mixed $args
+     * @param mixed $assocArgs
+     */
+    public function all($args, $assocArgs)
     {
         $sites = $this->getAllSites();
 
@@ -18,7 +22,7 @@ class FixPostGuidCommand extends Command
 
             $posts_ids = $wpdb->get_col("select p.ID from {$wpdb->posts} as p");
 
-            if (!empty($posts_ids)) {
+            if ( ! empty($posts_ids)) {
                 foreach ($posts_ids as $id) {
                     $post = get_post((int) $id);
                     if ($post instanceof \WP_Post) {
@@ -30,4 +34,7 @@ class FixPostGuidCommand extends Command
     }
 }
 
-WP_CLI::add_command('fixguid', FixPostGuidCommand::class);
+try {
+    WP_CLI::add_command('fixguid', FixPostGuidCommand::class);
+} catch (\Exception $e) {
+}
