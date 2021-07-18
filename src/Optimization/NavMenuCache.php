@@ -2,9 +2,15 @@
 
 namespace JazzMan\Performance\Optimization;
 
+use Exception;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
 use Latitude\QueryBuilder\QueryFactory;
+use PDO;
+use stdClass;
+use WP_Post_Type;
+use WP_Taxonomy;
+use WP_Term;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
 use function Latitude\QueryBuilder\on;
@@ -17,12 +23,7 @@ class NavMenuCache implements AutoloadInterface
         add_filter('pre_wp_nav_menu', [$this, 'buildWpNavMenu'], 10, 2);
     }
 
-    /**
-     * @param  \stdClass  $menuItem
-     *
-     * @return \stdClass
-     */
-    public static function setupNavMenuItem(\stdClass $menuItem): \stdClass
+    public static function setupNavMenuItem(stdClass $menuItem): stdClass
     {
         if (isset($menuItem->post_type)) {
             if ('nav_menu_item' === $menuItem->post_type) {
@@ -35,11 +36,11 @@ class NavMenuCache implements AutoloadInterface
                         $object = get_post_type_object($menuItem->object);
                         if ($object) {
                             $menuItem->type_label = $object->labels->singular_name;
-                            if (\function_exists('get_post_states')) {
+                            if (function_exists('get_post_states')) {
                                 $menu_post = get_post($menuItem->object_id);
                                 $post_states = get_post_states($menu_post);
                                 if ($post_states) {
-                                    $menuItem->type_label = wp_strip_all_tags(\implode(', ', $post_states));
+                                    $menuItem->type_label = wp_strip_all_tags(implode(', ', $post_states));
                                 }
                             }
                         } else {
@@ -55,11 +56,7 @@ class NavMenuCache implements AutoloadInterface
 
                         if ($original_object) {
                             $menuItem->url = get_permalink($original_object->ID);
-                            $original_title = apply_filters(
-                                'the_title',
-                                $original_object->post_title,
-                                $original_object->ID
-                            );
+                            $original_title = apply_filters('the_title', $original_object->post_title, $original_object->ID);
                         } else {
                             $menuItem->url = '';
                             $original_title = '';
@@ -67,7 +64,7 @@ class NavMenuCache implements AutoloadInterface
                         }
 
                         if ('' === $original_title) {
-                            $original_title = \sprintf(__('#%d (no title)'), $menuItem->object_id);
+                            $original_title = sprintf(__('#%d (no title)'), $menuItem->object_id);
                         }
 
                         $menuItem->title = ('' === $menuItem->post_title) ? $original_title : $menuItem->post_title;
@@ -76,7 +73,7 @@ class NavMenuCache implements AutoloadInterface
 
                     case 'post_type_archive':
                         $object = get_post_type_object($menuItem->object);
-                        if ($object) {
+                        if ($object instanceof WP_Post_Type) {
                             $menuItem->title = ('' === $menuItem->post_title) ? $object->labels->archives : $menuItem->post_title;
                         } else {
                             $menuItem->_invalid = true;
@@ -89,7 +86,7 @@ class NavMenuCache implements AutoloadInterface
 
                     case 'taxonomy':
                         $object = get_taxonomy($menuItem->object);
-                        if ($object) {
+                        if ($object instanceof WP_Taxonomy) {
                             $menuItem->type_label = $object->labels->singular_name;
                         } else {
                             $menuItem->type_label = $menuItem->object;
@@ -98,7 +95,7 @@ class NavMenuCache implements AutoloadInterface
 
                         $original_object = get_term((int) $menuItem->object_id, $menuItem->object);
 
-                        if ($original_object && !is_wp_error($original_object)) {
+                        if ($original_object && ! is_wp_error($original_object)) {
                             $menuItem->url = app_get_term_link((int) $menuItem->object_id, $menuItem->object);
                             $original_title = $original_object->name;
                         } else {
@@ -108,7 +105,7 @@ class NavMenuCache implements AutoloadInterface
                         }
 
                         if ('' === $original_title) {
-                            $original_title = \sprintf(__('#%d (no title)'), $menuItem->object_id);
+                            $original_title = sprintf(__('#%d (no title)'), $menuItem->object_id);
                         }
 
                         $menuItem->title = ('' === $menuItem->post_title) ? $original_title : $menuItem->post_title;
@@ -122,12 +119,9 @@ class NavMenuCache implements AutoloadInterface
                         break;
                 }
 
-                $menuItem->attr_title = !isset($menuItem->attr_title) ? apply_filters(
-                    'nav_menu_attr_title',
-                    $menuItem->post_excerpt
-                ) : $menuItem->attr_title;
+                $menuItem->attr_title = ! empty($menuItem->attr_title) ? $menuItem->attr_title : apply_filters('nav_menu_attr_title', $menuItem->post_excerpt);
 
-                if (!isset($menuItem->description)) {
+                if ( ! isset($menuItem->description)) {
                     $menuItem->description = apply_filters(
                         'nav_menu_description',
                         wp_trim_words($menuItem->post_content, 200)
@@ -146,7 +140,7 @@ class NavMenuCache implements AutoloadInterface
                 $menuItem->type_label = $object->labels->singular_name;
 
                 if ('' === $menuItem->post_title) {
-                    $menuItem->post_title = \sprintf(__('#%d (no title)'), $menuItem->ID);
+                    $menuItem->post_title = sprintf(__('#%d (no title)'), $menuItem->ID);
                 }
 
                 $menuItem->title = $menuItem->post_title;
@@ -182,12 +176,11 @@ class NavMenuCache implements AutoloadInterface
     }
 
     /**
-     * @param  null|string  $output
-     * @param  \stdClass|null  $args
+     * @param null|string $output
      *
      * @return null|mixed
      */
-    public function buildWpNavMenu($output = null, \stdClass $args = null)
+    public function buildWpNavMenu($output = null, ?stdClass $args = null)
     {
         $menu = wp_get_nav_menu_object($args->menu);
 
@@ -199,13 +192,13 @@ class NavMenuCache implements AutoloadInterface
 
         $menuItems = self::getMenuItems($menu);
 
-        if (!is_admin()) {
-            $menuItems = \array_filter($menuItems, '_is_valid_nav_menu_item');
+        if ( ! is_admin()) {
+            $menuItems = array_filter($menuItems, '_is_valid_nav_menu_item');
         }
 
-        if ((empty($menuItems) && !$args->theme_location)
-            && isset($args->fallback_cb) && $args->fallback_cb && \is_callable($args->fallback_cb)) {
-            return \call_user_func($args->fallback_cb, (array) $args);
+        if ((empty($menuItems) && ! $args->theme_location)
+            && isset($args->fallback_cb) && $args->fallback_cb && is_callable($args->fallback_cb)) {
+            return call_user_func($args->fallback_cb, (array) $args);
         }
 
         $navMenu = '';
@@ -215,7 +208,7 @@ class NavMenuCache implements AutoloadInterface
         if ($args->container) {
             $allowedTags = apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
 
-            if (\is_string($args->container) && \in_array($args->container, $allowedTags, true)) {
+            if (is_string($args->container) && in_array($args->container, $allowedTags, true)) {
                 $showContainer = true;
 
                 $containerAttributes = [
@@ -225,7 +218,7 @@ class NavMenuCache implements AutoloadInterface
                     $containerAttributes['id'] = $args->container_id;
                 }
 
-                if ('nav' === $args->container && !empty($args->container_aria_label)) {
+                if ('nav' === $args->container && ! empty($args->container_aria_label)) {
                     $containerAttributes['aria-label'] = $args->container_aria_label;
                 }
 
@@ -261,14 +254,14 @@ class NavMenuCache implements AutoloadInterface
         unset($sortedMenuItems);
 
         // Attributes.
-        if (!empty($args->menu_id)) {
+        if ( ! empty($args->menu_id)) {
             $wrapId = $args->menu_id;
         } else {
             $wrapId = "menu-{$menu->slug}";
 
-            while (\in_array($wrapId, $menuIdSlugs, true)) {
-                if (\preg_match('#-(\d+)$#', $wrapId, $matches)) {
-                    $wrapId = \preg_replace('#-(\d+)$#', '-'.++$matches[1], $wrapId);
+            while (in_array($wrapId, $menuIdSlugs, true)) {
+                if (preg_match('#-(\d+)$#', $wrapId, $matches)) {
+                    $wrapId = preg_replace('#-(\d+)$#', '-'.++$matches[1], $wrapId);
                 } else {
                     $wrapId = $wrapId.'-1';
                 }
@@ -286,7 +279,7 @@ class NavMenuCache implements AutoloadInterface
             return false;
         }
 
-        $navMenu .= \sprintf($args->items_wrap, esc_attr($wrapId), esc_attr($wrapClass), $items);
+        $navMenu .= sprintf($args->items_wrap, esc_attr($wrapId), esc_attr($wrapClass), $items);
         unset($items);
 
         if ($showContainer) {
@@ -297,10 +290,9 @@ class NavMenuCache implements AutoloadInterface
     }
 
     /**
-     * @param  \WP_Term  $menuObject
      * @return array|bool|mixed
      */
-    public static function getMenuItems(\WP_Term $menuObject)
+    public static function getMenuItems(WP_Term $menuObject)
     {
         $cacheKey = Cache::getMenuItemCacheKey($menuObject);
 
@@ -393,28 +385,28 @@ class NavMenuCache implements AutoloadInterface
                     )
                     ->groupBy('m.ID', 'm.menu_order')
                     ->orderBy('m.menu_order', 'asc')
-                    ->compile();
+                    ->compile()
+                ;
 
                 $navStatement = $pdo->prepare($sql->sql());
 
                 $navStatement->execute($sql->params());
 
-                $menuItems = $navStatement->fetchAll(\PDO::FETCH_OBJ);
+                $menuItems = $navStatement->fetchAll(PDO::FETCH_OBJ);
 
                 $menuItems = apply_filters('app_nav_menu_cache_items', $menuItems, $menuObject);
 
-                $menuItems = \array_map([__CLASS__, 'setupNavMenuItem'], $menuItems);
+                $menuItems = array_map([__CLASS__, 'setupNavMenuItem'], $menuItems);
 
                 wp_cache_set($cacheKey, $menuItems, 'menu_items');
-
-            }catch (\Exception $exception){
-                $item = new \stdClass();
+            } catch (Exception $exception) {
+                $item = new stdClass();
                 $item->_invalid = true;
 
                 $menuItems = [];
                 $menuItems[] = $item;
 
-                app_error_log($exception,__METHOD__);
+                app_error_log($exception, __METHOD__);
             }
         }
 
@@ -422,19 +414,7 @@ class NavMenuCache implements AutoloadInterface
     }
 
     /**
-     * @param \stdClass[] $menuItems {
-     * @type bool $current
-     * @type bool $current_item_ancestor
-     * @type bool $current_item_parent
-     * @type string|array $classes
-     * @type string $type
-     * @type string $object
-     * @type int $object_id
-     * @type int $db_id
-     * @type int $menu_item_parent
-     * @type int $post_parent
-     *
-     * }
+     * @param \stdClass[] $menuItems
      */
     private function setMenuItemClassesByContext(array &$menuItems)
     {
@@ -452,17 +432,17 @@ class NavMenuCache implements AutoloadInterface
         $homePageId = (int) get_option('page_for_posts');
 
         if ($wp_query->is_singular
-            && !empty($queriedObject->post_type)
-            && !is_post_type_hierarchical($queriedObject->post_type)) {
-            /** @var \WP_Taxonomy[] $taxonomies */
+            && ! empty($queriedObject->post_type)
+            && ! is_post_type_hierarchical($queriedObject->post_type)) {
+            /** @var WP_Taxonomy[] $taxonomies */
             $taxonomies = get_object_taxonomies($queriedObject->post_type, 'objects');
 
             foreach ($taxonomies as $taxonomy => $taxonomyObject) {
                 if ($taxonomyObject->hierarchical && $taxonomyObject->public) {
                     $termHierarchy = _get_term_hierarchy($taxonomy);
                     $terms = wp_get_object_terms($queriedObjectId, $taxonomy, ['fields' => 'ids']);
-                    if (\is_array($terms)) {
-                        $possibleObjectParents = \array_merge($possibleObjectParents, $terms);
+                    if (is_array($terms)) {
+                        $possibleObjectParents = array_merge($possibleObjectParents, $terms);
                         $termToAncestor = [];
                         foreach ((array) $termHierarchy as $anc => $descs) {
                             foreach ((array) $descs as $desc) {
@@ -480,12 +460,12 @@ class NavMenuCache implements AutoloadInterface
                                 } else {
                                     $desc = 0;
                                 }
-                            } while (!empty($desc));
+                            } while ( ! empty($desc));
                         }
                     }
                 }
             }
-        } elseif (!empty($queriedObject->taxonomy) && is_taxonomy_hierarchical($queriedObject->taxonomy)) {
+        } elseif ( ! empty($queriedObject->taxonomy) && is_taxonomy_hierarchical($queriedObject->taxonomy)) {
             $termHierarchy = _get_term_hierarchy($queriedObject->taxonomy);
             $termToAncestor = [];
             foreach ((array) $termHierarchy as $anc => $descs) {
@@ -503,10 +483,10 @@ class NavMenuCache implements AutoloadInterface
                 } else {
                     $desc = 0;
                 }
-            } while (!empty($desc));
+            } while ( ! empty($desc));
         }
 
-        $possibleObjectParents = \array_filter($possibleObjectParents);
+        $possibleObjectParents = array_filter($possibleObjectParents);
 
         $frontPageUrl = home_url();
         $frontPageId = (int) get_option('page_on_front');
@@ -531,7 +511,7 @@ class NavMenuCache implements AutoloadInterface
             }
 
             if ($wp_query->is_singular && 'taxonomy' === $menuItem->type
-                && \in_array((int) $menuItem->object_id, $possibleObjectParents, true)
+                && in_array((int) $menuItem->object_id, $possibleObjectParents, true)
             ) {
                 $activeParentObjectIds[] = (int) $menuItem->object_id;
                 $activeParentItemIds[] = (int) $menuItem->db_id;
@@ -540,7 +520,7 @@ class NavMenuCache implements AutoloadInterface
                 (int) $menuItem->object_id === $queriedObjectId
                 && (
                     (
-                        !empty($homePageId)
+                        ! empty($homePageId)
                         && 'post_type' === $menuItem->type
                         && $wp_query->is_home
                         && $homePageId === (int) $menuItem->object_id
@@ -556,7 +536,7 @@ class NavMenuCache implements AutoloadInterface
                 $classes[] = 'current-menu-item';
                 $menuItems[$key]->current = true;
 
-                if (!\in_array($menuItem->db_id, $activeAncestorItemIds, true)) {
+                if ( ! in_array($menuItem->db_id, $activeAncestorItemIds, true)) {
                     $activeAncestorItemIds[] = $menuItem->db_id;
                 }
 
@@ -572,47 +552,43 @@ class NavMenuCache implements AutoloadInterface
             } elseif ('post_type_archive' === $menuItem->type && is_post_type_archive([$menuItem->object])) {
                 $classes[] = 'current-menu-item';
                 $menuItems[$key]->current = true;
-                if (!\in_array((int) $menuItem->db_id, $activeAncestorItemIds, true)) {
+                if ( ! in_array((int) $menuItem->db_id, $activeAncestorItemIds, true)) {
                     $activeAncestorItemIds[] = (int) $menuItem->db_id;
                 }
                 $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
-            } elseif ('custom' === $menuItem->object && filter_input(INPUT_SERVER,'HTTP_HOST')) {
+            } elseif ('custom' === $menuItem->object && filter_input(INPUT_SERVER, 'HTTP_HOST')) {
                 $rootRelativeCurrent = app_get_current_relative_url();
 
                 $currentUrl = app_get_current_url();
-                $rawItemUrl = \strpos($menuItem->url, '#') ? \substr(
+                $rawItemUrl = strpos($menuItem->url, '#') ? substr(
                     $menuItem->url,
                     0,
-                    \strpos($menuItem->url, '#')
+                    strpos($menuItem->url, '#')
                 ) : $menuItem->url;
 
                 $itemUrl = set_url_scheme(untrailingslashit($rawItemUrl));
                 $indexlessCurrent = untrailingslashit(
-                    \preg_replace('/'.\preg_quote($wp_rewrite->index, '/').'$/', '', $currentUrl)
+                    preg_replace('/'.preg_quote($wp_rewrite->index, '/').'$/', '', $currentUrl)
                 );
 
                 $matches = [
                     $currentUrl,
-                    \urldecode($currentUrl),
+                    urldecode($currentUrl),
                     $indexlessCurrent,
-                    \urldecode($indexlessCurrent),
+                    urldecode($indexlessCurrent),
                     $rootRelativeCurrent,
-                    \urldecode($rootRelativeCurrent),
+                    urldecode($rootRelativeCurrent),
                 ];
 
-                if ($rawItemUrl && \in_array($itemUrl, $matches, true)) {
+                if ($rawItemUrl && in_array($itemUrl, $matches, true)) {
                     $classes[] = 'current-menu-item';
                     $menuItems[$key]->current = true;
 
-                    if (!\in_array((int) $menuItem->db_id, $activeAncestorItemIds, true)) {
+                    if ( ! in_array((int) $menuItem->db_id, $activeAncestorItemIds, true)) {
                         $activeAncestorItemIds[] = (int) $menuItem->db_id;
                     }
 
-                    if (\in_array(
-                        $frontPageUrl,
-                        [untrailingslashit($currentUrl), untrailingslashit($indexlessCurrent)],
-                        true
-                    )) {
+                    if (in_array($frontPageUrl, [untrailingslashit($currentUrl), untrailingslashit($indexlessCurrent)], true)) {
                         // Back compat for home link to match wp_page_menu().
                         $classes[] = 'current_page_item';
                     }
@@ -629,17 +605,17 @@ class NavMenuCache implements AutoloadInterface
             }
 
             // Back-compat with wp_page_menu(): add "current_page_parent" to static home page link for any non-page query.
-            if (!empty($homePageId) && 'post_type' === $menuItem->type
+            if ( ! empty($homePageId) && 'post_type' === $menuItem->type
                  && empty($wp_query->is_page) && $homePageId === (int) $menuItem->object_id
             ) {
                 $classes[] = 'current_page_parent';
             }
 
-            $menuItems[$key]->classes = \array_unique($classes);
+            $menuItems[$key]->classes = array_unique($classes);
         }
-        $activeAncestorItemIds = \array_filter(\array_unique($activeAncestorItemIds));
-        $activeParentItemIds = \array_filter(\array_unique($activeParentItemIds));
-        $activeParentObjectIds = \array_filter(\array_unique($activeParentObjectIds));
+        $activeAncestorItemIds = array_filter(array_unique($activeAncestorItemIds));
+        $activeParentItemIds = array_filter(array_unique($activeParentItemIds));
+        $activeParentObjectIds = array_filter(array_unique($activeParentObjectIds));
 
         // Set parent's class.
         foreach ((array) $menuItems as $key => $parentItem) {
@@ -650,52 +626,51 @@ class NavMenuCache implements AutoloadInterface
             if (isset($parentItem->type)
                 && (
                     ('post_type' === $parentItem->type
-                     && !empty($queriedObject->post_type)
+                     && ! empty($queriedObject->post_type)
                      && is_post_type_hierarchical($queriedObject->post_type)
-                     && \in_array((int) $parentItem->object_id, $queriedObject->ancestors, true)
+                     && in_array((int) $parentItem->object_id, $queriedObject->ancestors, true)
                      && $parentItem->object !== $queriedObject->ID)
                     || ('taxonomy' === $parentItem->type
                         && isset($possibleTaxonomyAncestors[$parentItem->object])
-                        && \in_array(
+                        && in_array(
                             (int) $parentItem->object_id,
                             $possibleTaxonomyAncestors[$parentItem->object],
                             true
                         )
-                        && (!isset($queriedObject->term_id) || $parentItem->object_id !== $queriedObject->term_id))
+                        && ( ! isset($queriedObject->term_id) || $parentItem->object_id !== $queriedObject->term_id))
                 )
             ) {
-
                 $classes[] = sprintf(
                     'current-%s-ancestor',
-                    $queriedObject->taxonomy?: $queriedObject->post_type
+                    $queriedObject->taxonomy ?: $queriedObject->post_type
                 );
             }
 
-            if (\in_array((int) $parentItem->db_id, $activeAncestorItemIds, true)) {
+            if (in_array((int) $parentItem->db_id, $activeAncestorItemIds, true)) {
                 $classes[] = 'current-menu-ancestor';
 
                 $menuItems[$key]->current_item_ancestor = true;
             }
-            if (\in_array((int) $parentItem->db_id, $activeParentItemIds, true)) {
+            if (in_array((int) $parentItem->db_id, $activeParentItemIds, true)) {
                 $classes[] = 'current-menu-parent';
 
                 $menuItems[$key]->current_item_parent = true;
             }
-            if (\in_array((int) $parentItem->object_id, $activeParentObjectIds, true)) {
+            if (in_array((int) $parentItem->object_id, $activeParentObjectIds, true)) {
                 $classes[] = 'current-'.$activeObject.'-parent';
             }
 
             if ('post_type' === $parentItem->type && 'page' === $parentItem->object) {
                 // Back compat classes for pages to match wp_page_menu().
-                if (\in_array('current-menu-parent', $classes, true)) {
+                if (in_array('current-menu-parent', $classes, true)) {
                     $classes[] = 'current_page_parent';
                 }
-                if (\in_array('current-menu-ancestor', $classes, true)) {
+                if (in_array('current-menu-ancestor', $classes, true)) {
                     $classes[] = 'current_page_ancestor';
                 }
             }
 
-            $menuItems[$key]->classes = \array_unique($classes);
+            $menuItems[$key]->classes = array_unique($classes);
         }
     }
 
