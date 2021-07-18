@@ -4,25 +4,26 @@ namespace JazzMan\Performance\Utils;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Post\CustomPostType;
+use WP_Post;
 
 class WPBlocks implements AutoloadInterface
 {
     /**
      * @var string
      */
-    private $post_type;
+    private $postType;
 
     public function load()
     {
-        $wp_block = new CustomPostType('wp_block');
-        $wp_block->registerTaxonomy('block_category', [
+        $wpBlock = new CustomPostType('wp_block');
+        $wpBlock->registerTaxonomy('block_category', [
             'public' => false,
             'show_ui' => true,
         ]);
 
-        $this->post_type = $wp_block->post_type;
+        $this->postType = $wpBlock->post_type;
 
-        $wp_block->setColumns([
+        $wpBlock->setColumns([
             'cb' => '<input type="checkbox" />',
             'title' => __('Title'),
             'post_id' => __('Block ID'),
@@ -31,40 +32,44 @@ class WPBlocks implements AutoloadInterface
             'date' => __('Date'),
         ]);
 
-        $wp_block->setPopulateColumns('post_name', static function ($column, \WP_Post $post) {
-            \printf('<code>%s</code>', esc_attr($post->{$column}));
+        $wpBlock->setPopulateColumns('post_name', static function ($column, WP_Post $post) {
+            printf('<code>%s</code>', esc_attr($post->{$column}));
         });
 
         add_action('admin_menu', [$this, 'reusableBlocks']);
-        add_action("save_post_{$this->post_type}", [$this, 'resetWpBlockCache'], 10, 2);
+        add_action("save_post_$this->postType", [$this, 'resetWpBlockCache'], 10, 2);
     }
 
     public function reusableBlocks()
     {
-        $post_type_props = [
-            'post_type' => $this->post_type,
+        $postTypeProps = [
+            'post_type' => $this->postType,
         ];
 
-        $page_title = 'Reusable Blocks';
-        $tax_title = 'Blocks Tax';
+        $pageTitle = 'Reusable Blocks';
+        $taxTitle = 'Blocks Tax';
         $capability = 'edit_posts';
 
-        $wp_block_slug = add_query_arg($post_type_props, 'edit.php');
-        $wp_block_tax_slug = add_query_arg(\array_merge($post_type_props, [
-            'taxonomy' => 'block_category',
-        ]), 'edit-tags.php');
+        $wpBlockSlug = add_query_arg($postTypeProps, 'edit.php');
+        $wpBlockTaxSlug = add_query_arg(
+            array_merge($postTypeProps, [
+                'taxonomy' => 'block_category',
+            ]),
+            'edit-tags.php'
+        );
 
-        add_menu_page($page_title, $page_title, $capability, $wp_block_slug, '', 'dashicons-editor-table', 22);
+        add_menu_page($pageTitle, $pageTitle, $capability, $wpBlockSlug, '', 'dashicons-editor-table', 22);
 
-        add_submenu_page($wp_block_slug, $tax_title, $tax_title, $capability, $wp_block_tax_slug);
+        add_submenu_page($wpBlockSlug, $taxTitle, $taxTitle, $capability, $wpBlockTaxSlug);
     }
 
     /**
-     * @param  int  $post_id
-     * @param  \WP_Post  $post
+     * @param  int  $postId
+     * @param  WP_Post  $post
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function resetWpBlockCache(int $post_id, \WP_Post $post)
+    public function resetWpBlockCache(int $postId, WP_Post $post)
     {
-        wp_cache_delete("{$post->post_type}_{$post->post_name}", Cache::CACHE_GROUP);
+        wp_cache_delete("{$post->post_type}_$post->post_name", Cache::CACHE_GROUP);
     }
 }
