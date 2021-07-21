@@ -40,6 +40,9 @@ class WPBlocks implements AutoloadInterface
         add_action("save_post_$this->postType", [$this, 'resetWpBlockCache'], 10, 2);
     }
 
+    /**
+     * @return void
+     */
     public function reusableBlocks()
     {
         $postTypeProps = [
@@ -67,6 +70,7 @@ class WPBlocks implements AutoloadInterface
      * @param  int  $postId
      * @param  WP_Post  $post
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @return void
      */
     public function resetWpBlockCache(int $postId, WP_Post $post)
     {
