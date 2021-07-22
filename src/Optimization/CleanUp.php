@@ -17,7 +17,6 @@ class CleanUp implements AutoloadInterface
         add_filter('xmlrpc_enabled', '__return_false');
 
         add_filter('language_attributes', [$this, 'languageAttributes']);
-        add_filter('body_class', [$this, 'bodyClass']);
 
         /*
          * Wrap embedded media as suggested by Readability.
@@ -86,31 +85,6 @@ class CleanUp implements AutoloadInterface
         }
 
         return app_add_attr_to_el($attributes);
-    }
-
-    /**
-     * Add and remove body_class() classes.
-     *
-     * @param  string[]  $classes
-     *
-     * @return string[]
-     */
-    public function bodyClass(array $classes): array
-    {
-        // Add post/page slug if not present
-        if (is_single() || (is_page() && ! is_front_page())) {
-            $permalink = get_permalink();
-
-            if ( ! in_array(basename($permalink), $classes)) {
-                $classes[] = basename($permalink);
-            }
-        }
-        // Remove unnecessary classes
-
-        return array_diff($classes, [
-            'page-template-default',
-            sprintf('page-id-%d', esc_attr(get_option('page_on_front'))),
-        ]);
     }
 
     /**
