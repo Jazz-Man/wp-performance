@@ -8,9 +8,11 @@ use function Latitude\QueryBuilder\field;
 
 if ( ! function_exists('app_get_image_data_array')) {
     /**
-     * @param array|string $size
+     * @param int[]|string $size
      *
-     * @return array|bool
+     * @return (int|int[]|mixed|null|string)[]|false
+     *
+     * @psalm-return array{size: array<int>|string, url: mixed, width: mixed, height: mixed, alt: mixed|null|string, id?: int, srcset?: mixed, sizes?: mixed}|false
      */
     function app_get_image_data_array(int $attachmentId, $size = 'large')
     {
@@ -33,29 +35,27 @@ if ( ! function_exists('app_get_image_data_array')) {
 
                 return $imageData;
             }
-        } else {
-            try {
-                $attachment = new AttachmentData($attachmentId);
-
-                $image = $attachment->getUrl($size);
-
-                $imageData['id'] = $attachmentId;
-                $imageData['url'] = $image['src'];
-                $imageData['width'] = $image['width'];
-                $imageData['height'] = $image['height'];
-                $imageData['alt'] = $attachment->getImageAlt();
-                $imageData['srcset'] = $image['srcset'];
-                $imageData['sizes'] = $image['sizes'];
-
-                return $imageData;
-            } catch (Exception $exception) {
-                app_error_log($exception, 'app_get_image_data_array');
-
-                return false;
-            }
         }
 
-        return false;
+        try {
+            $attachment = new AttachmentData($attachmentId);
+
+            $image = $attachment->getUrl($size);
+
+            $imageData['id'] = $attachmentId;
+            $imageData['url'] = $image['src'];
+            $imageData['width'] = $image['width'];
+            $imageData['height'] = $image['height'];
+            $imageData['alt'] = $attachment->getImageAlt();
+            $imageData['srcset'] = $image['srcset'];
+            $imageData['sizes'] = $image['sizes'];
+
+            return $imageData;
+        } catch (Exception $exception) {
+            app_error_log($exception, 'app_get_image_data_array');
+
+            return false;
+        }
     }
 }
 
@@ -67,7 +67,7 @@ if ( ! function_exists('app_get_attachment_image_url')) {
     {
         try {
             $image = app_get_image_data_array($attachmentId, $size);
-            if ( ! empty($image) && ! empty($image['url'])) {
+            if (is_array($image) && ! empty($image['url'])) {
                 return $image['url'];
             }
 
@@ -80,14 +80,12 @@ if ( ! function_exists('app_get_attachment_image_url')) {
 
 if ( ! function_exists('app_get_attachment_image')) {
     /**
-     * @param array|string $attributes
+     * @param array<string,mixed>|string $attributes
      */
-    function app_get_attachment_image(
-        int $attachmentId,
-        string $size = AttachmentData::SIZE_THUMBNAIL,
-        $attributes = ''
-    ): string {
+    function app_get_attachment_image(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL, $attributes = ''): string
+    {
         try {
+            /** @var array<string,mixed> $image */
             $image = app_get_image_data_array($attachmentId, $size);
 
             if (empty($image)) {
@@ -143,7 +141,7 @@ if ( ! function_exists('app_get_attachment_image')) {
 
 if ( ! function_exists('app_get_term_link')) {
     /**
-     * @return string|WP_Error
+     * @return false|string
      */
     function app_get_term_link(int $termId, string $termTaxonomy)
     {
@@ -151,73 +149,86 @@ if ( ! function_exists('app_get_term_link')) {
 
         $term = get_term($termId, $termTaxonomy);
 
-        if (is_wp_error($term)) {
-            return $term;
+        if ( ! ($term instanceof WP_Term)) {
+            return false;
         }
 
-        $termTaxonomy = $term->taxonomy;
-
-        $termlink = $wp_rewrite->get_extra_permastruct($termTaxonomy);
+        $termlink = $wp_rewrite->get_extra_permastruct($term->taxonomy);
 
         $termlink = apply_filters('pre_term_link', $termlink, $term);
 
-        $slug = $term->slug;
-        $taxonomy = get_taxonomy($termTaxonomy);
+        $termlinkSlug = $term->slug;
+        $taxonomy = get_taxonomy($term->taxonomy);
+
+        $termLinkFilter = function (WP_Term $term, string $termlink): string {
+            switch ($term->taxonomy) {
+                case 'post_tag':
+                    $termlink = apply_filters('tag_link', $termlink, $term->term_id);
+
+                    break;
+
+                case 'category':
+                    $termlink = apply_filters('category_link', $termlink, $term->term_id);
+
+                    break;
+            }
+
+            return apply_filters('term_link', $termlink, $term, $term->taxonomy);
+        };
 
         if (empty($termlink)) {
-            if ('category' === $termTaxonomy) {
-                $termlink = '?cat='.$term->term_id;
-            } elseif ($taxonomy->query_var) {
-                $termlink = "?$taxonomy->query_var=$slug";
-            } else {
-                $termlink = "?taxonomy=$termTaxonomy&term=$slug";
+            switch (true) {
+                case 'category' === $term->taxonomy:
+                    $termlink = "?cat={$term->term_id}";
+
+                    break;
+
+                case ! empty($taxonomy->query_var):
+                    $termlink = "?$taxonomy->query_var=$term->slug";
+
+                    break;
+
+                default:
+                    $termlink = "?taxonomy=$term->taxonomy&term=$term->slug";
+
+                    break;
             }
 
-            $termlink = home_url($termlink);
-        } else {
-            if ($taxonomy->rewrite['hierarchical']) {
-                $hierarchicalSlugs = [];
+            return $termLinkFilter($term, home_url($termlink));
+        }
 
-                if ($term->parent) {
-                    $hierarchicalSlugs = wp_cache_get(
-                        "taxonomy_ancestors_{$term->term_id}_$termTaxonomy",
-                        Cache::CACHE_GROUP
-                    );
+        if (!empty($taxonomy->rewrite) && $taxonomy->rewrite['hierarchical']) {
+            $hierarchicalSlugs = [];
 
-                    if (empty($hierarchicalSlugs)) {
-                        $result = [];
-                        $ancestors = app_get_taxonomy_ancestors($term->term_id, $termTaxonomy, PDO::FETCH_CLASS);
-                        foreach ($ancestors as $ancestor) {
-                            $result[] = $ancestor->term_slug;
-                        }
+            if ($term->parent) {
+                $ancestorsKey = "taxonomy_ancestors_{$term->term_id}_{$term->taxonomy}";
+                $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
-                        $hierarchicalSlugs = $result;
-
-                        wp_cache_set(
-                            "taxonomy_ancestors_{$term->term_id}_$termTaxonomy",
-                            $result,
-                            Cache::CACHE_GROUP
-                        );
+                if (empty($hierarchicalSlugs)) {
+                    $result = [];
+                    $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
+                    foreach ($ancestors as $ancestor) {
+                        $result[] = $ancestor->term_slug;
                     }
-                    $hierarchicalSlugs = array_reverse($hierarchicalSlugs);
+
+                    $hierarchicalSlugs = $result;
+
+                    wp_cache_set($ancestorsKey, $result, Cache::CACHE_GROUP);
                 }
-
-                $hierarchicalSlugs[] = $slug;
-
-                $termlink = str_replace("%$termTaxonomy%", implode('/', $hierarchicalSlugs), $termlink);
-            } else {
-                $termlink = str_replace("%$termTaxonomy%", $slug, $termlink);
+                $hierarchicalSlugs = array_reverse($hierarchicalSlugs);
             }
-            $termlink = home_url(user_trailingslashit($termlink, 'category'));
+
+            $hierarchicalSlugs[] = $term->slug;
+
+            $termlinkSlug = implode('/', $hierarchicalSlugs);
         }
 
-        if ('post_tag' === $termTaxonomy) {
-            $termlink = apply_filters('tag_link', $termlink, $term->term_id);
-        } elseif ('category' === $termTaxonomy) {
-            $termlink = apply_filters('category_link', $termlink, $term->term_id);
-        }
 
-        return apply_filters('term_link', $termlink, $term, $termTaxonomy);
+        $termlink = str_replace("%$term->taxonomy%", $termlinkSlug, $termlink);
+
+        $termlink = home_url(user_trailingslashit($termlink, 'category'));
+
+        return $termLinkFilter($term, $termlink);
     }
 }
 
@@ -234,32 +245,32 @@ if ( ! function_exists('app_get_taxonomy_ancestors')) {
 
         $sql = $pdo->prepare(
             <<<SQL
-                with recursive ancestors as (
-                  select
-                    cat_1.term_id,
-                    cat_1.taxonomy,
-                    cat_1.parent
-                  from $wpdb->term_taxonomy as cat_1
-                  where
-                    cat_1.term_id = :term_id
-                  union all
-                  select
-                    a.term_id,
-                    cat_2.taxonomy,
-                    cat_2.parent
-                  from ancestors a
-                    inner join $wpdb->term_taxonomy cat_2 on cat_2.term_id = a.parent
-                  where
-                    cat_2.parent > 0
-                    and cat_2.taxonomy = :taxonomy
-                  )
-                select
-                  a.parent as term_id,
-                  a.taxonomy as taxonomy,
-                  term.name as term_name,
-                  term.slug as term_slug
-                from ancestors a
-                  left join $wpdb->terms as term on term.term_id = a.parent
+with recursive ancestors as (
+  select
+    cat_1.term_id,
+    cat_1.taxonomy,
+    cat_1.parent
+  from $wpdb->term_taxonomy as cat_1
+  where
+    cat_1.term_id = :term_id
+  union all
+  select
+    a.term_id,
+    cat_2.taxonomy,
+    cat_2.parent
+  from ancestors a
+    inner join $wpdb->term_taxonomy cat_2 on cat_2.term_id = a.parent
+  where
+    cat_2.parent > 0
+    and cat_2.taxonomy = :taxonomy
+  )
+select
+  a.parent as term_id,
+  a.taxonomy as taxonomy,
+  term.name as term_name,
+  term.slug as term_slug
+from ancestors a
+  left join $wpdb->terms as term on term.term_id = a.parent
 SQL
         );
 
@@ -281,23 +292,23 @@ if ( ! function_exists('app_term_get_all_children')) {
 
             $sql = $pdo->prepare(
                 <<<SQL
-                    with recursive children as (
-                      select
-                        d.term_id,
-                        d.parent
-                      from $wpdb->term_taxonomy d
-                      where
-                        d.term_id = :term_id
-                      union all
-                      select
-                        d.term_id,
-                        d.parent
-                      from $wpdb->term_taxonomy d
-                        inner join children c on c.term_id = d.parent
-                      )
-                    select
-                      c.term_id as term_id
-                    from children c
+with recursive children as (
+  select
+    d.term_id,
+    d.parent
+  from $wpdb->term_taxonomy d
+  where
+    d.term_id = :term_id
+  union all
+  select
+    d.term_id,
+    d.parent
+  from $wpdb->term_taxonomy d
+    inner join children c on c.term_id = d.parent
+  )
+select
+  c.term_id as term_id
+from children c
 SQL
             );
 
@@ -356,7 +367,7 @@ if ( ! function_exists('app_get_wp_block')) {
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
     /**
-     * @return false|int
+     * @return null|scalar
      */
     function app_attachment_url_to_postid(string $url)
     {
@@ -383,10 +394,12 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
 
         $statement = $pdo->prepare(
             <<<SQL
-                select 
-                  i.ID
-                from $wpdb->posts as i 
-                where i.post_type = 'attachment' and i.guid = :guid
+select 
+  i.ID
+from $wpdb->posts as i 
+where 
+  i.post_type = 'attachment' 
+  and i.guid = :guid
 SQL
         );
 
