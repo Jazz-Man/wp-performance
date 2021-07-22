@@ -76,12 +76,6 @@ class CleanUp implements AutoloadInterface
         remove_action('wp_head', 'print_emoji_detection_script', 7);
         remove_action('wp_head', 'wp_oembed_add_discovery_links');
         remove_action('wp_head', 'wp_oembed_add_host_js');
-
-        add_action('wp_head', 'ob_start', 1, 0);
-        add_action('wp_head', static function () {
-            $pattern = '/.*'.preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
-            echo preg_replace($pattern, '', (string)ob_get_clean());
-        }, 3, 0);
     }
 
     public function languageAttributes(): string
