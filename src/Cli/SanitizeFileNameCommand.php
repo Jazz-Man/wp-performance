@@ -221,6 +221,7 @@ class SanitizeFileNameCommand extends Command
             )
         );
 
+        /** @var string $postContentSql */
         $postContentSql = $this->wpdb->prepare(
             "UPDATE {$this->wpdb->posts} SET post_content = REPLACE (post_content, '%s', '%s') WHERE post_content LIKE '%s';",
             $attachmentFileName,
@@ -230,6 +231,7 @@ class SanitizeFileNameCommand extends Command
 
         // DB Replace post meta except _wp_attached_file because it is serialized
         // This will be done later
+        /** @var string $metaValueSql */
         $metaValueSql = $this->wpdb->prepare(
             "UPDATE {$this->wpdb->postmeta} SET meta_value = REPLACE (meta_value, '%s', '%s') WHERE meta_value LIKE '%s' AND meta_key != '_wp_attachment_metadata' AND meta_key != '_wp_attached_file';",
             $attachmentFileName,
@@ -248,7 +250,7 @@ class SanitizeFileNameCommand extends Command
         }
     }
 
-    private function renameImageFile(string $fullPath)
+    private function renameImageFile(string $fullPath): void
     {
         $asciiFullPath = SanitizeFileName::removeAccents($fullPath, $this->isSanitize);
 
@@ -274,7 +276,7 @@ class SanitizeFileNameCommand extends Command
         }
     }
 
-    private function renameImageSizes(string $sizeName, array $thumbnail, string $fileDirName, array &$metadata)
+    private function renameImageSizes(string $sizeName, array $thumbnail, string $fileDirName, array &$metadata): void
     {
         $thumbnailPath = $fileDirName.'/'.$thumbnail['file'];
 
@@ -311,7 +313,7 @@ class SanitizeFileNameCommand extends Command
         }
     }
 
-    private static function verboseSql(string $sqlString, string $label)
+    private static function verboseSql(string $sqlString, string $label): void
     {
         WP_CLI::line(
             sprintf(

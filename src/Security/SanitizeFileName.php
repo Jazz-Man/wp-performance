@@ -81,30 +81,35 @@ class SanitizeFileName implements AutoloadInterface
         }
 
         // Get encoding errors
-        $error_chars = array_keys($fixList);
-        $real_chars = array_values($fixList);
+        $errorChars = array_keys($fixList);
+        $realChars = array_values($fixList);
 
         // The errors can happen in both nfd/nfc format so convert chars into nfd
         // Check which one $filename uses and use it
         // If $filename doesn't use FORM_D or FORM_C don't convert errors
         if (Normalizer::isNormalized($filename, Normalizer::FORM_D)) {
-            $error_chars = array_map(static function ($string) {
+            $errorChars = array_map(static function ($string) {
                 return Normalizer::normalize($string, Normalizer::FORM_D);
-            }, $error_chars);
+            }, $errorChars);
         } elseif (Normalizer::isNormalized($filename)) {
-            $error_chars = array_map(static function ($string) {
+            $errorChars = array_map(static function ($string) {
                 return Normalizer::normalize($string);
-            }, $error_chars);
+            }, $errorChars);
         }
 
         // Replaces all accented characters with encoding errors
-        return str_replace($real_chars, $error_chars, $filename);
+        return str_replace($realChars, $errorChars, $filename);
     }
 
     /**
      * This is a list of usual encoding errors.
      *
-     * @return array - list of possible fixes for encoding errors
+     * @SuppressWarnings (PHPMD.DuplicatedArrayKey)
+     * @SuppressWarnings (PHPMD.ExcessiveMethodLength)
+     *
+     * @return array<string, string>
+     *
+     * @psalm-return array<string, string>
      */
     public static function getEncodingFixList(): array
     {
@@ -246,7 +251,7 @@ class SanitizeFileName implements AutoloadInterface
      *
      * @return string
      */
-    public function sanitizeFilenamesOnUpload(string $filename)
+    public function sanitizeFilenamesOnUpload(string $filename): string
     {
         // Remove accents and filename to lowercase for better urls
         // Don't sanitize file here because wordpress does this automatically
