@@ -27,6 +27,11 @@ class DuplicatePost implements AutoloadInterface
         add_action("admin_action_$this->action", [$this, 'duplicatePostAsDraft']);
     }
 
+    /**
+     * @param array<string,string> $actions
+     *
+     * @return array<string,string>
+     */
     public function duplicatePostLink(array $actions, WP_Post $post): array
     {
         if ('publish' === $post->post_status && current_user_can('edit_posts')) {
@@ -51,7 +56,7 @@ class DuplicatePost implements AutoloadInterface
         return $actions;
     }
 
-    public function duplicatePostAsDraft()
+    public function duplicatePostAsDraft(): void
     {
         check_ajax_referer(basename(__FILE__), $this->nonce);
 
@@ -67,69 +72,73 @@ class DuplicatePost implements AutoloadInterface
         // get the original post data
         $post = get_post($postId);
 
-        /*
-         * if you don't want current user to be the new post author,
-         * then change next couple of lines to this: $new_post_author = $post->post_author;
-         */
-        $currentUser = wp_get_current_user();
-        $newPostAuthor = $currentUser->ID;
-
         // if post data exists, create the post duplicate
-        if ( ! empty($post)) {
-            // new post data array
-            $args = [
-                'comment_status' => $post->comment_status,
-                'ping_status' => $post->ping_status,
-                'post_author' => $newPostAuthor,
-                'post_content' => $post->post_content,
-                'post_excerpt' => $post->post_excerpt,
-                'post_name' => $post->post_name,
-                'post_parent' => $post->post_parent,
-                'post_password' => $post->post_password,
-                'post_status' => 'draft',
-                'post_title' => $post->post_title,
-                'post_type' => $post->post_type,
-                'to_ping' => $post->to_ping,
-                'menu_order' => $post->menu_order,
-            ];
-
-            $newPostId = wp_insert_post($args, true);
-
-            if (is_wp_error($newPostId)) {
-                wp_die($newPostId->get_error_message());
-            }
-
-            $taxonomies = get_object_taxonomies($post->post_type);
-            foreach ($taxonomies as $taxonomy) {
-                $postTerms = wp_get_object_terms($postId, $taxonomy, ['fields' => 'slugs']);
-
-                if ( ! empty($postTerms)) {
-                    wp_set_object_terms($newPostId, $postTerms, $taxonomy, false);
-                }
-            }
-
-            $data = get_post_custom($postId);
-
-            foreach ($data as $key => $values) {
-                foreach ($values as $value) {
-                    add_post_meta($newPostId, $key, $value);
-                }
-            }
-
-            // finally, redirect to the edit post screen for the new draft
-            wp_redirect(get_edit_post_link($newPostId, 'edit'));
+        if ($post instanceof WP_Post) {
+            $this->createNewDraftPost($post, $postId);
 
             exit;
         }
 
         $title = 'Post creation failed!';
-        wp_die(
-            sprintf(
-                '<span>%s</span>> could not find original post: %d',
-                $title,
-                esc_attr($postId)
-            ),
-            $title
+        wp_die(sprintf('<span>%s</span>> could not find original post: %d', $title, $postId), $title);
+    }
+
+    private function createNewDraftPost(WP_Post $post, int $oldPostId): void
+    {
+        /**
+         * if you don't want current user to be the new post author,
+         * then change next couple of lines to this: $new_post_author = $post->post_author;.
+         */
+        $currentUser = wp_get_current_user();
+
+        $newPostAuthor = (int) $post->post_author === $currentUser->ID ? $post->post_author : $currentUser->ID;
+
+        // new post data array
+        $postData = $post->to_array();
+        unset(
+            $postData['post_date'],
+            $postData['post_date_gmt'],
+            $postData['post_modified'],
+            $postData['post_modified_gmt'],
+            $postData['page_template'],
+            $postData['guid'],
+            $postData['ancestors']
         );
+
+        $newPostArgs = wp_parse_args([
+            'post_author' => $newPostAuthor,
+            'post_status' => 'draft',
+        ], $postData);
+
+        $newPostId = wp_insert_post($newPostArgs, true);
+
+        if (is_wp_error($newPostId)) {
+            wp_die($newPostId->get_error_message());
+        }
+
+        /** @var string[] $taxonomies */
+        $taxonomies = get_object_taxonomies($post->post_type);
+        foreach ($taxonomies as $taxonomy) {
+            /** @var string[] $postTerms */
+            $postTerms = wp_get_object_terms($oldPostId, $taxonomy, ['fields' => 'slugs']);
+
+            if ( ! empty($postTerms)) {
+                wp_set_object_terms($newPostId, $postTerms, $taxonomy, false);
+            }
+        }
+
+        $data = get_post_custom($oldPostId);
+
+        foreach ($data as $key => $values) {
+            foreach ($values as $value) {
+                add_post_meta($newPostId, $key, $value);
+            }
+        }
+
+        $editPostLink = get_edit_post_link($newPostId, 'edit');
+        if ( ! empty($editPostLink)) {
+            // finally, redirect to the edit post screen for the new draft
+            wp_redirect($editPostLink);
+        }
     }
 }
