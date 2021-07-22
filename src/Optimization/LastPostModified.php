@@ -22,6 +22,9 @@ class LastPostModified implements AutoloadInterface
         add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
     }
 
+    /**
+     * @return void
+     */
     public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post)
     {
         if ( ! in_array('publish', [$oldStatus, $newStatus])) {
@@ -51,7 +54,7 @@ class LastPostModified implements AutoloadInterface
         return sprintf('%s_%s_lock', self::OPTION_PREFIX, $postType);
     }
 
-    private function bumpLastPostModified(WP_Post $post)
+    private function bumpLastPostModified(WP_Post $post): void
     {
         // Update default of `any`
         $this->updateLastPostModified($post->post_modified_gmt, 'gmt');
