@@ -41,11 +41,9 @@ class Enqueue implements AutoloadInterface
             return $scriptSrc;
         }
 
-        $isCurrentHost = app_is_current_host($scriptSrc);
-
         $addVersion = (bool) apply_filters('enqueue_add_script_version', true, $handle);
 
-        if ($addVersion && $isCurrentHost) {
+        if ($addVersion && app_is_current_host($scriptSrc)) {
             $file = self::prepareScriptFilePath($scriptSrc);
 
             if ($file) {
@@ -59,11 +57,7 @@ class Enqueue implements AutoloadInterface
             $scriptSrc = remove_query_arg('ver', $scriptSrc);
         }
 
-        if ($isCurrentHost) {
-            return wp_make_link_relative($scriptSrc);
-        }
-
-        return $scriptSrc;
+        return app_make_link_relative($scriptSrc);
     }
 
     /**

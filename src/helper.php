@@ -410,3 +410,18 @@ SQL
         return $statement->fetchColumn();
     }
 }
+
+if (!function_exists('app_make_link_relative')){
+    /**
+     * @param  string  $link
+     *
+     * @return string
+     */
+    function app_make_link_relative(string $link): string{
+        if (app_is_current_host($link)) {
+            $link = wp_make_link_relative($link);
+        }
+
+        return $link;
+    }
+}
