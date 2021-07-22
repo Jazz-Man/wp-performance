@@ -25,12 +25,12 @@ class CleanUp implements AutoloadInterface
          * @see http://www.readability.com/publishers/guidelines#publisher
          *
          */
-        add_filter('embed_oembed_html', static function ($cache) {
+        add_filter('embed_oembed_html', static function (string $cache): string {
             return '<div class="entry-content-asset">'.$cache.'</div>';
         });
 
         // Don't return the default description in the RSS feed if it hasn't been changed.
-        add_filter('get_bloginfo_rss', static function (string $bloginfo) {
+        add_filter('get_bloginfo_rss', static function (string $bloginfo): string {
             return ('Just another WordPress site' === $bloginfo) ? '' : $bloginfo;
         });
         add_filter('xmlrpc_methods', [$this, 'filterXmlrpcMethod']);
@@ -42,28 +42,13 @@ class CleanUp implements AutoloadInterface
 
     public function headCleanup(): void
     {
-        // Originally from http://wpengineer.com/1438/wordpress-header/
-        remove_action('wp_head', 'feed_links', 2);
-        remove_action('wp_head', 'feed_links_extra', 3);
-        remove_action('wp_head', 'rest_output_link_wp_head');
+        $this->cleanupWpHead();
+
         remove_action('template_redirect', 'wp_shortlink_header', 11);
         remove_action('template_redirect', 'rest_output_link_header', 11);
-        add_action('wp_head', 'ob_start', 1, 0);
-        add_action('wp_head', static function () {
-            $pattern = '/.*'.preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
-            echo preg_replace($pattern, '', ob_get_clean());
-        }, 3, 0);
-        remove_action('wp_head', 'rsd_link');
-        remove_action('wp_head', 'wlwmanifest_link');
-        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
-        remove_action('wp_head', 'wp_generator');
-        remove_action('wp_head', 'wp_shortlink_wp_head');
-        remove_action('wp_head', 'print_emoji_detection_script', 7);
         remove_action('admin_print_scripts', 'print_emoji_detection_script');
         remove_action('wp_print_styles', 'print_emoji_styles');
         remove_action('admin_print_styles', 'print_emoji_styles');
-        remove_action('wp_head', 'wp_oembed_add_discovery_links');
-        remove_action('wp_head', 'wp_oembed_add_host_js');
         remove_filter('the_content_feed', 'wp_staticize_emoji');
         remove_filter('comment_text_rss', 'wp_staticize_emoji');
         remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
@@ -71,6 +56,32 @@ class CleanUp implements AutoloadInterface
         add_filter('emoji_svg_url', '__return_false');
         add_filter('show_recent_comments_widget_style', '__return_false');
         add_filter('rest_queried_resource_route', '__return_empty_string');
+    }
+
+    /**
+     * Originally from http://wpengineer.com/1438/wordpress-header/
+     *
+     * @return void
+     */
+    private function cleanupWpHead()
+    {
+        remove_action('wp_head', 'feed_links', 2);
+        remove_action('wp_head', 'feed_links_extra', 3);
+        remove_action('wp_head', 'rest_output_link_wp_head');
+        remove_action('wp_head', 'rsd_link');
+        remove_action('wp_head', 'wlwmanifest_link');
+        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
+        remove_action('wp_head', 'wp_generator');
+        remove_action('wp_head', 'wp_shortlink_wp_head');
+        remove_action('wp_head', 'print_emoji_detection_script', 7);
+        remove_action('wp_head', 'wp_oembed_add_discovery_links');
+        remove_action('wp_head', 'wp_oembed_add_host_js');
+
+        add_action('wp_head', 'ob_start', 1, 0);
+        add_action('wp_head', static function () {
+            $pattern = '/.*'.preg_quote(esc_url(get_feed_link('comments_'.get_default_feed())), '/').'.*[\r\n]+/';
+            echo preg_replace($pattern, '', (string)ob_get_clean());
+        }, 3, 0);
     }
 
     public function languageAttributes(): string
