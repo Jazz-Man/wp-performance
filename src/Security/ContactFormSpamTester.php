@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\Performance\App;
 
 /**
  * Class ContactFormSpamTester.
@@ -12,7 +11,7 @@ class ContactFormSpamTester implements AutoloadInterface
 {
     public function load()
     {
-        $recaptchaEnable = ! App::isCli() && apply_filters('contact_form_recaptcha_enable', true);
+        $recaptchaEnable = ! app_is_wp_cli() && apply_filters('contact_form_recaptcha_enable', true);
 
         if ($recaptchaEnable) {
             $recaptchaSiteKey = defined('RECAPTCHA_SITE_KEY') ? RECAPTCHA_SITE_KEY : '6LeTc6EUAAAAABNvNwjdbiho6ZatEQdMo5IH7uhd';

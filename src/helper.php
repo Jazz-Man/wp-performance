@@ -425,3 +425,39 @@ if (!function_exists('app_make_link_relative')){
         return $link;
     }
 }
+
+if (!function_exists('app_is_wp_importing')){
+    /**
+     * @return bool
+     */
+    function app_is_wp_importing(): bool{
+        return defined('WP_IMPORTING') && WP_IMPORTING;
+    }
+}
+
+if (!function_exists('app_is_wp_cli')){
+    /**
+     * @return bool
+     */
+    function app_is_wp_cli(): bool{
+        return defined('WP_CLI') && WP_CLI;
+    }
+}
+
+if (!function_exists('app_is_enabled_wp_performance')){
+    /**
+     * Checks when plugin should be enabled. This offers nice compatibilty with wp-cli.
+     *
+     * @return bool
+     */
+    function app_is_enabled_wp_performance(): bool
+    {
+        static $enabled;
+
+        if ($enabled === null){
+            $enabled = ! wp_doing_cron() && ! app_is_wp_cli() && ! app_is_wp_importing();
+        }
+
+        return $enabled;
+    }
+}

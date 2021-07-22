@@ -12,6 +12,9 @@ use PDO;
  */
 class Media implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         // Disable gravatars
@@ -69,7 +72,7 @@ class Media implements AutoloadInterface
         return $data;
     }
 
-    public function setAttachmentAltTitle(int $postId)
+    public function setAttachmentAltTitle(int $postId): void
     {
         $imageAlt = get_post_meta($postId, '_wp_attachment_image_alt', true);
 
@@ -95,7 +98,7 @@ class Media implements AutoloadInterface
     public function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string
     {
         // Bail if disabled.
-        if ( ! App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return $avatar;
         }
 
@@ -118,7 +121,7 @@ class Media implements AutoloadInterface
     public function defaultAvatar(string $avatarList): string
     {
         // Bail if disabled.
-        if ( ! App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return $avatarList;
         }
 
@@ -129,10 +132,12 @@ class Media implements AutoloadInterface
 
     /**
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L39
+     *
+     * @return void
      */
     public function setMediaMonthsCache(int $postId)
     {
-        if (App::isImporting()) {
+        if (app_is_wp_importing()) {
             return;
         }
 
@@ -219,15 +224,17 @@ SQL
     }
 
     /**
-     * @param array|false  $image
+     * @param array<string,mixed>  $image
      * @param array|string $size
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings (PHPMD.UnusedLocalVariable)
      *
-     * @return array|bool
+     * @return array
+     *
+     * @psalm-return array<int|string, mixed>
      */
-    public function fixSvgSizeAttributes($image, int $attachmentId, $size)
+    public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
     {
         if (is_admin()) {
             return $image;
@@ -307,7 +314,7 @@ SQL
     }
 
     /**
-     * @param  array  $imageMeta
+     * @param  array<string,array<string,mixed>>  $imageMeta
      * @param  int  $width
      * @param  int  $height
      *

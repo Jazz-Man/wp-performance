@@ -29,7 +29,7 @@ class Update implements AutoloadInterface
         // Remove menu items for updates from a standard WP install.
         add_action('admin_menu', static function () {
             // Bail if disabled, or on a multisite.
-            if ( ! App::enabled() || is_multisite()) {
+            if ( ! app_is_enabled_wp_performance() || is_multisite()) {
                 return;
             }
 
@@ -41,7 +41,7 @@ class Update implements AutoloadInterface
 
         add_action('network_admin_menu', static function ($menu = '') {
             // Bail if disabled or not on our network admin.
-            if ( ! App::enabled() || ! is_network_admin()) {
+            if ( ! app_is_enabled_wp_performance() || ! is_network_admin()) {
                 return;
             }
 
@@ -56,7 +56,7 @@ class Update implements AutoloadInterface
         // Hijack the themes api setup to bypass the API call.
         add_filter('themes_api_args', static function ($args, string $action) {
             // Bail if disabled.
-            if ( ! App::enabled()) {
+            if ( ! app_is_enabled_wp_performance()) {
                 return $args;
             }
 
@@ -103,7 +103,7 @@ class Update implements AutoloadInterface
         add_filter('automatic_updater_disabled', '__return_true');
 
         // Run various hooks if the plugin should be enabled
-        if (App::enabled()) {
+        if (app_is_enabled_wp_performance()) {
             // Disable WordPress from fetching available languages
             add_filter('pre_site_transient_available_translations', [$this, 'availableTranslations']);
 
@@ -145,6 +145,7 @@ class Update implements AutoloadInterface
 
     /**
      * Remove WordPress news dashboard widget.
+     * @return void
      */
     public function removeDashboards()
     {
@@ -153,6 +154,7 @@ class Update implements AutoloadInterface
 
     /**
      * Remove all the various places WP does the update checks. As you can see there are a lot of them.
+     * @return void
      */
     public function removeUpdateCrons()
     {
@@ -187,8 +189,10 @@ class Update implements AutoloadInterface
 
     /**
      * Remove all the various schedule hooks for themes, plugins, etc.
+     *
+     * @return void
      */
-    public function removeScheduleHook()
+    public function removeScheduleHook(): void
     {
         wp_clear_scheduled_hook('wp_update_themes');
         wp_clear_scheduled_hook('wp_update_plugins');
@@ -207,7 +211,7 @@ class Update implements AutoloadInterface
     public function preventAutoUpdates(array $caps, string $cap): array
     {
         // Check for being enabled and look for specific cap requirements.
-        if (App::enabled() && \in_array($cap, [
+        if (app_is_enabled_wp_performance() && in_array($cap, [
             'install_plugins',
             'install_themes',
             'update_plugins',
@@ -231,7 +235,7 @@ class Update implements AutoloadInterface
      */
     public function removeBulkActions(array $actions): array
     {
-        if (App::enabled()) {
+        if (app_is_enabled_wp_performance()) {
             return $actions;
         }
 
@@ -262,7 +266,7 @@ class Update implements AutoloadInterface
     public function disablePluginAddTabs(array $tabs): array
     {
         // Bail if disabled.
-        if ( ! App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return $tabs;
         }
 
@@ -285,12 +289,16 @@ class Update implements AutoloadInterface
     /**
      * Always send back that the latest version of WordPress/Plugins/Theme is the one we're running.
      *
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     *
+     * @param mixed $transient
+     *
      * @return false|object the modified output with our information
      */
-    public function lastCheckedCore()
+    public function lastCheckedCore($transient)
     {
         // Bail if disabled.
-        if ( ! App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return false;
         }
 
@@ -311,30 +319,26 @@ class Update implements AutoloadInterface
                     $data[$theme->get_stylesheet()] = $theme->get('Version');
                 }
 
-                $resulObject = [
+                return (object) [
                     'last_checked' => time(),
                     'updates' => [],
                     'version_checked' => $wp_version,
                     'checked' => $data,
                 ];
 
-                break;
-
             case 'pre_site_transient_update_core':
-                $resulObject = [
+                return (object) [
                     'last_checked' => time(),
                     'updates' => [],
                     'version_checked' => $wp_version,
                 ];
-
-                break;
 
             case 'pre_site_transient_update_plugins':
                 // Set a blank data array.
                 $data = [];
 
                 // Add our plugin file if we don't have it.
-                if ( ! \function_exists('get_plugins')) {
+                if ( ! function_exists('get_plugins')) {
                     require_once ABSPATH.'wp-admin/includes/plugin.php';
                 }
 
@@ -343,18 +347,15 @@ class Update implements AutoloadInterface
                     $data[$file] = $pl['Version'];
                 }
 
-                $resulObject = [
+                return (object) [
                     'last_checked' => time(),
                     'updates' => [],
                     'version_checked' => $wp_version,
                     'checked' => $data,
                 ];
-
-                break;
         }
 
-        // Return our object.
-        return (object) $resulObject;
+        return $transient;
     }
 
     /**
@@ -362,7 +363,7 @@ class Update implements AutoloadInterface
      *
      * @param array|stdClass $current Empty array
      *
-     * @return array Lookalike data which is stored in site transient 'update_plugins'
+     * @return array|stdClass Lookalike data which is stored in site transient 'update_plugins'
      */
     public function removePluginUpdates($current)
     {
@@ -383,10 +384,16 @@ class Update implements AutoloadInterface
 
     /**
      * Returns installed languages instead of all possibly available languages.
+     *
+     * @SuppressWarnings (PHPMD.CamelCaseVariableName)
+     *
+     * @return (mixed|string|string[])[][]
+     *
+     * @psalm-return array<string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}>
      */
     public function availableTranslations(): array
     {
-        $core_languges = self::coreBlockerGetLanguages();
+        $coreLanguges = self::coreBlockerGetLanguages();
         $installed = get_available_languages();
 
         // Call the global WP version.
@@ -414,7 +421,7 @@ class Update implements AutoloadInterface
                 ),
             ];
 
-            $available[$lang] = array_merge($settings, $core_languges[$lang]);
+            $available[$lang] = array_merge($settings, $coreLanguges[$lang]);
         }
 
         return $available;
@@ -423,7 +430,9 @@ class Update implements AutoloadInterface
     /**
      * Contains a predefined list of all 4.6 version languages so that we can deduce available languages from languages folder.
      *
-     * @return \string[][]
+     * @return string[][]
+     *
+     * @psalm-return array{ar: array{english_name: 'Arabic', native_name: 'العربية'}, ary: array{english_name: 'Moroccan Arabic', native_name: 'العربية المغربية'}, az: array{english_name: 'Azerbaijani', native_name: 'Azərbaycan dili'}, azb: array{english_name: 'South Azerbaijani', native_name: 'گؤنئی آذربایجان'}, bg_BG: array{english_name: 'Bulgarian', native_name: 'Български'}, bn_BD: array{english_name: 'Bengali', native_name: 'বাংলা'}, bs_BA: array{english_name: 'Bosnian', native_name: 'Bosanski'}, ca: array{english_name: 'Catalan', native_name: 'Català'}, ceb: array{english_name: 'Cebuano', native_name: 'Cebuano'}, cs_CZ: array{english_name: 'Czech', native_name: 'Čeština‎'}, cy: array{english_name: 'Welsh', native_name: 'Cymraeg'}, da_DK: array{english_name: 'Danish', native_name: 'Dansk'}, de_DE_formal: array{english_name: 'German (Formal)', native_name: 'Deutsch (Sie)'}, de_DE: array{english_name: 'German', native_name: 'Deutsch'}, de_CH_informal: array{english_name: '(Switzerland, Informal)', native_name: 'Deutsch (Schweiz, Du)'}, de_CH: array{english_name: 'German (Switzerland)', native_name: 'Deutsch (Schweiz)'}, el: array{english_name: 'Greek', native_name: 'Ελληνικά'}, en_CA: array{english_name: 'English (Canada)', native_name: 'English (Canada)'}, en_ZA: array{english_name: 'English (South Africa)', native_name: 'English (South Africa)'}, en_AU: array{english_name: 'English (Australia)', native_name: 'English (Australia)'}, en_NZ: array{english_name: 'English (New Zealand)', native_name: 'English (New Zealand)'}, en_GB: array{english_name: 'English (UK)', native_name: 'English (UK)'}, eo: array{english_name: 'Esperanto', native_name: 'Esperanto'}, es_CL: array{english_name: 'Spanish (Chile)', native_name: 'Español de Chile'}, es_AR: array{english_name: 'Spanish (Argentina)', native_name: 'Español de Argentina'}, es_PE: array{english_name: 'Spanish (Peru)', native_name: 'Español de Perú'}, es_MX: array{english_name: 'Spanish (Mexico)', native_name: 'Español de México'}, es_CO: array{english_name: 'Spanish (Colombia)', native_name: 'Español de Colombia'}, es_ES: array{english_name: 'Spanish (Spain)', native_name: 'Español'}, es_VE: array{english_name: 'Spanish (Venezuela)', native_name: 'Español de Venezuela'}, es_GT: array{english_name: 'Spanish (Guatemala)', native_name: 'Español de Guatemala'}, et: array{english_name: 'Estonian', native_name: 'Eesti'}, eu: array{english_name: 'Basque', native_name: 'Euskara'}, fa_IR: array{english_name: 'Persian', native_name: 'فارسی'}, fi: array{english_name: 'Finnish', native_name: 'Suomi'}, fr_BE: array{english_name: 'French (Belgium)', native_name: 'Français de Belgique'}, fr_FR: array{english_name: 'French (France)', native_name: 'Français'}, fr_CA: array{english_name: 'French (Canada)', native_name: 'Français du Canada'}, gd: array{english_name: 'Scottish Gaelic', native_name: 'Gàidhlig'}, gl_ES: array{english_name: 'Galician', native_name: 'Galego'}, haz: array{english_name: 'Hazaragi', native_name: 'هزاره گی'}, he_IL: array{english_name: 'Hebrew', native_name: 'עִבְרִית'}, hi_IN: array{english_name: 'Hindi', native_name: 'हिन्दी'}, hr: array{english_name: 'Croatian', native_name: 'Hrvatski'}, hu_HU: array{english_name: 'Hungarian', native_name: 'Magyar'}, hy: array{english_name: 'Armenian', native_name: 'Հայերեն'}, id_ID: array{english_name: 'Indonesian', native_name: 'Bahasa Indonesia'}, is_IS: array{english_name: 'Icelandic', native_name: 'Íslenska'}, it_IT: array{english_name: 'Italian', native_name: 'Italiano'}, ja: array{english_name: 'Japanese', native_name: '日本語'}, ka_GE: array{english_name: 'Georgian', native_name: 'ქართული'}, ko_KR: array{english_name: 'Korean', native_name: '한국어'}, lt_LT: array{english_name: 'Lithuanian', native_name: 'Lietuvių kalba'}, mk_MK: array{english_name: 'Macedonian', native_name: 'Македонски јазик'}, mr: array{english_name: 'Marathi', native_name: 'मराठी'}, ms_MY: array{english_name: 'Malay', native_name: 'Bahasa Melayu'}, my_MM: array{english_name: 'Myanmar (Burmese)', native_name: 'ဗမာစာ'}, nb_NO: array{english_name: 'Norwegian (Bokmål)', native_name: 'Norsk bokmål'}, nl_NL: array{english_name: 'Dutch', native_name: 'Nederlands'}, nl_NL_formal: array{english_name: 'Dutch (Formal)', native_name: 'Nederlands (Formeel)'}, nn_NO: array{english_name: 'Norwegian (Nynorsk)', native_name: 'Norsk nynorsk'}, oci: array{english_name: 'Occitan', native_name: 'Occitan'}, pl_PL: array{english_name: 'Polish', native_name: 'Polski'}, ps: array{english_name: 'Pashto', native_name: 'پښتو'}, pt_BR: array{english_name: 'Portuguese (Brazil)', native_name: 'Português do Brasil'}, pt_PT: array{english_name: 'Portuguese (Portugal)', native_name: 'Português'}, ro_RO: array{english_name: 'Romanian', native_name: 'Română'}, ru_RU: array{english_name: 'Russian', native_name: 'Русский'}, sk_SK: array{english_name: 'Slovak', native_name: 'Slovenčina'}, sl_SI: array{english_name: 'Slovenian', native_name: 'Slovenščina'}, sq: array{english_name: 'Albanian', native_name: 'Shqip'}, sr_RS: array{english_name: 'Serbian', native_name: 'Српски језик'}, sv_SE: array{english_name: 'Swedish', native_name: 'Svenska'}, th: array{english_name: 'Thai', native_name: 'ไทย'}, tl: array{english_name: 'Tagalog', native_name: 'Tagalog'}, tr_TR: array{english_name: 'Turkish', native_name: 'Türkçe'}, ug_CN: array{english_name: 'Uighur', native_name: 'Uyƣurqə'}, uk: array{english_name: 'Ukrainian', native_name: 'Українська'}, vi: array{english_name: 'Vietnamese', native_name: 'Tiếng Việt'}, zh_CN: array{english_name: 'Chinese (China)', native_name: '简体中文'}, zh_TW: array{english_name: 'Chinese (Taiwan)', native_name: '繁體中文'}}
      */
     private static function coreBlockerGetLanguages(): array
     {

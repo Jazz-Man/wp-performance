@@ -47,7 +47,7 @@ class App
             DuplicatePost::class,
         ];
 
-        if (self::isCli()) {
+        if (app_is_wp_cli()) {
             $classes[] = SanitizeFileNameCommand::class;
             $classes[] = FixPostGuidCommand::class;
         }
@@ -55,26 +55,4 @@ class App
         app_autoload_classes($classes);
     }
 
-    public static function isCli(): bool
-    {
-        return \defined('WP_CLI') && WP_CLI;
-    }
-
-    /**
-     * Checks when plugin should be enabled. This offers nice compatibilty with wp-cli.
-     */
-    public static function enabled(): bool
-    {
-        return ! self::isCron() && ! self::isCli() && ! self::isImporting();
-    }
-
-    public static function isCron(): bool
-    {
-        return \defined('DOING_CRON') && DOING_CRON;
-    }
-
-    public static function isImporting(): bool
-    {
-        return \defined('WP_IMPORTING') && WP_IMPORTING;
-    }
 }
