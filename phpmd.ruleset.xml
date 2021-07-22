@@ -39,6 +39,7 @@
     </properties>
   </rule>
 
+  <rule ref="rulesets/controversial.xml/Superglobals"/>
   <rule ref="rulesets/controversial.xml/CamelCaseClassName"/>
   <rule ref="rulesets/controversial.xml/CamelCaseParameterName">
     <properties>
