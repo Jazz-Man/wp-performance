@@ -41,7 +41,7 @@ class CleanUp implements AutoloadInterface
         add_action('xmlrpc_call', [$this, 'killXmlrpc']);
     }
 
-    public function headCleanup()
+    public function headCleanup(): void
     {
         // Originally from http://wpengineer.com/1438/wordpress-header/
         remove_action('wp_head', 'feed_links', 2);
@@ -90,6 +90,10 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Add and remove body_class() classes.
+     *
+     * @param  string[]  $classes
+     *
+     * @return string[]
      */
     public function bodyClass(array $classes): array
     {
@@ -111,6 +115,10 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Disable pingback XMLRPC method.
+     *
+     * @param  array<string,string>  $methods
+     *
+     * @return array<string,string>
      */
     public function filterXmlrpcMethod(array $methods): array
     {
@@ -121,6 +129,10 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Remove pingback header.
+     *
+     * @param  array<string,string>  $headers
+     *
+     * @return array<string,string>
      */
     public function filterHeaders(array $headers): array
     {
@@ -133,6 +145,10 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Kill trackback rewrite rule.
+     *
+     * @param  array<string,string>  $rules
+     *
+     * @return array<string,string>
      */
     public function filterRewrites(array $rules): array
     {
@@ -159,8 +175,12 @@ class CleanUp implements AutoloadInterface
 
     /**
      * Disable XMLRPC call.
+     *
+     * @param  string  $action
+     *
+     * @return void
      */
-    public function killXmlrpc(string $action)
+    public function killXmlrpc(string $action): void
     {
         if ('pingback.ping' === $action) {
             wp_die('Pingbacks are not supported', 'Not Allowed!', ['response' => 403]);
