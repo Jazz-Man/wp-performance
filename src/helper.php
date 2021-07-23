@@ -234,17 +234,22 @@ if ( ! function_exists('app_get_term_link')) {
 
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
-     * @param int   $mode
-     * @param mixed ...$args
+     * @param int  $termId
+     * @param string  $taxonomy
+     * @param int  $mode
+     * @param int  ...$args PDO fetch options
+     *
+     * @return array<string,int|string>|false
      */
-    function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args): array
+    function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args)
     {
-        global $wpdb;
+        try {
+            global $wpdb;
 
-        $pdo = app_db_pdo();
+            $pdo = app_db_pdo();
 
-        $sql = $pdo->prepare(
-            <<<SQL
+            $sql = $pdo->prepare(
+                <<<SQL
 with recursive ancestors as (
   select
     cat_1.term_id,
@@ -272,15 +277,24 @@ select
 from ancestors a
   left join $wpdb->terms as term on term.term_id = a.parent
 SQL
-        );
+            );
 
-        $sql->execute(compact('termId', 'taxonomy'));
+            $sql->execute(compact('termId', 'taxonomy'));
 
-        return $sql->fetchAll($mode, ...$args);
+            return $sql->fetchAll($mode, ...$args);
+        }catch (\Exception $exception){
+            app_error_log($exception,'app_get_taxonomy_ancestors');
+            return false;
+        }
     }
 }
 
 if ( ! function_exists('app_term_get_all_children')) {
+    /**
+     * @param  int  $termId
+     *
+     * @return int[]
+     */
     function app_term_get_all_children(int $termId): array
     {
         $children = wp_cache_get("term_all_children_$termId", Cache::CACHE_GROUP);
@@ -367,6 +381,8 @@ if ( ! function_exists('app_get_wp_block')) {
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
     /**
+     * @param string  $url
+     *
      * @return null|scalar
      */
     function app_attachment_url_to_postid(string $url)
@@ -376,38 +392,41 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
         }
 
         global $wpdb;
-        $pdo = app_db_pdo();
-        $path = $url;
 
         $uploadDir = wp_upload_dir();
 
         $siteUrl = parse_url($uploadDir['url']);
-        $imagePath = parse_url($path);
+        $imagePath = parse_url($url);
 
-        if (( ! empty($siteUrl['host']) && ! empty($imagePath['host'])) && $siteUrl['host'] !== $imagePath['host']) {
+        if ($siteUrl['host'] !== $imagePath['host']) {
             return false;
         }
 
-        if (isset($imagePath['scheme']) && ($imagePath['scheme'] !== $siteUrl['scheme'])) {
-            $path = str_replace($imagePath['scheme'], $siteUrl['scheme'], $path);
+        if ($imagePath['scheme'] !== $siteUrl['scheme']) {
+            $url = str_replace($imagePath['scheme'], $siteUrl['scheme'], $url);
         }
 
-        $statement = $pdo->prepare(
-            <<<SQL
-select 
+        try {
+            $pdo = app_db_pdo();
+
+            $statement = $pdo->prepare(<<<SQL
+select
   i.ID
 from $wpdb->posts as i 
 where 
   i.post_type = 'attachment' 
   and i.guid = :guid
 SQL
-        );
+            );
 
-        $statement->execute([
-            'guid' => esc_url_raw($path),
-        ]);
+            $statement->execute([
+                'guid' => esc_url_raw($url),
+            ]);
 
-        return $statement->fetchColumn();
+            return $statement->fetchColumn();
+        }catch (\Exception $exception){
+            return  false;
+        }
     }
 }
 
