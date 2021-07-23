@@ -56,10 +56,13 @@ class SanitizeFileNameCommand extends Command
      * @param mixed $args
      * @param mixed $assocArgs
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
+     *
      * @noinspection PhpUnusedParameterInspection
+     *
+     * @return void
      */
-    public function all(?array $args = null, array $assocArgs = [])
+    public function all(?array $args = null, array $assocArgs = []): void
     {
         // Replace mysql later
         global $wpdb;
@@ -197,8 +200,12 @@ class SanitizeFileNameCommand extends Command
         return ['replaced_count' => $replacedCount, 'considered_count' => $allPostsCount];
     }
 
-    /** @noinspection SqlResolve */
-    private function replacePostContent(WP_Post $attachment)
+    /**
+     * @noinspection SqlResolve 
+     *
+     * @return void
+     */
+    private function replacePostContent(WP_Post $attachment): void
     {
         /**
          * Replace all thumbnail sizes of this file from all post contents

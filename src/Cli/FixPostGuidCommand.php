@@ -13,10 +13,13 @@ class FixPostGuidCommand extends Command
      * @param mixed $args
      * @param mixed $assocArgs
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
+     *
      * @noinspection PhpUnusedParameterInspection
+     *
+     * @return void
      */
-    public function all(?array $args = null, ?array $assocArgs = null)
+    public function all(?array $args = null, ?array $assocArgs = null): void
     {
         $sites = $this->getAllSites();
 
