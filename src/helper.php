@@ -179,7 +179,7 @@ if ( ! function_exists('app_get_term_link')) {
         if (empty($termlink)) {
             switch (true) {
                 case 'category' === $term->taxonomy:
-                    $termlink = "?cat={$term->term_id}";
+                    $termlink = "?cat=$term->term_id";
 
                     break;
 
@@ -201,7 +201,7 @@ if ( ! function_exists('app_get_term_link')) {
             $hierarchicalSlugs = [];
 
             if ($term->parent) {
-                $ancestorsKey = "taxonomy_ancestors_{$term->term_id}_{$term->taxonomy}";
+                $ancestorsKey = "taxonomy_ancestors_{$term->term_id}_$term->taxonomy";
                 $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
                 if (empty($hierarchicalSlugs)) {
