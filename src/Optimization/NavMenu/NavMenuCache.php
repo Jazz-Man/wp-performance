@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\Performance\Optimization;
+namespace JazzMan\Performance\Optimization\NavMenu;
 
 use Exception;
 use JazzMan\AutoloadInterface\AutoloadInterface;
@@ -17,6 +17,15 @@ use WP_Post_Type;
 use WP_Taxonomy;
 use WP_Term;
 use WP_User;
+use function maybe_unserialize;
+use function set_url_scheme;
+use function untrailingslashit;
+use function walk_nav_menu_tree;
+use function wp_cache_get;
+use function wp_cache_set;
+use function wp_get_nav_menu_object;
+use function wp_get_object_terms;
+use function wp_strip_all_tags;
 
 class NavMenuCache implements AutoloadInterface {
     public function load() {

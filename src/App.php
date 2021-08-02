@@ -8,7 +8,7 @@ use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\Http;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
-use JazzMan\Performance\Optimization\NavMenuCache;
+use JazzMan\Performance\Optimization\NavMenu\NavMenuCache;
 use JazzMan\Performance\Optimization\PostGuid;
 use JazzMan\Performance\Optimization\PostMeta;
 use JazzMan\Performance\Optimization\TermCount;
