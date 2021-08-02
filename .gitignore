@@ -43,3 +43,4 @@ Temporary Items
 .apdisk
 
 /.php_cs.cache
+/cache/
