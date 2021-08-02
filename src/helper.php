@@ -3,12 +3,13 @@
 use JazzMan\Performance\Utils\AttachmentData;
 use JazzMan\Performance\Utils\Cache;
 use Latitude\QueryBuilder\QueryFactory;
+
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
 
 if ( ! function_exists('app_get_image_data_array')) {
     /**
-     * @param int[]|string $size
+     * @param  int[]|string  $size
      *
      * @return (int|int[]|mixed|null|string)[]|false
      *
@@ -28,10 +29,10 @@ if ( ! function_exists('app_get_image_data_array')) {
 
                 $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
 
-                $imageData['url'] = $url;
-                $imageData['width'] = $width;
+                $imageData['url']    = $url;
+                $imageData['width']  = $width;
                 $imageData['height'] = $height;
-                $imageData['alt'] = $alt;
+                $imageData['alt']    = $alt;
 
                 return $imageData;
             }
@@ -42,13 +43,13 @@ if ( ! function_exists('app_get_image_data_array')) {
 
             $image = $attachment->getUrl($size);
 
-            $imageData['id'] = $attachmentId;
-            $imageData['url'] = $image['src'];
-            $imageData['width'] = $image['width'];
+            $imageData['id']     = $attachmentId;
+            $imageData['url']    = $image['src'];
+            $imageData['width']  = $image['width'];
             $imageData['height'] = $image['height'];
-            $imageData['alt'] = $attachment->getImageAlt();
+            $imageData['alt']    = $attachment->getImageAlt();
             $imageData['srcset'] = $image['srcset'];
-            $imageData['sizes'] = $image['sizes'];
+            $imageData['sizes']  = $image['sizes'];
 
             return $imageData;
         } catch (Exception $exception) {
@@ -80,10 +81,13 @@ if ( ! function_exists('app_get_attachment_image_url')) {
 
 if ( ! function_exists('app_get_attachment_image')) {
     /**
-     * @param array<string,mixed>|string $attributes
+     * @param  array<string,mixed>|string  $attributes
      */
-    function app_get_attachment_image(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL, $attributes = ''): string
-    {
+    function app_get_attachment_image(
+        int $attachmentId,
+        string $size = AttachmentData::SIZE_THUMBNAIL,
+        $attributes = ''
+    ): string {
         try {
             /** @var array<string,mixed> $image */
             $image = app_get_image_data_array($attachmentId, $size);
@@ -93,20 +97,23 @@ if ( ! function_exists('app_get_attachment_image')) {
             }
 
             $defaultAttributes = [
-                'src' => $image['url'],
+                'src'   => $image['url'],
                 'class' => sprintf('attachment-%1$s size-%1$s', $size),
-                'alt' => app_trim_string(strip_tags($image['alt'])),
+                'alt'   => app_trim_string(strip_tags($image['alt'])),
             ];
 
             if ($image['width']) {
-                $defaultAttributes['width'] = (int) $image['width'];
+                $defaultAttributes['width'] = (int)$image['width'];
             }
             if ($image['height']) {
-                $defaultAttributes['height'] = (int) $image['height'];
+                $defaultAttributes['height'] = (int)$image['height'];
             }
 
             // Add `loading` attribute.
-            if (function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled('img', 'wp_get_attachment_image')) {
+            if (function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled(
+                    'img',
+                    'wp_get_attachment_image'
+                )) {
                 $defaultAttributes['loading'] = 'lazy';
             }
 
@@ -153,28 +160,17 @@ if ( ! function_exists('app_get_term_link')) {
             return false;
         }
 
+        $taxonomy = get_taxonomy($term->taxonomy);
+
+        if ( ! ($taxonomy instanceof WP_Taxonomy)) {
+            return false;
+        }
+
         $termlink = $wp_rewrite->get_extra_permastruct($term->taxonomy);
 
         $termlink = apply_filters('pre_term_link', $termlink, $term);
 
         $termlinkSlug = $term->slug;
-        $taxonomy = get_taxonomy($term->taxonomy);
-
-        $termLinkFilter = function (WP_Term $term, string $termlink): string {
-            switch ($term->taxonomy) {
-                case 'post_tag':
-                    $termlink = apply_filters('tag_link', $termlink, $term->term_id);
-
-                    break;
-
-                case 'category':
-                    $termlink = apply_filters('category_link', $termlink, $term->term_id);
-
-                    break;
-            }
-
-            return apply_filters('term_link', $termlink, $term, $term->taxonomy);
-        };
 
         if (empty($termlink)) {
             switch (true) {
@@ -194,21 +190,23 @@ if ( ! function_exists('app_get_term_link')) {
                     break;
             }
 
-            return $termLinkFilter($term, home_url($termlink));
+            return app_term_link_filter($term, home_url($termlink));
         }
 
-        if (!empty($taxonomy->rewrite) && $taxonomy->rewrite['hierarchical']) {
+        if ( ! empty($taxonomy->rewrite) && $taxonomy->rewrite['hierarchical']) {
             $hierarchicalSlugs = [];
 
             if ($term->parent) {
-                $ancestorsKey = "taxonomy_ancestors_{$term->term_id}_$term->taxonomy";
+                $ancestorsKey      = "taxonomy_ancestors_{$term->term_id}_$term->taxonomy";
                 $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
                 if (empty($hierarchicalSlugs)) {
-                    $result = [];
+                    $result    = [];
                     $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
-                    foreach ($ancestors as $ancestor) {
-                        $result[] = $ancestor->term_slug;
+                    if ( ! empty($ancestors)) {
+                        foreach ($ancestors as $ancestor) {
+                            $result[] = $ancestor->term_slug;
+                        }
                     }
 
                     $hierarchicalSlugs = $result;
@@ -223,29 +221,53 @@ if ( ! function_exists('app_get_term_link')) {
             $termlinkSlug = implode('/', $hierarchicalSlugs);
         }
 
-
         $termlink = str_replace("%$term->taxonomy%", $termlinkSlug, $termlink);
 
         $termlink = home_url(user_trailingslashit($termlink, 'category'));
 
-        return $termLinkFilter($term, $termlink);
+        return app_term_link_filter($term, $termlink);
+    }
+}
+
+if ( ! function_exists('app_term_link_filter')) {
+    /**
+     * @param  \WP_Term  $term
+     * @param  string  $termlink
+     *
+     * @return string
+     */
+    function app_term_link_filter(WP_Term $term, string $termlink): string
+    {
+        switch ($term->taxonomy) {
+            case 'post_tag':
+                $termlink = apply_filters('tag_link', $termlink, $term->term_id);
+
+                break;
+
+            case 'category':
+                $termlink = apply_filters('category_link', $termlink, $term->term_id);
+
+                break;
+        }
+
+        return apply_filters('term_link', $termlink, $term, $term->taxonomy);
     }
 }
 
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
-     * @param int  $termId
-     * @param string  $taxonomy
-     * @param int  $mode
-     * @param int  ...$args PDO fetch options
+     * @param  int  $termId
+     * @param  string  $taxonomy
+     * @param  int  $mode
+     * @param  int  ...$args  PDO fetch options
      *
-     * @return array<string,int|string>|false
+     * @return mixed|false
      */
     function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args)
     {
-        try {
-            global $wpdb;
+        global $wpdb;
 
+        try {
             $pdo = app_db_pdo();
 
             $sql = $pdo->prepare(
@@ -282,8 +304,9 @@ SQL
             $sql->execute(compact('termId', 'taxonomy'));
 
             return $sql->fetchAll($mode, ...$args);
-        }catch (\Exception $exception){
-            app_error_log($exception,'app_get_taxonomy_ancestors');
+        } catch (\Exception $exception) {
+            app_error_log($exception, 'app_get_taxonomy_ancestors');
+
             return false;
         }
     }
@@ -297,15 +320,16 @@ if ( ! function_exists('app_term_get_all_children')) {
      */
     function app_term_get_all_children(int $termId): array
     {
+        global $wpdb;
+
         $children = wp_cache_get("term_all_children_$termId", Cache::CACHE_GROUP);
 
         if (empty($children)) {
-            global $wpdb;
+            try {
+                $pdo = app_db_pdo();
 
-            $pdo = app_db_pdo();
-
-            $sql = $pdo->prepare(
-                <<<SQL
+                $sql = $pdo->prepare(
+                    <<<SQL
 with recursive children as (
   select
     d.term_id,
@@ -324,16 +348,19 @@ select
   c.term_id as term_id
 from children c
 SQL
-            );
+                );
 
-            $sql->execute(compact('termId'));
+                $sql->execute(compact('termId'));
 
-            $children = $sql->fetchAll(PDO::FETCH_COLUMN);
+                $children = $sql->fetchAll(PDO::FETCH_COLUMN);
 
-            if ( ! empty($children)) {
-                sort($children);
+                if ( ! empty($children)) {
+                    sort($children);
 
-                wp_cache_set("term_all_children_$termId", $children, Cache::CACHE_GROUP);
+                    wp_cache_set("term_all_children_$termId", $children, Cache::CACHE_GROUP);
+                }
+            } catch (\Exception $exception) {
+                app_error_log($exception, __FUNCTION__);
             }
         }
 
@@ -347,32 +374,37 @@ if ( ! function_exists('app_get_wp_block')) {
      */
     function app_get_wp_block(string $postName)
     {
+        global $wpdb;
+
         $cacheKey = "wp_block_$postName";
-        $result = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
+        $result   = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
 
         if (false === $result) {
-            global $wpdb;
+            try {
+                $pdo = app_db_pdo();
 
-            $pdo = app_db_pdo();
+                $sql = (new QueryFactory())
+                    ->select('p.*')
+                    ->from(alias($wpdb->posts, 'p'))
+                    ->where(
+                        field('p.post_type')
+                            ->eq('wp_block')
+                            ->and(field('p.post_name')->eq($postName))
+                    )
+                    ->limit(1)
+                    ->compile();
 
-            $sql = (new QueryFactory())
-                ->select('p.*')
-                ->from(alias($wpdb->posts, 'p'))
-                ->where(
-                    field('p.post_type')
-                        ->eq('wp_block')
-                        ->and(field('p.post_name')->eq($postName))
-                )
-                ->limit(1)
-                ->compile()
-            ;
+                $statement = $pdo->prepare($sql->sql());
+                $statement->execute($sql->params());
 
-            $statement = $pdo->prepare($sql->sql());
-            $statement->execute($sql->params());
+                $result = $statement->fetchObject();
 
-            $result = $statement->fetchObject();
-
-            wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
+                if ( ! empty($result)) {
+                    wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
+                }
+            } catch (\Exception $exception) {
+                app_error_log($exception, __FUNCTION__);
+            }
         }
 
         return $result;
@@ -381,7 +413,7 @@ if ( ! function_exists('app_get_wp_block')) {
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
     /**
-     * @param string  $url
+     * @param  string  $url
      *
      * @return null|scalar
      */
@@ -395,7 +427,7 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
 
         $uploadDir = wp_upload_dir();
 
-        $siteUrl = parse_url($uploadDir['url']);
+        $siteUrl   = parse_url($uploadDir['url']);
         $imagePath = parse_url($url);
 
         if ($siteUrl['host'] !== $imagePath['host']) {
@@ -409,7 +441,8 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
         try {
             $pdo = app_db_pdo();
 
-            $statement = $pdo->prepare(<<<SQL
+            $statement = $pdo->prepare(
+                <<<SQL
 select
   i.ID
 from $wpdb->posts as i 
@@ -424,19 +457,20 @@ SQL
             ]);
 
             return $statement->fetchColumn();
-        }catch (\Exception $exception){
-            return  false;
+        } catch (\Exception $exception) {
+            return false;
         }
     }
 }
 
-if (!function_exists('app_make_link_relative')){
+if ( ! function_exists('app_make_link_relative')) {
     /**
      * @param  string  $link
      *
      * @return string
      */
-    function app_make_link_relative(string $link): string{
+    function app_make_link_relative(string $link): string
+    {
         if (app_is_current_host($link)) {
             $link = wp_make_link_relative($link);
         }
@@ -445,25 +479,27 @@ if (!function_exists('app_make_link_relative')){
     }
 }
 
-if (!function_exists('app_is_wp_importing')){
+if ( ! function_exists('app_is_wp_importing')) {
     /**
      * @return bool
      */
-    function app_is_wp_importing(): bool{
+    function app_is_wp_importing(): bool
+    {
         return defined('WP_IMPORTING') && WP_IMPORTING;
     }
 }
 
-if (!function_exists('app_is_wp_cli')){
+if ( ! function_exists('app_is_wp_cli')) {
     /**
      * @return bool
      */
-    function app_is_wp_cli(): bool{
+    function app_is_wp_cli(): bool
+    {
         return defined('WP_CLI') && WP_CLI;
     }
 }
 
-if (!function_exists('app_is_enabled_wp_performance')){
+if ( ! function_exists('app_is_enabled_wp_performance')) {
     /**
      * Checks when plugin should be enabled. This offers nice compatibilty with wp-cli.
      *
@@ -473,7 +509,7 @@ if (!function_exists('app_is_enabled_wp_performance')){
     {
         static $enabled;
 
-        if ($enabled === null){
+        if ($enabled === null) {
             $enabled = ! wp_doing_cron() && ! app_is_wp_cli() && ! app_is_wp_importing();
         }
 
