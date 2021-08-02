@@ -83,6 +83,12 @@ class NavMenuCache implements AutoloadInterface {
         return apply_filters('wp_nav_menu', $navMenu, $args);
     }
 
+	/**
+	 * @param  \WP_Term  $menu
+	 * @param  \stdClass  $args
+	 *
+	 * @return string
+	 */
 	private function getMenuWrapId(WP_Term $menu, stdClass $args): string {
         static $menuIdSlugs = [];
 
@@ -105,6 +111,13 @@ class NavMenuCache implements AutoloadInterface {
         return $wrapId;
     }
 
+	/**
+	 * @param  \stdClass  $args
+	 * @param  \WP_Term  $menu
+	 * @param  string  $navMenu
+	 *
+	 * @return string
+	 */
     private function wrapToContainer(stdClass $args, WP_Term $menu, string $navMenu): string {
         $allowedTags = apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
 
@@ -134,6 +147,8 @@ class NavMenuCache implements AutoloadInterface {
 
     /**
      * @param array<string,mixed> $args
+     *
+     * @return array<string,mixed>
      */
     public function setMenuFallbackParams(array $args): array {
         $args['fallback_cb'] = '__return_empty_string';

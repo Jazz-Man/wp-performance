@@ -17,6 +17,11 @@ use WP_Taxonomy;
 use WP_Term;
 
 class MenuItems {
+	/**
+	 * @param  \WP_Term  $menuObject
+	 *
+	 * @return array|false|mixed|void
+	 */
     public static function getItems(WP_Term $menuObject) {
         $cacheKey = Cache::getMenuItemCacheKey( $menuObject );
 
@@ -55,6 +60,11 @@ class MenuItems {
         return $menuItems;
     }
 
+	/**
+	 * @param  \WP_Term  $menuObject
+	 *
+	 * @return \Latitude\QueryBuilder\Query
+	 */
     private static function generateSql(WP_Term $menuObject): Query {
         global $wpdb;
 
@@ -142,6 +152,11 @@ class MenuItems {
             ->compile();
     }
 
+	/**
+	 * @param  \stdClass  $menuItem
+	 *
+	 * @return \stdClass
+	 */
     private static function setupNavMenuItem(stdClass $menuItem): stdClass {
         if ( ! empty( $menuItem->post_type ) ) {
             if ( 'nav_menu_item' === $menuItem->post_type ) {
@@ -213,6 +228,11 @@ class MenuItems {
         return $menuItem;
     }
 
+	/**
+	 * @param  \stdClass  $menuItem
+	 *
+	 * @return \stdClass
+	 */
     private static function setupNavMenuItemByType(stdClass $menuItem): stdClass {
         switch ( $menuItem->type ) {
             case 'post_type':
