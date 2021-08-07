@@ -17,7 +17,7 @@
         "apcu-autoloader": true
     },
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.4",
         "composer/installers": "^1",
         "jazzman/autoload-interface": "^0.3.0",
         "jazzman/custom-post-type": "^2.3",
