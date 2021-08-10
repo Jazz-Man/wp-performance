@@ -2,14 +2,18 @@ name: QA
 
 on:
   push:
-    branches: [ master, develop ]
+    branches:
+      - master
+      - develop
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ master, develop ]
+    branches:
+      - master
+      - develop
 
 jobs:
   qa:
-    container: zdenekdrahos/phpqa:v1.25.0-php7.4
+    container: zdenekdrahos/phpqa
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
