@@ -7,7 +7,7 @@ phpqa:
     - cache
 #  ignoredFiles: ""
   report: true
-#  execution: parallel
+  execution: no-parallel
   output: file
   tools:
     - phpmetrics
