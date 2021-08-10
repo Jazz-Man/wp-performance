@@ -1,13 +1,21 @@
 name: QA
 
-on: [push]
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ master, develop ]
+  schedule:
+    - cron: '37 21 * * 6'
 
 jobs:
   qa:
     container: zdenekdrahos/phpqa:v1.25.0-php7.4
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       # composer is not necessary, if you are not running phpunit/psalm/phpstan
       - name: Cache composer
@@ -18,6 +26,7 @@ jobs:
             vendor
           key: php-composer-$
           restore-keys: "php-composer-74"
+
       - name: Install dependencies
         run: |
           composer install --no-interaction --no-progress --ignore-platform-reqs;
