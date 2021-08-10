@@ -45,14 +45,6 @@
         "szepeviktor/phpstan-wordpress": "^0.7.7",
         "vimeo/psalm": "^4.9"
     },
-    "replace": {
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-mbstring": "*",
-        "symfony/polyfill-php72": "*",
-        "symfony/polyfill-php73": "*",
-        "symfony/polyfill-php80": "*",
-        "symfony/polyfill-php81": "*"
-    },
     "extra": {
         "installer-paths": {
             "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
