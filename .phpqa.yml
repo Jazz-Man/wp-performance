@@ -1,7 +1,10 @@
 phpqa:
   analyzedDirs: ./
   buildDir: build/
-  ignoredDirs: vendor
+  ignoredDirs:
+    - vendor
+    - build
+    - cache
 #  ignoredFiles: ""
   report: true
 #  execution: parallel
