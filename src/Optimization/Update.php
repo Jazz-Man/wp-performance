@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\Performance\App;
 use stdClass;
 
 /**
@@ -39,15 +38,7 @@ class Update implements AutoloadInterface
 
         // Remove menu items for updates from a multisite instance.
 
-        add_action('network_admin_menu', static function ($menu = '') {
-            // Bail if disabled or not on our network admin.
-            if ( ! app_is_enabled_wp_performance() || ! is_network_admin()) {
-                return;
-            }
-
-            // Remove the items.
-            remove_submenu_page('index.php', 'upgrade.php');
-        }, 9999);
+        add_action('network_admin_menu', [$this, 'removeMultisiteMenuItems' ], 9999);
 
         add_filter('install_plugins_tabs', [$this, 'disablePluginAddTabs']);
 
@@ -129,7 +120,6 @@ class Update implements AutoloadInterface
             remove_action('admin_init', 'wp_plugin_update_rows');
             remove_action('admin_init', 'wp_theme_update_rows');
             remove_action('admin_notices', 'maintenance_nag');
-            remove_action('admin_notices', 'yith_plugin_fw_promo_notices', 15);
 
             // Add back the upload tab.
             add_action('install_themes_upload', 'install_themes_upload', 10, 0);
@@ -150,6 +140,22 @@ class Update implements AutoloadInterface
     public function removeDashboards()
     {
         remove_meta_box('dashboard_primary', 'dashboard', 'normal');
+    }
+
+	/**
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 *
+	 * @param  string|null  $menu
+	 * @return void
+	 */
+	public function removeMultisiteMenuItems( ?string $menu = ''   ) {
+		// Bail if disabled or not on our network admin.
+		if ( ! app_is_enabled_wp_performance() || ! is_network_admin()) {
+			return;
+		}
+
+		// Remove the items.
+		remove_submenu_page('index.php', 'upgrade.php');
     }
 
     /**
@@ -184,7 +190,6 @@ class Update implements AutoloadInterface
         // Not even maybe.
         remove_action('wp_maybe_auto_update', 'wp_maybe_auto_update');
         remove_action('admin_init', 'wp_maybe_auto_update');
-        remove_action('admin_init', 'wp_auto_update_core');
     }
 
     /**
@@ -203,7 +208,7 @@ class Update implements AutoloadInterface
     /**
      * Filter a user's meta capabilities to prevent auto-updates from being attempted.
      *
-     * @param array  $caps returns the user's actual capabilities
+     * @param string[]  $caps returns the user's actual capabilities
      * @param string $cap  capability name
      *
      * @return array the user's filtered capabilities
@@ -229,9 +234,9 @@ class Update implements AutoloadInterface
      * Remove the ability to update plugins/themes from single
      * site and multisite bulk actions.
      *
-     * @param array $actions all the bulk actions
+     * @param array<string,string> $actions all the bulk actions
      *
-     * @return array The remaining actions
+     * @return array<string,string> The remaining actions
      */
     public function removeBulkActions(array $actions): array
     {
@@ -259,9 +264,9 @@ class Update implements AutoloadInterface
      * Remove the tabs on the plugin page to add new items
      * since they require the WP connection and will fail.
      *
-     * @param array $tabs all the tabs displayed
+     * @param string[] $tabs all the tabs displayed
      *
-     * @return array $nonmenu_tabs  the remaining tabs
+     * @return string[] $nonmenu_tabs  the remaining tabs
      */
     public function disablePluginAddTabs(array $tabs): array
     {
@@ -361,9 +366,9 @@ class Update implements AutoloadInterface
     /**
      * Returns list of plugins which tells that there's no updates.
      *
-     * @param array|stdClass $current Empty array
+     * @param array<string,mixed>|stdClass $current Empty array
      *
-     * @return array|stdClass Lookalike data which is stored in site transient 'update_plugins'
+     * @return array<string,mixed>|stdClass Lookalike data which is stored in site transient 'update_plugins'
      */
     public function removePluginUpdates($current)
     {
@@ -382,15 +387,14 @@ class Update implements AutoloadInterface
         return $current;
     }
 
-    /**
-     * Returns installed languages instead of all possibly available languages.
-     *
-     * @SuppressWarnings (PHPMD.CamelCaseVariableName)
-     *
-     * @return (mixed|string|string[])[][]
-     *
-     * @psalm-return array<string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}>
-     */
+	/**
+	 * Returns installed languages instead of all possibly available languages.
+	 *
+	 * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+	 *
+	 * @return array<string,mixed>
+	 *
+	 */
     public function availableTranslations(): array
     {
         $coreLanguges = self::coreBlockerGetLanguages();
