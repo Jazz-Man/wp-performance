@@ -16,24 +16,23 @@ jobs:
     container: zdenekdrahos/phpqa
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       # composer is not necessary, if you are not running phpunit/psalm/phpstan
-      - name: Cache composer
+      - name: Cache Composer packages
+        id: composer-cache
         uses: actions/cache@v2
         with:
-          path: |
-            ~/.composer/cache
-            vendor
-          key: php-composer-$
-          restore-keys: "php-composer-74"
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
       - name: Install dependencies
         run: |
           composer install --no-interaction --no-progress --ignore-platform-reqs;
 
-      - name: phpqa
+      - name: Run phpQA
         run: composer run-script phpqa
 
       - name: Upload QA files
