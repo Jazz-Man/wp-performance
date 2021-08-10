@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\Performance\App;
 use stdClass;
 
 /**
@@ -13,10 +12,6 @@ class Update implements AutoloadInterface
 {
     public function load()
     {
-        // Stop wp-cron from looking out for new plugin versions
-        add_action('admin_init', [$this, 'removeUpdateCrons']);
-        add_action('admin_init', [$this, 'removeScheduleHook']);
-
         // Remove admin news dashboard widget
         add_action('admin_init', [$this, 'removeDashboards']);
 
@@ -30,19 +25,43 @@ class Update implements AutoloadInterface
         add_filter('bulk_actions-themes-network', [$this, 'removeBulkActions']);
 
         // Admin UI items.
-        add_action('admin_menu', [$this, 'removeUpdateCoreMenu'], 9999);
-        add_action('network_admin_menu', [$this, 'removeUpgradeMenuOnMultisite'], 9999);
+        // Remove menu items for updates from a standard WP install.
+        add_action('admin_menu', static function () {
+            // Bail if disabled, or on a multisite.
+            if ( ! app_is_enabled_wp_performance() || is_multisite()) {
+                return;
+            }
+
+            // Remove our items.
+            remove_submenu_page('index.php', 'update-core.php');
+        }, 9999);
+
+        // Remove menu items for updates from a multisite instance.
+
+        add_action('network_admin_menu', [$this, 'removeMultisiteMenuItems' ], 9999);
+
         add_filter('install_plugins_tabs', [$this, 'disablePluginAddTabs']);
 
         // Theme update API for different calls.
-        add_filter('themes_api_args', [$this, 'bypassThemeApi'], 10, 2);
+
+        // Hijack the themes api setup to bypass the API call.
+        add_filter('themes_api_args', static function ($args, string $action) {
+            // Bail if disabled.
+            if ( ! app_is_enabled_wp_performance()) {
+                return $args;
+            }
+
+            // Return false on feature list to avoid the API call.
+            return ! empty($action) && 'feature_list' === $action ? false : $args;
+        }, 10, 2);
+
         add_filter('themes_api', '__return_false');
 
         // Time based transient checks.
-        add_filter('pre_site_transient_update_themes', [$this, 'lastCheckedThemes']);
-        add_filter('pre_site_transient_update_plugins', [$this, 'lastCheckedPlugins']);
+        add_filter('pre_site_transient_update_themes', [$this, 'lastCheckedCore']);
+        add_filter('pre_site_transient_update_plugins', [$this, 'lastCheckedCore']);
         add_filter('pre_site_transient_update_core', [$this, 'lastCheckedCore']);
-        add_filter('site_transient_update_themes', [$this, 'removeUpdateArray']);
+
         add_filter('site_transient_update_plugins', [$this, 'removePluginUpdates']);
 
         // Removes update check wp-cron
@@ -75,7 +94,7 @@ class Update implements AutoloadInterface
         add_filter('automatic_updater_disabled', '__return_true');
 
         // Run various hooks if the plugin should be enabled
-        if (App::enabled()) {
+        if (app_is_enabled_wp_performance()) {
             // Disable WordPress from fetching available languages
             add_filter('pre_site_transient_available_translations', [$this, 'availableTranslations']);
 
@@ -101,31 +120,50 @@ class Update implements AutoloadInterface
             remove_action('admin_init', 'wp_plugin_update_rows');
             remove_action('admin_init', 'wp_theme_update_rows');
             remove_action('admin_notices', 'maintenance_nag');
-            remove_action('admin_notices', 'yith_plugin_fw_promo_notices',15);
 
             // Add back the upload tab.
             add_action('install_themes_upload', 'install_themes_upload', 10, 0);
+
+            // Stop wp-cron from looking out for new plugin versions
+            add_action('admin_init', [$this, 'removeUpdateCrons']);
+            add_action('admin_init', [$this, 'removeScheduleHook']);
+
+            // Return an empty array of items requiring update for both themes and plugins.
+            add_filter('site_transient_update_themes', '__return_empty_array');
         }
     }
 
-
     /**
      * Remove WordPress news dashboard widget.
+     * @return void
      */
     public function removeDashboards()
     {
         remove_meta_box('dashboard_primary', 'dashboard', 'normal');
     }
 
+	/**
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 *
+	 * @param  string|null  $menu
+	 * @return void
+	 */
+	public function removeMultisiteMenuItems( ?string $menu = ''   ) {
+		// Bail if disabled or not on our network admin.
+		if ( ! app_is_enabled_wp_performance() || ! is_network_admin()) {
+			return;
+		}
+
+		// Remove the items.
+		remove_submenu_page('index.php', 'upgrade.php');
+    }
+
     /**
      * Remove all the various places WP does the update checks. As you can see there are a lot of them.
+     * @return void
      */
     public function removeUpdateCrons()
     {
-        if (!App::enabled()) {
-            return;
-        }
-
         // Disable Theme Updates.
         remove_action('load-update-core.php', 'wp_update_themes');
         remove_action('load-themes.php', 'wp_update_themes');
@@ -152,18 +190,15 @@ class Update implements AutoloadInterface
         // Not even maybe.
         remove_action('wp_maybe_auto_update', 'wp_maybe_auto_update');
         remove_action('admin_init', 'wp_maybe_auto_update');
-        remove_action('admin_init', 'wp_auto_update_core');
     }
 
     /**
      * Remove all the various schedule hooks for themes, plugins, etc.
+     *
+     * @return void
      */
-    public function removeScheduleHook()
+    public function removeScheduleHook(): void
     {
-        if (!App::enabled()) {
-            return;
-        }
-
         wp_clear_scheduled_hook('wp_update_themes');
         wp_clear_scheduled_hook('wp_update_plugins');
         wp_clear_scheduled_hook('wp_version_check');
@@ -173,7 +208,7 @@ class Update implements AutoloadInterface
     /**
      * Filter a user's meta capabilities to prevent auto-updates from being attempted.
      *
-     * @param array  $caps returns the user's actual capabilities
+     * @param string[]  $caps returns the user's actual capabilities
      * @param string $cap  capability name
      *
      * @return array the user's filtered capabilities
@@ -181,13 +216,13 @@ class Update implements AutoloadInterface
     public function preventAutoUpdates(array $caps, string $cap): array
     {
         // Check for being enabled and look for specific cap requirements.
-        if (App::enabled() && \in_array($cap, [
-                'install_plugins',
-                'install_themes',
-                'update_plugins',
-                'update_themes',
-                'update_core',
-            ])) {
+        if (app_is_enabled_wp_performance() && in_array($cap, [
+            'install_plugins',
+            'install_themes',
+            'update_plugins',
+            'update_themes',
+            'update_core',
+        ])) {
             $caps[] = 'do_not_allow';
         }
 
@@ -199,24 +234,25 @@ class Update implements AutoloadInterface
      * Remove the ability to update plugins/themes from single
      * site and multisite bulk actions.
      *
-     * @param array $actions all the bulk actions
+     * @param array<string,string> $actions all the bulk actions
      *
-     * @return array $actions  The remaining actions
+     * @return array<string,string> The remaining actions
      */
     public function removeBulkActions(array $actions): array
     {
-        if (App::enabled()) {
+        if (app_is_enabled_wp_performance()) {
             return $actions;
         }
 
         // Set an array of items to be removed with optional filter.
-        if (false === $remove = apply_filters('core_blocker_bulk_items',
-                ['update-selected', 'update', 'upgrade'])) {
+        $removeActionList = apply_filters('core_blocker_bulk_items', ['update-selected', 'update', 'upgrade']);
+
+        if (false === $removeActionList) {
             return $actions;
         }
 
         // Loop the item array and unset each.
-        foreach ($remove as $key) {
+        foreach ($removeActionList as $key) {
             unset($actions[$key]);
         }
 
@@ -225,56 +261,29 @@ class Update implements AutoloadInterface
     }
 
     /**
-     * Remove menu items for updates from a standard WP install.
-     */
-    public function removeUpdateCoreMenu()
-    {
-        // Bail if disabled, or on a multisite.
-        if (!App::enabled() || is_multisite()) {
-            return;
-        }
-
-        // Remove our items.
-        remove_submenu_page('index.php', 'update-core.php');
-    }
-
-    /**
-     * Remove menu items for updates from a multisite instance.
-     */
-    public function removeUpgradeMenuOnMultisite()
-    {
-        // Bail if disabled or not on our network admin.
-        if (!App::enabled() || !is_network_admin()) {
-            return;
-        }
-
-        // Remove the items.
-        remove_submenu_page('index.php', 'upgrade.php');
-    }
-
-    /**
      * Remove the tabs on the plugin page to add new items
      * since they require the WP connection and will fail.
      *
-     * @param array $tabs all the tabs displayed
+     * @param string[] $tabs all the tabs displayed
      *
-     * @return array $nonmenu_tabs  the remaining tabs
+     * @return string[] $nonmenu_tabs  the remaining tabs
      */
     public function disablePluginAddTabs(array $tabs): array
     {
         // Bail if disabled.
-        if (!App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return $tabs;
         }
 
         // Set an array of tabs to be removed with optional filter.
-        if (false === $remove = apply_filters('core_blocker_bulk_items',
-                ['featured', 'popular', 'recommended', 'favorites', 'beta'])) {
+        $removeActionList = apply_filters('core_blocker_bulk_items', ['featured', 'popular', 'recommended', 'favorites', 'beta']);
+
+        if (false === $removeActionList) {
             return $tabs;
         }
 
         // Loop the item array and unset each.
-        foreach ($remove as $key) {
+        foreach ($removeActionList as $key) {
             unset($tabs[$key]);
         }
 
@@ -283,141 +292,87 @@ class Update implements AutoloadInterface
     }
 
     /**
-     * Hijack the themes api setup to bypass the API call.
+     * Always send back that the latest version of WordPress/Plugins/Theme is the one we're running.
      *
-     * @param object $args   arguments used to query for installer pages from the Themes API
-     * @param string $action Requested action. Likely values are 'theme_information',
-     *                       'feature_list', or 'query_themes'.
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      *
-     * @return bool|object true or false depending on the type of query
+     * @param mixed $transient
+     *
+     * @return false|object the modified output with our information
      */
-    public function bypassThemeApi($args, string $action)
+    public function lastCheckedCore($transient)
     {
         // Bail if disabled.
-        if (!App::enabled()) {
-            return $args;
-        }
-
-        // Return false on feature list to avoid the API call.
-        return !empty($action) && 'feature_list' === $action ? false : $args;
-    }
-
-    /**
-     * Always send back that the latest version of our theme is the one we're running.
-     *
-     * @return object|false the modified output with our information
-     */
-    public function lastCheckedThemes()
-    {
-        // Bail if disabled.
-        if (!App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return false;
         }
 
         // Call the global WP version.
         global $wp_version;
 
-        // Set a blank data array.
-        $data = [];
+        $curentAction = current_action();
 
-        $themes = wp_get_themes();
+        switch ($curentAction) {
+            case 'pre_site_transient_update_themes':
+                // Set a blank data array.
+                $data = [];
 
-        // Build my theme data array.
-        foreach ($themes as $theme) {
-            $data[$theme->get_stylesheet()] = $theme->get('Version');
+                $themes = wp_get_themes();
+
+                // Build my theme data array.
+                foreach ($themes as $theme) {
+                    $data[$theme->get_stylesheet()] = $theme->get('Version');
+                }
+
+                return (object) [
+                    'last_checked' => time(),
+                    'updates' => [],
+                    'version_checked' => $wp_version,
+                    'checked' => $data,
+                ];
+
+            case 'pre_site_transient_update_core':
+                return (object) [
+                    'last_checked' => time(),
+                    'updates' => [],
+                    'version_checked' => $wp_version,
+                ];
+
+            case 'pre_site_transient_update_plugins':
+                // Set a blank data array.
+                $data = [];
+
+                // Add our plugin file if we don't have it.
+                if ( ! function_exists('get_plugins')) {
+                    require_once ABSPATH.'wp-admin/includes/plugin.php';
+                }
+
+                // Build my plugin data array.
+                foreach (get_plugins() as $file => $pl) {
+                    $data[$file] = $pl['Version'];
+                }
+
+                return (object) [
+                    'last_checked' => time(),
+                    'updates' => [],
+                    'version_checked' => $wp_version,
+                    'checked' => $data,
+                ];
         }
 
-        // Return our object.
-        return (object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-            'checked' => $data,
-        ];
-    }
-
-    /**
-     * Always send back that the latest version of our plugins are the one we're running.
-     *
-     * @return object|false the modified output with our information
-     */
-    public function lastCheckedPlugins()
-    {
-        // Bail if disabled.
-        if (!App::enabled()) {
-            return false;
-        }
-
-        // Call the global WP version.
-        global $wp_version;
-
-        // Set a blank data array.
-        $data = [];
-
-        // Add our plugin file if we don't have it.
-        if (!\function_exists('get_plugins')) {
-            require_once ABSPATH.'wp-admin/includes/plugin.php';
-        }
-
-        // Build my plugin data array.
-        foreach (get_plugins() as $file => $pl) {
-            $data[$file] = $pl['Version'];
-        }
-
-        // Return our object.
-        return (object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-            'checked' => $data,
-        ];
-    }
-
-    /**
-     * Always send back that the latest version of WordPress is the one we're running.
-     *
-     * @return object|false the modified output with our information
-     */
-    public function lastCheckedCore()
-    {
-        // Bail if disabled.
-        if (!App::enabled()) {
-            return false;
-        }
-
-        // Call the global WP version.
-        global $wp_version;
-
-        // Return our object.
-        return (object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-        ];
-    }
-
-    /**
-     * Return an empty array of items requiring update for both themes and plugins.
-     *
-     * @param array $items all the items being passed for update
-     *
-     * @return array an empty array, or the original items if not enabled
-     */
-    public function removeUpdateArray(array $items): array
-    {
-        return !App::enabled() ? $items : [];
+        return $transient;
     }
 
     /**
      * Returns list of plugins which tells that there's no updates.
      *
-     * @param array|stdClass $current Empty array
+     * @param array<string,mixed>|stdClass $current Empty array
      *
-     * @return array Lookalike data which is stored in site transient 'update_plugins'
+     * @return array<string,mixed>|stdClass Lookalike data which is stored in site transient 'update_plugins'
      */
     public function removePluginUpdates($current)
     {
-        if (!$current) {
+        if ( ! $current) {
             $current = new stdClass();
             $current->last_checked = time();
             $current->translations = [];
@@ -432,15 +387,18 @@ class Update implements AutoloadInterface
         return $current;
     }
 
-    /**
-     * Returns installed languages instead of all possibly available languages.
-     * @return array
-     */
-
+	/**
+	 * Returns installed languages instead of all possibly available languages.
+	 *
+	 * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+	 *
+	 * @return array<string,mixed>
+	 *
+	 */
     public function availableTranslations(): array
     {
-        $core_languges = self::coreBlockerGetLanguages();
-        $installed     = get_available_languages();
+        $coreLanguges = self::coreBlockerGetLanguages();
+        $installed = get_available_languages();
 
         // Call the global WP version.
         global $wp_version;
@@ -454,20 +412,20 @@ class Update implements AutoloadInterface
             // Try to mimick the data that wordpress puts into 'available_translations' transient
             $settings = [
                 'language' => $lang,
-                'iso'      => [$lang],
-                'version'  => $wp_version,
-                'updated'  => $date,
-                'strings'  => [
+                'iso' => [$lang],
+                'version' => $wp_version,
+                'updated' => $date,
+                'strings' => [
                     'continue' => __('Continue'),
                 ],
-                'package'  => sprintf(
-                    "https://downloads.wordpress.org/translation/core/%s/%s.zip",
+                'package' => sprintf(
+                    'https://downloads.wordpress.org/translation/core/%s/%s.zip',
                     esc_attr($wp_version),
                     esc_attr($lang)
                 ),
             ];
 
-            $available[$lang] = array_merge($settings, $core_languges[$lang]);
+            $available[$lang] = array_merge($settings, $coreLanguges[$lang]);
         }
 
         return $available;
@@ -475,7 +433,10 @@ class Update implements AutoloadInterface
 
     /**
      * Contains a predefined list of all 4.6 version languages so that we can deduce available languages from languages folder.
-     * @return \string[][]
+     *
+     * @return string[][]
+     *
+     * @psalm-return array{ar: array{english_name: 'Arabic', native_name: 'العربية'}, ary: array{english_name: 'Moroccan Arabic', native_name: 'العربية المغربية'}, az: array{english_name: 'Azerbaijani', native_name: 'Azərbaycan dili'}, azb: array{english_name: 'South Azerbaijani', native_name: 'گؤنئی آذربایجان'}, bg_BG: array{english_name: 'Bulgarian', native_name: 'Български'}, bn_BD: array{english_name: 'Bengali', native_name: 'বাংলা'}, bs_BA: array{english_name: 'Bosnian', native_name: 'Bosanski'}, ca: array{english_name: 'Catalan', native_name: 'Català'}, ceb: array{english_name: 'Cebuano', native_name: 'Cebuano'}, cs_CZ: array{english_name: 'Czech', native_name: 'Čeština‎'}, cy: array{english_name: 'Welsh', native_name: 'Cymraeg'}, da_DK: array{english_name: 'Danish', native_name: 'Dansk'}, de_DE_formal: array{english_name: 'German (Formal)', native_name: 'Deutsch (Sie)'}, de_DE: array{english_name: 'German', native_name: 'Deutsch'}, de_CH_informal: array{english_name: '(Switzerland, Informal)', native_name: 'Deutsch (Schweiz, Du)'}, de_CH: array{english_name: 'German (Switzerland)', native_name: 'Deutsch (Schweiz)'}, el: array{english_name: 'Greek', native_name: 'Ελληνικά'}, en_CA: array{english_name: 'English (Canada)', native_name: 'English (Canada)'}, en_ZA: array{english_name: 'English (South Africa)', native_name: 'English (South Africa)'}, en_AU: array{english_name: 'English (Australia)', native_name: 'English (Australia)'}, en_NZ: array{english_name: 'English (New Zealand)', native_name: 'English (New Zealand)'}, en_GB: array{english_name: 'English (UK)', native_name: 'English (UK)'}, eo: array{english_name: 'Esperanto', native_name: 'Esperanto'}, es_CL: array{english_name: 'Spanish (Chile)', native_name: 'Español de Chile'}, es_AR: array{english_name: 'Spanish (Argentina)', native_name: 'Español de Argentina'}, es_PE: array{english_name: 'Spanish (Peru)', native_name: 'Español de Perú'}, es_MX: array{english_name: 'Spanish (Mexico)', native_name: 'Español de México'}, es_CO: array{english_name: 'Spanish (Colombia)', native_name: 'Español de Colombia'}, es_ES: array{english_name: 'Spanish (Spain)', native_name: 'Español'}, es_VE: array{english_name: 'Spanish (Venezuela)', native_name: 'Español de Venezuela'}, es_GT: array{english_name: 'Spanish (Guatemala)', native_name: 'Español de Guatemala'}, et: array{english_name: 'Estonian', native_name: 'Eesti'}, eu: array{english_name: 'Basque', native_name: 'Euskara'}, fa_IR: array{english_name: 'Persian', native_name: 'فارسی'}, fi: array{english_name: 'Finnish', native_name: 'Suomi'}, fr_BE: array{english_name: 'French (Belgium)', native_name: 'Français de Belgique'}, fr_FR: array{english_name: 'French (France)', native_name: 'Français'}, fr_CA: array{english_name: 'French (Canada)', native_name: 'Français du Canada'}, gd: array{english_name: 'Scottish Gaelic', native_name: 'Gàidhlig'}, gl_ES: array{english_name: 'Galician', native_name: 'Galego'}, haz: array{english_name: 'Hazaragi', native_name: 'هزاره گی'}, he_IL: array{english_name: 'Hebrew', native_name: 'עִבְרִית'}, hi_IN: array{english_name: 'Hindi', native_name: 'हिन्दी'}, hr: array{english_name: 'Croatian', native_name: 'Hrvatski'}, hu_HU: array{english_name: 'Hungarian', native_name: 'Magyar'}, hy: array{english_name: 'Armenian', native_name: 'Հայերեն'}, id_ID: array{english_name: 'Indonesian', native_name: 'Bahasa Indonesia'}, is_IS: array{english_name: 'Icelandic', native_name: 'Íslenska'}, it_IT: array{english_name: 'Italian', native_name: 'Italiano'}, ja: array{english_name: 'Japanese', native_name: '日本語'}, ka_GE: array{english_name: 'Georgian', native_name: 'ქართული'}, ko_KR: array{english_name: 'Korean', native_name: '한국어'}, lt_LT: array{english_name: 'Lithuanian', native_name: 'Lietuvių kalba'}, mk_MK: array{english_name: 'Macedonian', native_name: 'Македонски јазик'}, mr: array{english_name: 'Marathi', native_name: 'मराठी'}, ms_MY: array{english_name: 'Malay', native_name: 'Bahasa Melayu'}, my_MM: array{english_name: 'Myanmar (Burmese)', native_name: 'ဗမာစာ'}, nb_NO: array{english_name: 'Norwegian (Bokmål)', native_name: 'Norsk bokmål'}, nl_NL: array{english_name: 'Dutch', native_name: 'Nederlands'}, nl_NL_formal: array{english_name: 'Dutch (Formal)', native_name: 'Nederlands (Formeel)'}, nn_NO: array{english_name: 'Norwegian (Nynorsk)', native_name: 'Norsk nynorsk'}, oci: array{english_name: 'Occitan', native_name: 'Occitan'}, pl_PL: array{english_name: 'Polish', native_name: 'Polski'}, ps: array{english_name: 'Pashto', native_name: 'پښتو'}, pt_BR: array{english_name: 'Portuguese (Brazil)', native_name: 'Português do Brasil'}, pt_PT: array{english_name: 'Portuguese (Portugal)', native_name: 'Português'}, ro_RO: array{english_name: 'Romanian', native_name: 'Română'}, ru_RU: array{english_name: 'Russian', native_name: 'Русский'}, sk_SK: array{english_name: 'Slovak', native_name: 'Slovenčina'}, sl_SI: array{english_name: 'Slovenian', native_name: 'Slovenščina'}, sq: array{english_name: 'Albanian', native_name: 'Shqip'}, sr_RS: array{english_name: 'Serbian', native_name: 'Српски језик'}, sv_SE: array{english_name: 'Swedish', native_name: 'Svenska'}, th: array{english_name: 'Thai', native_name: 'ไทย'}, tl: array{english_name: 'Tagalog', native_name: 'Tagalog'}, tr_TR: array{english_name: 'Turkish', native_name: 'Türkçe'}, ug_CN: array{english_name: 'Uighur', native_name: 'Uyƣurqə'}, uk: array{english_name: 'Ukrainian', native_name: 'Українська'}, vi: array{english_name: 'Vietnamese', native_name: 'Tiếng Việt'}, zh_CN: array{english_name: 'Chinese (China)', native_name: '简体中文'}, zh_TW: array{english_name: 'Chinese (Taiwan)', native_name: '繁體中文'}}
      */
     private static function coreBlockerGetLanguages(): array
     {

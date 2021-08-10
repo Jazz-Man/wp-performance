@@ -1,0 +1,44 @@
+phpqa:
+  analyzedDirs: ./
+  buildDir: build/
+  ignoredDirs:
+    - vendor
+    - build
+    - cache
+#  ignoredFiles: ""
+  report: true
+  execution: no-parallel
+  output: file
+  tools:
+    - phpmetrics
+    - phploc
+#    - phpcs
+#    - php-cs-fixer
+    - phpmd
+    - pdepend
+#    - phpcpd
+    - phpstan
+#    - phpunit
+#    - psalm
+    - security-checker
+    - parallel-lint
+#    - deptrac
+  verbose: true
+  extensions:
+    - php
+
+phpmd:
+  standard: phpmd.ruleset.xml
+  ignoreParsingErrors: true
+
+phpmetrics:
+  # v1
+  config: null
+  # v2
+  git: true
+  # junit: build/log-junit.xml
+  # composer: composer.json
+
+phpstan:
+  level: 8
+  standard: phpstan.neon

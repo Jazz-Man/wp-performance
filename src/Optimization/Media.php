@@ -5,12 +5,16 @@ namespace JazzMan\Performance\Optimization;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\App;
 use JazzMan\Performance\Utils\Cache;
+use PDO;
 
 /**
  * Class Media.
  */
 class Media implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         // Disable gravatars
@@ -31,14 +35,14 @@ class Media implements AutoloadInterface
         add_filter('wp_get_attachment_image_src', [$this, 'fixSvgSizeAttributes'], 10, 3);
         // resize image on the fly
         add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3);
-        add_action( 'pre_get_posts', [$this,'filterQueryAttachmentFilenames'] );
+        add_action('pre_get_posts', [$this, 'filterQueryAttachmentFilenames']);
 
         add_filter(
             'cmb2_valid_img_types',
-            static function ($valid_types) {
-                $valid_types[] = 'svg';
+            static function (array $validTypes = []) {
+                $validTypes[] = 'svg';
 
-                return $valid_types;
+                return $validTypes;
             }
         );
 
@@ -51,22 +55,16 @@ class Media implements AutoloadInterface
 
     public function filterQueryAttachmentFilenames(): void
     {
-        remove_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+        remove_filter('posts_clauses', '_filter_query_attachment_filenames');
     }
 
-    /**
-     * @param  array  $data
-     * @param  array  $postarr
-     *
-     * @return array
-     */
     public function setAttachmentTitle(array $data, array $postarr): array
     {
-        if (!empty($postarr['file'])) {
-            $url = \pathinfo($postarr['file']);
-            $extension = !empty($url['extension']) ? ".{$url['extension']}" : false;
+        if ( ! empty($postarr['file'])) {
+            $url = pathinfo($postarr['file']);
+            $extension = ! empty($url['extension']) ? ".{$url['extension']}" : false;
 
-            $title = !empty($extension) ? \rtrim($data['post_title'], $extension) : $data['post_title'];
+            $title = ! empty($extension) ? rtrim($data['post_title'], $extension) : $data['post_title'];
 
             $data['post_title'] = app_trim_string(app_get_human_friendly($title));
         }
@@ -74,14 +72,12 @@ class Media implements AutoloadInterface
         return $data;
     }
 
-    public function setAttachmentAltTitle(int $post_id)
+    public function setAttachmentAltTitle(int $postId): void
     {
-        $image_title = get_the_title($post_id);
+        $imageAlt = get_post_meta($postId, '_wp_attachment_image_alt', true);
 
-        $image_alt = get_post_meta($post_id, '_wp_attachment_image_alt', true);
-
-        if (empty($image_alt)) {
-            update_post_meta($post_id, '_wp_attachment_image_alt', $image_title);
+        if (empty($imageAlt)) {
+            update_post_meta($postId, '_wp_attachment_image_alt', get_the_title($postId));
         }
     }
 
@@ -89,18 +85,20 @@ class Media implements AutoloadInterface
      * Replace all instances of gravatar with a local image file
      * to remove the call to remote service.
      *
-     * @param string            $avatar      image tag for the user's avatar
-     * @param int|object|string $id_or_email a user ID, email address, or comment object
-     * @param int               $size        square avatar width and height in pixels to retrieve
-     * @param string            $default     URL to a default image to use if no avatar is available
-     * @param string            $alt         alternative text to use in the avatar image tag
+     * @param string            $avatar    image tag for the user's avatar
+     * @param int|object|string $idOrEmail a user ID, email address, or comment object
+     * @param int               $size      square avatar width and height in pixels to retrieve
+     * @param string            $default   URL to a default image to use if no avatar is available
+     * @param string            $alt       alternative text to use in the avatar image tag
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      *
      * @return string `<img>` tag for the user's avatar
      */
-    public function replaceGravatar(string $avatar, $id_or_email, int $size, string $default, string $alt): string
+    public function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string
     {
         // Bail if disabled.
-        if (!App::enabled()) {
+        if ( ! app_is_enabled_wp_performance()) {
             return $avatar;
         }
 
@@ -116,48 +114,47 @@ class Media implements AutoloadInterface
     /**
      * Remove avatar images from the default avatar list.
      *
-     * @param string $avatar_list list of default avatars
+     * @param string $avatarList list of default avatars
      *
      * @return string Updated list with images removed
      */
-    public function defaultAvatar(string $avatar_list): string
+    public function defaultAvatar(string $avatarList): string
     {
         // Bail if disabled.
-        if (!App::enabled()) {
-            return $avatar_list;
+        if ( ! app_is_enabled_wp_performance()) {
+            return $avatarList;
         }
 
         // Remove images.
         // Send back the list.
-        return \preg_replace('|<img([^>]+)> |i', '', $avatar_list);
+        return preg_replace('|<img([^>]+)> |i', '', $avatarList);
     }
 
     /**
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L39
      *
-     * @param  int  $post_id
+     * @return void
      */
-    public function setMediaMonthsCache(int $post_id)
+    public function setMediaMonthsCache(int $postId)
     {
-        if (App::isImporting()) {
+        if (app_is_wp_importing()) {
             return;
         }
 
         // Grab the cache to see if it needs updating
-        $media_months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
+        $mediaMonths = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
-        if (!empty($media_months)){
-
-            $cached_latest_year = ! empty($media_months[0]->year) ? $media_months[0]->year : '';
-            $cached_latest_month = ! empty($media_months[0]->month) ? $media_months[0]->month : '';
+        if ( ! empty($mediaMonths)) {
+            $cachedLatestYear = ! empty($mediaMonths[0]->year) ? $mediaMonths[0]->year : '';
+            $cachedLatestMonth = ! empty($mediaMonths[0]->month) ? $mediaMonths[0]->month : '';
 
             // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
-            $latest_year = get_the_time('Y', $post_id) === $cached_latest_year;
-            $latest_month = get_the_time('n', $post_id) === $cached_latest_month;
+            $latestYear = get_the_time('Y', $postId) === $cachedLatestYear;
+            $latestMonth = get_the_time('n', $postId) === $cachedLatestMonth;
 
-            if (!$latest_year || !$latest_month) {
+            if ( ! $latestYear || ! $latestMonth) {
                 // the new attachment is not in the same month/year as the data in our cache
-                wp_cache_delete('wpcom_media_months_array',Cache::CACHE_GROUP);
+                wp_cache_delete('wpcom_media_months_array', Cache::CACHE_GROUP);
             }
         }
     }
@@ -169,7 +166,7 @@ class Media implements AutoloadInterface
      */
     public function mediaLibraryMonthsWithFiles()
     {
-        $months = wp_cache_get('wpcom_media_months_array',Cache::CACHE_GROUP);
+        $months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (false === $months) {
             global $wpdb;
@@ -177,30 +174,25 @@ class Media implements AutoloadInterface
 
             $statement = $pdo->prepare(
                 <<<SQL
-select 
-  distinct year( post_date ) as year, 
-  month( post_date ) as month
-from $wpdb->posts
-where post_type = 'attachment'
-order by post_date desc 
+                    select 
+                      distinct year( post_date ) as year, 
+                      month( post_date ) as month
+                    from $wpdb->posts
+                    where post_type = 'attachment'
+                    order by post_date desc 
 SQL
             );
 
             $statement->execute();
 
-            $months = $statement->fetchAll(\PDO::FETCH_OBJ);
+            $months = $statement->fetchAll(PDO::FETCH_OBJ);
 
-            wp_cache_set('wpcom_media_months_array', $months,Cache::CACHE_GROUP);
+            wp_cache_set('wpcom_media_months_array', $months, Cache::CACHE_GROUP);
         }
 
         return $months;
     }
 
-    /**
-     * @param array $mimes
-     *
-     * @return array
-     */
     public function allowSvg(array $mimes): array
     {
         $mimes['svg'] = 'image/svg+xml';
@@ -210,18 +202,14 @@ SQL
     }
 
     /**
-     * @param  array  $data
-     * @param  string  $file
-     * @param  string  $filename
-     *
-     * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fixMimeTypeSvg(array $data, string $file, string $filename): array
     {
-        $ext = !empty($data['ext']) ? $data['ext'] : '';
+        $ext = ! empty($data['ext']) ? $data['ext'] : '';
         if ('' === $ext) {
-            $exploded = \explode('.', $filename);
-            $ext = \strtolower(\end($exploded));
+            $exploded = explode('.', $filename);
+            $ext = strtolower(end($exploded));
         }
 
         if ('svg' === $ext) {
@@ -236,84 +224,110 @@ SQL
     }
 
     /**
-     * @param array|false        $image
-     * @param int          $attachment_id
+     * @param array<string,mixed>  $image
      * @param array|string $size
      *
-     * @return array|bool
+     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings (PHPMD.UnusedLocalVariable)
+     *
+     * @return array
+     *
+     * @psalm-return array<int|string, mixed>
      */
-    public function fixSvgSizeAttributes($image, int $attachment_id, $size)
+    public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
     {
         if (is_admin()) {
             return $image;
         }
 
-        [$image_url, $width, $height, $resized] = $image;
+        [$imageUrl, $width, $height, $resized] = $image;
 
-        $file_ext = \pathinfo($image_url, PATHINFO_EXTENSION);
+        $fileExt = pathinfo($imageUrl, PATHINFO_EXTENSION);
 
-        if ('svg' === $file_ext) {
+        if ('svg' === $fileExt) {
             $width = 60;
             $height = 60;
 
-            if (\is_array($size) && 2 === \count($size)) {
+            if (is_array($size) && 2 === count($size)) {
                 [$width, $height] = $size;
             }
 
-            return [$image_url, $width, $height, $resized];
+            return [$imageUrl, $width, $height, $resized];
         }
 
         return $image;
     }
 
     /**
-     * @param  array|false  $image
-     * @param  int  $attachment_id
-     * @param  array|string  $size
+     * @param array|false  $image
+     * @param array|string $size
      *
      * @return array|false
      */
-    public function resizeImageOnTheFly($image, int $attachment_id, $size)
+    public function resizeImageOnTheFly($image, int $attachmentId, $size)
     {
-        if (is_admin()) {
+        if (is_admin() || ! is_array($size)) {
             return $image;
         }
 
-        $meta = wp_get_attachment_metadata($attachment_id);
+        $meta = wp_get_attachment_metadata($attachmentId);
 
-        if (\is_array($size) && !empty($meta) && ($_file = get_attached_file($attachment_id)) && (\file_exists($_file))) {
-            $upload = wp_upload_dir();
+        if (empty($meta)) {
+            return $image;
+        }
 
-            $_file_path = \ltrim($_file, $upload['basedir']);
+        $upload = wp_upload_dir();
+        $filePath = "{$upload['basedir']}/{$meta['file']}";
 
-            $image_dirname = \pathinfo($_file_path, PATHINFO_DIRNAME);
+        if ( ! file_exists($filePath)) {
+            return $image;
+        }
 
-            $image_base_url = "{$upload['baseurl']}/{$image_dirname}";
+        $imageDirname = pathinfo($filePath, PATHINFO_DIRNAME);
 
-            [$width, $height] = $size;
+        $imageBaseUrl = "{$upload['baseurl']}/$imageDirname";
 
-            if (!empty($meta['sizes'])) {
-                foreach ($meta['sizes'] as $key => $value) {
-                    if ((int) $value['width'] === (int) $width && (int) $value['height'] === (int) $height) {
-                        return $image;
-                    }
-                }
-            }
+        [$width, $height] = $size;
 
-            // Generate new size
-            $resized = image_make_intermediate_size($_file, $width, $height, true);
+        if ( ! empty($meta['sizes']) && $this->isImageSizesExist($meta, (int) $width, (int) $height)) {
+            return $image;
+        }
 
-            if ($resized && !is_wp_error($resized)) {
-                $key = \sprintf('resized-%dx%d', $resized['width'], $resized['height']);
-                $meta['sizes'][$key] = $resized;
-                wp_update_attachment_metadata($attachment_id, $meta);
+        // Generate new size
+        $resized = image_make_intermediate_size($filePath, $width, $height, true);
 
-                $image[0] = "{$image_base_url}/{$resized['file']}";
-                $image[1] = $resized['width'];
-                $image[2] = $resized['height'];
-            }
+        if (is_wp_error($resized)) {
+            return $image;
+        }
+
+        if ($resized) {
+            $metaSizeKey = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
+            $meta['sizes'][$metaSizeKey] = $resized;
+            wp_update_attachment_metadata($attachmentId, $meta);
+
+            $image[0] = "$imageBaseUrl/{$resized['file']}";
+            $image[1] = $resized['width'];
+            $image[2] = $resized['height'];
         }
 
         return $image;
+    }
+
+    /**
+     * @param  array<string,array<string,mixed>>  $imageMeta
+     * @param  int  $width
+     * @param  int  $height
+     *
+     * @return bool
+     */
+    private function isImageSizesExist(array $imageMeta, int $width, int $height): bool
+    {
+        foreach ($imageMeta['sizes'] as $key => $value) {
+            if ((int) $value['width'] === $width && (int) $value['height'] === $height) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

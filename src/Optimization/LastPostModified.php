@@ -22,36 +22,39 @@ class LastPostModified implements AutoloadInterface
         add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
     }
 
-    public function transitionPostStatus(string $new_status, string $old_status, WP_Post $post)
+    /**
+     * @return void
+     */
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post)
     {
-        if (!\in_array('publish', [$old_status, $new_status])) {
+        if ( ! in_array('publish', [$oldStatus, $newStatus])) {
             return;
         }
-        $public_post_types = get_post_types(['public' => true]);
-        if (!\in_array($post->post_type, $public_post_types)) {
+        $publicPostTypes = get_post_types(['public' => true]);
+        if ( ! in_array($post->post_type, $publicPostTypes)) {
             return;
         }
-        $is_locked = $this->isLocked($post->post_type);
-        if ($is_locked) {
+
+        if ($this->isLocked($post->post_type)) {
             return;
         }
         $this->bumpLastPostModified($post);
     }
 
-    private function isLocked(string $post_type): bool
+    private function isLocked(string $postType): bool
     {
-        $key = $this->getLockName($post_type);
+        $key = $this->getLockName($postType);
 
         // if the add fails, then we already have a lock set
         return false === wp_cache_add($key, 1, Cache::CACHE_GROUP, self::LOCK_TIME_IN_SECONDS);
     }
 
-    private function getLockName(string $post_type): string
+    private function getLockName(string $postType): string
     {
-        return sprintf('%s_%s_lock', self::OPTION_PREFIX, $post_type);
+        return sprintf('%s_%s_lock', self::OPTION_PREFIX, $postType);
     }
 
-    private function bumpLastPostModified(WP_Post $post)
+    private function bumpLastPostModified(WP_Post $post): void
     {
         // Update default of `any`
         $this->updateLastPostModified($post->post_modified_gmt, 'gmt');
@@ -68,16 +71,12 @@ class LastPostModified implements AutoloadInterface
         return update_option($this->getOptionName($timezone, $postType), $time, false);
     }
 
-    private function getOptionName(string $timezone, string $post_type): string
+    private function getOptionName(string $timezone, string $postType): string
     {
-        return sprintf('%s_%s_%s', self::OPTION_PREFIX, strtolower($timezone), $post_type);
+        return sprintf('%s_%s_%s', self::OPTION_PREFIX, strtolower($timezone), $postType);
     }
 
     /**
-     * @param  bool  $boolean
-     * @param  string  $timezone
-     * @param  string  $postType
-     *
      * @return bool|mixed
      */
     public function overrideGetLastPostModified(bool $boolean, string $timezone, string $postType)
@@ -91,12 +90,10 @@ class LastPostModified implements AutoloadInterface
     }
 
     /**
-     * @param  string  $timezone
-     * @param  string  $post_type
      * @return mixed
      */
-    private function getLastPostModified(string $timezone, string $post_type)
+    private function getLastPostModified(string $timezone, string $postType)
     {
-        return get_option($this->getOptionName($timezone, $post_type), false);
+        return get_option($this->getOptionName($timezone, $postType), false);
     }
 }

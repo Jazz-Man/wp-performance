@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Psr\Link\LinkInterface;
 use Symfony\Component\WebLink\GenericLinkProvider;
 use Symfony\Component\WebLink\HttpHeaderSerializer;
 use Symfony\Component\WebLink\Link;
@@ -48,7 +49,7 @@ class Http implements AutoloadInterface
                         }
                     }
 
-                    \printf('<link %s/>', app_add_attr_to_el($attributes));
+                    printf('<link %s/>', app_add_attr_to_el($attributes));
                 }
             }
         }
@@ -56,44 +57,45 @@ class Http implements AutoloadInterface
 
     public function preloadLinks(): void
     {
-        if (\headers_sent()) {
+        if (headers_sent()) {
             return;
         }
 
         $this->preloadLinks = (array) apply_filters('app_preload_links', $this->preloadLinks);
 
         if (!empty($this->preloadLinks)) {
-            $link_provider = new GenericLinkProvider($this->preloadLinks);
+            /** @var LinkInterface[]|\Traversable $links */
+            $links = (new GenericLinkProvider($this->preloadLinks))->getLinks();
 
-            $header = (new HttpHeaderSerializer())->serialize($link_provider->getLinks());
+            $header = (new HttpHeaderSerializer())->serialize($links);
 
             if (!empty($header)) {
-                \header(\sprintf('Link: %s', $header), false);
+                header(sprintf('Link: %s', $header), false);
             }
         }
 
         // @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control
-        \header('X-DNS-Prefetch-Control: on');
+        header('X-DNS-Prefetch-Control: on');
     }
 
-    public static function preloadLink(string $href, string $as, string $rel = Link::REL_PRELOAD): Link
+    public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
     {
-        return (new Link($rel, self::makeLinkRelative($href)))
-            ->withAttribute('as', $as)
+        return (new Link($relAttribute, app_make_link_relative($href)))
+            ->withAttribute('as', $asAttribute)
             ->withAttribute('importance', 'high')
         ;
     }
 
     public static function prefetchLink(string $href): Link
     {
-        return (new Link(Link::REL_PREFETCH, self::makeLinkRelative($href)))
+        return (new Link(Link::REL_PREFETCH, app_make_link_relative($href)))
             ->withAttribute('as', 'fetch')
         ;
     }
 
     public static function preloadFont(string $href, string $type): Link
     {
-        return (new Link(Link::REL_PRELOAD, self::makeLinkRelative($href)))
+        return (new Link(Link::REL_PRELOAD, app_make_link_relative($href)))
             ->withAttribute('as', 'font')
             ->withAttribute('type', $type)
             ->withAttribute('importance', 'high')
@@ -103,21 +105,12 @@ class Http implements AutoloadInterface
 
     public static function dnsPrefetchLink(string $href): Link
     {
-        return new Link(Link::REL_DNS_PREFETCH, self::makeLinkRelative($href));
+        return new Link(Link::REL_DNS_PREFETCH, app_make_link_relative($href));
     }
 
     public static function preconnectLink(string $href): Link
     {
-        return new Link(Link::REL_PRECONNECT, self::makeLinkRelative($href));
-    }
-
-    private static function makeLinkRelative(string $href): string
-    {
-        if (app_is_current_host($href)) {
-            $href = wp_make_link_relative($href);
-        }
-
-        return $href;
+        return new Link(Link::REL_PRECONNECT, app_make_link_relative($href));
     }
 
 }
