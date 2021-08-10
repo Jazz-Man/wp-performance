@@ -23,7 +23,7 @@ jobs:
           composer install --no-interaction --no-progress --ignore-platform-reqs;
 
       - name: phpqa
-        run: phpqa --report --tools phpunit:0,phpcs:0,phpmd:0,psalm:0,phpstan:0 --buildDir build --analyzedDirs ./ --ignoredDirs build,vendor
+        run: composer run-script phpqa
 
       - name: Upload QA files
         uses: actions/upload-artifact@v2
