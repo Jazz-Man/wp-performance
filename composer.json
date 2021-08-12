@@ -27,7 +27,6 @@
     },
     "require-dev": {
         "edgedesign/phpqa": "^1.25",
-        "enlightn/security-checker": "^1.9",
         "friendsofphp/php-cs-fixer": "^3.0",
         "humanmade/psalm-plugin-wordpress": "^2.0",
         "macfja/phpqa-extensions": "^0.1.0",
@@ -36,12 +35,10 @@
         "php-stubs/wp-cli-stubs": "^2.5",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^0.12.94",
-        "povils/phpmnd": "^2.4",
         "qossmic/deptrac-shim": "^0.14.1",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.8",
         "rskuipers/php-assumptions": "^0.8.0",
-        "symfony/var-dumper": "^5.3",
         "szepeviktor/phpstan-wordpress": "^0.7.7",
         "vimeo/psalm": "^4.9"
     },
@@ -62,6 +59,10 @@
         ]
     },
     "scripts": {
-        "phpqa": "phpqa"
+        "clear-cache" : [
+            "@phpstan-cc"
+        ],
+        "phpqa": "phpqa",
+        "phpstan-cc": "phpstan clear-result-cache"
     }
 }
