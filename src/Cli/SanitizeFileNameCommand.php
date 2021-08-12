@@ -54,7 +54,7 @@ class SanitizeFileNameCommand extends Command
      * @synopsis [--dry-run] [--without-sanitize] [--verbose]
      *
      * @param mixed $args
-     * @param mixed $assocArgs
+     * @param array<string,bool> $assocArgs
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      *
