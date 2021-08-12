@@ -2,21 +2,19 @@
 
 use JazzMan\Performance\Utils\AttachmentData;
 use JazzMan\Performance\Utils\Cache;
-use Latitude\QueryBuilder\QueryFactory;
-
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
+use Latitude\QueryBuilder\QueryFactory;
 
 if ( ! function_exists('app_get_image_data_array')) {
     /**
-     * @param  int[]|string  $size
+     * @param int[]|string $size
      *
-     * @return (int|int[]|mixed|null|string)[]|false
+     * @return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt: null|string, id?: int, srcset?: string, sizes?: string}|false
      *
-     * @psalm-return array{size: array<int>|string, url: mixed, width: mixed, height: mixed, alt: mixed|null|string, id?: int, srcset?: mixed, sizes?: mixed}|false
+     * @psalm-return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt?: null|string, id?: int, srcset?: string, sizes?: string}|false
      */
-    function app_get_image_data_array(int $attachmentId, $size = 'large')
-    {
+    function app_get_image_data_array(int $attachmentId, $size = 'large') {
         $imageData = [
             'size' => $size,
         ];
@@ -25,14 +23,18 @@ if ( ! function_exists('app_get_image_data_array')) {
             $image = wp_get_attachment_image_src($attachmentId, $size);
 
             if ( ! empty($image)) {
-                [$url, $width, $height] = $image;
+                list($url, $width, $height) = $image;
 
+                /** @var string $alt */
                 $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
 
-                $imageData['url']    = $url;
-                $imageData['width']  = $width;
+                $imageData['url'] = $url;
+                $imageData['width'] = $width;
                 $imageData['height'] = $height;
-                $imageData['alt']    = $alt;
+
+                if (!empty($alt)) {
+                    $imageData['alt'] = $alt;
+                }
 
                 return $imageData;
             }
@@ -43,13 +45,13 @@ if ( ! function_exists('app_get_image_data_array')) {
 
             $image = $attachment->getUrl($size);
 
-            $imageData['id']     = $attachmentId;
-            $imageData['url']    = $image['src'];
-            $imageData['width']  = $image['width'];
+            $imageData['id'] = $attachmentId;
+            $imageData['url'] = $image['src'];
+            $imageData['width'] = $image['width'];
             $imageData['height'] = $image['height'];
-            $imageData['alt']    = $attachment->getImageAlt();
+            $imageData['alt'] = $attachment->getImageAlt();
             $imageData['srcset'] = $image['srcset'];
-            $imageData['sizes']  = $image['sizes'];
+            $imageData['sizes'] = $image['sizes'];
 
             return $imageData;
         } catch (Exception $exception) {
@@ -64,10 +66,10 @@ if ( ! function_exists('app_get_attachment_image_url')) {
     /**
      * @return false|string
      */
-    function app_get_attachment_image_url(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL)
-    {
+    function app_get_attachment_image_url(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL) {
         try {
             $image = app_get_image_data_array($attachmentId, $size);
+
             if (is_array($image) && ! empty($image['url'])) {
                 return $image['url'];
             }
@@ -81,41 +83,29 @@ if ( ! function_exists('app_get_attachment_image_url')) {
 
 if ( ! function_exists('app_get_attachment_image')) {
     /**
-     * @param  array<string,mixed>|string  $attributes
+     * @param array<string,mixed>|string $attributes
      */
-    function app_get_attachment_image(
-        int $attachmentId,
-        string $size = AttachmentData::SIZE_THUMBNAIL,
-        $attributes = ''
-    ): string {
+    function app_get_attachment_image(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL, $attributes = ''): string {
         try {
             /** @var array<string,mixed> $image */
             $image = app_get_image_data_array($attachmentId, $size);
 
             if (empty($image)) {
-                throw new Exception(sprintf('Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size));
+                throw new \Exception(sprintf('Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size));
             }
+
+            $lazyLoading = function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' );
 
             $defaultAttributes = [
-                'src'   => $image['url'],
+                'src' => $image['url'],
                 'class' => sprintf('attachment-%1$s size-%1$s', $size),
-                'alt'   => app_trim_string(strip_tags($image['alt'])),
+                'alt' => app_trim_string(strip_tags($image['alt'])),
+                'width' => !empty($image['width']) ? (int) $image['width'] : false,
+                'height' => !empty($image['height']) ? (int) $image['height'] : false,
+                'loading' => $lazyLoading ? 'lazy' : false,
+                'srcset' => !empty($attributes['srcset']) ? $attributes['srcset'] : (! empty($image['srcset']) ? $image['srcset'] : false),
+                'sizes' => !empty($attributes['sizes']) ? $attributes['sizes'] : (! empty($image['sizes']) ? $image['sizes'] : false),
             ];
-
-            if ($image['width']) {
-                $defaultAttributes['width'] = (int)$image['width'];
-            }
-            if ($image['height']) {
-                $defaultAttributes['height'] = (int)$image['height'];
-            }
-
-            // Add `loading` attribute.
-            if (function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled(
-                    'img',
-                    'wp_get_attachment_image'
-                )) {
-                $defaultAttributes['loading'] = 'lazy';
-            }
 
             $attributes = wp_parse_args($attributes, $defaultAttributes);
 
@@ -123,14 +113,6 @@ if ( ! function_exists('app_get_attachment_image')) {
             // to omit the attribute for this image, ensure it is not included.
             if (array_key_exists('loading', $attributes) && ! $attributes['loading']) {
                 unset($attributes['loading']);
-            }
-
-            if (empty($attributes['srcset']) && ! empty($image['srcset'])) {
-                $attributes['srcset'] = $image['srcset'];
-            }
-
-            if (empty($attributes['sizes']) && ! empty($image['sizes'])) {
-                $attributes['sizes'] = $image['sizes'];
             }
 
             $post = get_post($attachmentId);
@@ -148,10 +130,11 @@ if ( ! function_exists('app_get_attachment_image')) {
 
 if ( ! function_exists('app_get_term_link')) {
     /**
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     *
      * @return false|string
      */
-    function app_get_term_link(int $termId, string $termTaxonomy)
-    {
+    function app_get_term_link(int $termId, string $termTaxonomy) {
         global $wp_rewrite;
 
         $term = get_term($termId, $termTaxonomy);
@@ -197,12 +180,13 @@ if ( ! function_exists('app_get_term_link')) {
             $hierarchicalSlugs = [];
 
             if ($term->parent) {
-                $ancestorsKey      = "taxonomy_ancestors_{$term->term_id}_$term->taxonomy";
+                $ancestorsKey = "taxonomy_ancestors_{$term->term_id}_$term->taxonomy";
                 $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
                 if (empty($hierarchicalSlugs)) {
-                    $result    = [];
+                    $result = [];
                     $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
+
                     if ( ! empty($ancestors)) {
                         foreach ($ancestors as $ancestor) {
                             $result[] = $ancestor->term_slug;
@@ -231,13 +215,9 @@ if ( ! function_exists('app_get_term_link')) {
 
 if ( ! function_exists('app_term_link_filter')) {
     /**
-     * @param  \WP_Term  $term
-     * @param  string  $termlink
-     *
-     * @return string
+     * @param \WP_Term $term
      */
-    function app_term_link_filter(WP_Term $term, string $termlink): string
-    {
+    function app_term_link_filter(WP_Term $term, string $termlink): string {
         switch ($term->taxonomy) {
             case 'post_tag':
                 $termlink = apply_filters('tag_link', $termlink, $term->term_id);
@@ -256,15 +236,12 @@ if ( ! function_exists('app_term_link_filter')) {
 
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
-     * @param  int  $termId
-     * @param  string  $taxonomy
-     * @param  int  $mode
-     * @param  int  ...$args  PDO fetch options
+     * @param int $mode
+     * @param int ...$args PDO fetch options
      *
      * @return mixed|false
      */
-    function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args)
-    {
+    function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args) {
         global $wpdb;
 
         try {
@@ -314,12 +291,9 @@ SQL
 
 if ( ! function_exists('app_term_get_all_children')) {
     /**
-     * @param  int  $termId
-     *
      * @return int[]
      */
-    function app_term_get_all_children(int $termId): array
-    {
+    function app_term_get_all_children(int $termId): array {
         global $wpdb;
 
         $children = wp_cache_get("term_all_children_$termId", Cache::CACHE_GROUP);
@@ -372,12 +346,11 @@ if ( ! function_exists('app_get_wp_block')) {
     /**
      * @return false|WP_Post
      */
-    function app_get_wp_block(string $postName)
-    {
+    function app_get_wp_block(string $postName) {
         global $wpdb;
 
         $cacheKey = "wp_block_$postName";
-        $result   = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
+        $result = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
 
         if (false === $result) {
             try {
@@ -413,12 +386,9 @@ if ( ! function_exists('app_get_wp_block')) {
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
     /**
-     * @param  string  $url
-     *
-     * @return null|scalar
+     * @return scalar|null
      */
-    function app_attachment_url_to_postid(string $url)
-    {
+    function app_attachment_url_to_postid(string $url) {
         if ( ! filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
         }
@@ -427,7 +397,7 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
 
         $uploadDir = wp_upload_dir();
 
-        $siteUrl   = parse_url($uploadDir['url']);
+        $siteUrl = parse_url($uploadDir['url']);
         $imagePath = parse_url($url);
 
         if ($siteUrl['host'] !== $imagePath['host']) {
@@ -464,13 +434,8 @@ SQL
 }
 
 if ( ! function_exists('app_make_link_relative')) {
-    /**
-     * @param  string  $link
-     *
-     * @return string
-     */
-    function app_make_link_relative(string $link): string
-    {
+
+    function app_make_link_relative(string $link): string {
         if (app_is_current_host($link)) {
             $link = wp_make_link_relative($link);
         }
@@ -480,21 +445,15 @@ if ( ! function_exists('app_make_link_relative')) {
 }
 
 if ( ! function_exists('app_is_wp_importing')) {
-    /**
-     * @return bool
-     */
-    function app_is_wp_importing(): bool
-    {
+
+    function app_is_wp_importing(): bool {
         return defined('WP_IMPORTING') && WP_IMPORTING;
     }
 }
 
 if ( ! function_exists('app_is_wp_cli')) {
-    /**
-     * @return bool
-     */
-    function app_is_wp_cli(): bool
-    {
+
+    function app_is_wp_cli(): bool {
         return defined('WP_CLI') && WP_CLI;
     }
 }
@@ -502,11 +461,8 @@ if ( ! function_exists('app_is_wp_cli')) {
 if ( ! function_exists('app_is_enabled_wp_performance')) {
     /**
      * Checks when plugin should be enabled. This offers nice compatibilty with wp-cli.
-     *
-     * @return bool
      */
-    function app_is_enabled_wp_performance(): bool
-    {
+    function app_is_enabled_wp_performance(): bool {
         static $enabled;
 
         if ($enabled === null) {
