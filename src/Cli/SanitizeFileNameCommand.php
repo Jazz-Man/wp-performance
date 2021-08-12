@@ -15,19 +15,19 @@ class SanitizeFileNameCommand extends Command
     /**
      * @var bool
      */
-    private $isDryRun = false;
+    private bool $isDryRun = false;
     /**
      * @var bool
      */
-    private $isSanitize;
+    private bool $isSanitize = false;
     /**
      * @var bool
      */
-    private $isVerbose;
+    private bool $isVerbose = false;
     /**
      * @var \wpdb
      */
-    private $wpdb;
+    private \wpdb $wpdb;
 
     /**
      * Makes all currently uploaded filenames and urls sanitized. Also replaces corresponding files from wp_posts and
@@ -56,9 +56,7 @@ class SanitizeFileNameCommand extends Command
      * @param mixed $args
      * @param mixed $assocArgs
      *
-     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
-     *
-     * @noinspection PhpUnusedParameterInspection
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      *
      * @return void
      */
