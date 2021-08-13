@@ -15,8 +15,6 @@ class FixPostGuidCommand extends Command
      *
      * @SuppressWarnings (PHPMD.UnusedFormalParameter)
      *
-     * @noinspection PhpUnusedParameterInspection
-     *
      * @return void
      */
     public function all(?array $args = null, ?array $assocArgs = null): void
