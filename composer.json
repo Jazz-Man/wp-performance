@@ -59,6 +59,7 @@
             "@phpstan-cc"
         ],
         "phpqa": "phpqa",
-        "phpstan-cc": "phpstan clear-result-cache"
+        "phpstan-cc": "phpstan clear-result-cache",
+        "phpmd": "phpmd . text phpmd.ruleset.xml --exclude \"build/,vendor/,cache/\""
     }
 }
