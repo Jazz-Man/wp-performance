@@ -13,8 +13,6 @@ class FixPostGuidCommand extends Command
      * @param mixed $args
      * @param mixed $assocArgs
      *
-     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
-     *
      * @return void
      */
     public function all(?array $args = null, ?array $assocArgs = null): void

@@ -261,8 +261,6 @@ class TermCount implements AutoloadInterface
      * @param int    $termTaxId the term taxonomy id
      * @param string $taxonomy  the taxonomy
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @return bool false if the screen check fails, true otherwise
      */
     public function maybeRecountPostsForTerm(int $termId, int $termTaxId, string $taxonomy): bool

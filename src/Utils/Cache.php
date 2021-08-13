@@ -37,8 +37,6 @@ class Cache implements AutoloadInterface
      * @param  int  $termTaxId
      * @param  string  $taxonomy
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @return void
      *
      */

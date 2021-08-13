@@ -143,7 +143,6 @@ class Update implements AutoloadInterface
     }
 
 	/**
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 *
 	 * @param  string|null  $menu
 	 * @return void

@@ -170,10 +170,9 @@ class WPQuery implements AutoloadInterface
         }
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @noinspection PhpUnusedParameterInspection
-     */
+	/**
+	 * @param  int  $postId
+	 */
     public function flushFoundRowsCach(int $postId): void
     {
         wp_cache_set(self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP);

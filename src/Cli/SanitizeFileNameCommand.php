@@ -56,8 +56,6 @@ class SanitizeFileNameCommand extends Command
      * @param mixed $args
      * @param array<string,bool> $assocArgs
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @return void
      */
     public function all(?array $args = null, array $assocArgs = []): void

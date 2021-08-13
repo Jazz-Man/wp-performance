@@ -69,7 +69,6 @@ class WPBlocks implements AutoloadInterface
     /**
      * @param  int  $postId
      * @param  WP_Post  $post
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @return void
      */
     public function resetWpBlockCache(int $postId, WP_Post $post)

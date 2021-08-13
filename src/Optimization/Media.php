@@ -90,8 +90,6 @@ class Media implements AutoloadInterface
      * @param string            $default   URL to a default image to use if no avatar is available
      * @param string            $alt       alternative text to use in the avatar image tag
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @return string `<img>` tag for the user's avatar
      */
     public function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string
@@ -200,9 +198,13 @@ SQL
         return $mimes;
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
+	/**
+	 * @param  array<string,string|false>  $data
+	 * @param  string  $file
+	 * @param  string  $filename
+	 *
+	 * @return array
+	 */
     public function fixMimeTypeSvg(array $data, string $file, string $filename): array
     {
         $ext = ! empty($data['ext']) ? $data['ext'] : '';
@@ -229,7 +231,6 @@ SQL
 	 *
 	 * @return array
 	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 *
 	 */
