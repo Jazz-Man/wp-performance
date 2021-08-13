@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\Performance\App;
 use JazzMan\Performance\Utils\Cache;
 use PDO;
 
@@ -223,17 +222,17 @@ SQL
         return $data;
     }
 
-    /**
-     * @param array<string,mixed>  $image
-     * @param array|string $size
-     *
-     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
-     * @SuppressWarnings (PHPMD.UnusedLocalVariable)
-     *
-     * @return array
-     *
-     * @psalm-return array<int|string, mixed>
-     */
+	/**
+	 * @param  array<string,mixed>  $image
+	 * @param  int  $attachmentId
+	 * @param  int[]|string  $size
+	 *
+	 * @return array
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+	 *
+	 */
     public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
     {
         if (is_admin()) {
