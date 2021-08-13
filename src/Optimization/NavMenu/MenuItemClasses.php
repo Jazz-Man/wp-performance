@@ -13,8 +13,6 @@ use WP_User;
 class MenuItemClasses {
     /**
      * @param array<int,stdClass> $menuItems
-     *
-     * @SuppressWarnings (PHPMD.CamelCaseVariableName)
      */
     public static function setMenuItemClassesByContext(array &$menuItems): void {
         global $wp_query, $wp_rewrite;
@@ -257,8 +255,7 @@ class MenuItemClasses {
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $object
      * @param array<int,mixed>                          $ancestors
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     */
+     **/
     private static function isCurrentMenuItemtAncestor(stdClass $parent, $object, array $ancestors): bool {
         if (empty($parent->type)) {
             return false;
@@ -283,8 +280,6 @@ class MenuItemClasses {
     /**
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $queriedObject
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     private static function isCurrentMenuItemt(stdClass $menuItem, int $queriedObjectId, $queriedObject, ?int $homePageId = null): bool {
         global $wp_query;

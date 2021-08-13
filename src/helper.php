@@ -130,8 +130,6 @@ if ( ! function_exists('app_get_attachment_image')) {
 
 if ( ! function_exists('app_get_term_link')) {
     /**
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     *
      * @return false|string
      */
     function app_get_term_link(int $termId, string $termTaxonomy) {

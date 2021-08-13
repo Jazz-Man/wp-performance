@@ -231,8 +231,6 @@ SQL
 	 *
 	 * @return array
 	 *
-	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
-	 *
 	 */
     public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
     {

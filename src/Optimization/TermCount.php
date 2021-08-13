@@ -84,8 +84,6 @@ class TermCount implements AutoloadInterface
      * @param string $taxonomy       taxonomy slug
      * @param string $transitionType transition type (increment or decrement)
      *
-     * @SuppressWarnings(PHPMD.ElseExpression)
-     *
      */
     protected function handleTermRelationshipChange(int $objectId, array $termTaxIds, string $taxonomy, string $transitionType): void
     {
@@ -169,9 +167,6 @@ class TermCount implements AutoloadInterface
      * @param array  $termTaxIds     term taxonomy IDs
      * @param string $taxonomy       taxonomy slug
      * @param string|bool $transitionType 'increment' or 'decrement'
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      *
      */
     private function quickUpdateTermsCount(int $objectId, array $termTaxIds, string $taxonomy, $transitionType): bool

@@ -293,8 +293,6 @@ class Update implements AutoloadInterface
     /**
      * Always send back that the latest version of WordPress/Plugins/Theme is the one we're running.
      *
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     *
      * @param mixed $transient
      *
      * @return false|object the modified output with our information
@@ -388,8 +386,6 @@ class Update implements AutoloadInterface
 
 	/**
 	 * Returns installed languages instead of all possibly available languages.
-	 *
-	 * @SuppressWarnings(PHPMD.CamelCaseVariableName)
 	 *
 	 * @return array<string,mixed>
 	 *

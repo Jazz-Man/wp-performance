@@ -104,9 +104,6 @@ class SanitizeFileName implements AutoloadInterface
     /**
      * This is a list of usual encoding errors.
      *
-     * @SuppressWarnings (PHPMD.DuplicatedArrayKey)
-     * @SuppressWarnings (PHPMD.ExcessiveMethodLength)
-     *
      * @return array<string, string>
      *
      * @psalm-return array<string, string>
