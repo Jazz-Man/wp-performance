@@ -43,8 +43,6 @@ Temporary Items
 .apdisk
 
 /.php[_|-]cs*.cache
-phpmd.baseline.xml
 /cache/
 !.github/
-*.neon
-!*.neon.dist
+phpstan.neon

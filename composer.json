@@ -56,10 +56,16 @@
     },
     "scripts": {
         "clear-cache" : [
-            "@phpstan-cc"
+            "phpstan clear-result-cache",
+            "psalm --clear-cache",
+            "psalm --clear-global-cache"
+        ],
+        "generate-base-line": [
+            "@phpmd -- --generate-baseline",
+            "phpstan --generate-baseline",
+            "psalm --set-baseline=psalm-baseline.xml"
         ],
         "phpqa": "phpqa",
-        "phpstan-cc": "phpstan clear-result-cache",
         "phpmd": "phpmd . text phpmd.ruleset.xml --exclude \"build/,vendor/,cache/\""
     }
 }
