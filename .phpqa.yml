@@ -19,9 +19,7 @@ phpqa:
 #    - phpcpd
     - phpstan
 #    - phpunit
-#    - psalm
-    - security-checker
-    - parallel-lint
+    - psalm
 #    - deptrac
   verbose: true
   extensions:
@@ -38,6 +36,10 @@ phpmetrics:
   git: true
   # junit: build/log-junit.xml
   # composer: composer.json
+
+psalm:
+  config: psalm.xml
+  deadCode: true
 
 phpstan:
   level: 8
