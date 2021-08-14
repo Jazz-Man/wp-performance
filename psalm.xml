@@ -8,6 +8,7 @@
         cacheDirectory="cache/psalm"
         serializer="igbinary"
         allowPhpStormGenerics="true"
+        errorBaseline="psalm-baseline.xml"
 >
     <projectFiles>
         <directory name="src"/>
