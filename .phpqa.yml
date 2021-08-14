@@ -41,4 +41,4 @@ phpmetrics:
 
 phpstan:
   level: 8
-  standard: phpstan.neon
+  standard: phpstan.neon.dist
