@@ -23,7 +23,7 @@ if ( ! function_exists('app_get_image_data_array')) {
             $image = wp_get_attachment_image_src($attachmentId, $size);
 
             if ( ! empty($image)) {
-                list($url, $width, $height) = $image;
+                [$url, $width, $height] = $image;
 
                 /** @var string $alt */
                 $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
@@ -86,14 +86,16 @@ if ( ! function_exists('app_get_attachment_image')) {
      * @param array<string,mixed>|string $attributes
      */
     function app_get_attachment_image(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL, $attributes = ''): string {
-        try {
-            /** @var array<string,mixed> $image */
-            $image = app_get_image_data_array($attachmentId, $size);
+    	/** @var array<string,mixed> $image */
+	    $image = app_get_image_data_array($attachmentId, $size);
 
-            if (empty($image)) {
-                throw new \Exception(sprintf('Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size));
-            }
+	    if (empty($image)){
+		    $exception = new Exception(sprintf('Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size));
+		    app_error_log($exception,'app_get_attachment_image');
+		    return "";
+	    }
 
+    	try {
             $lazyLoading = function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' );
 
             $defaultAttributes = [
@@ -212,9 +214,12 @@ if ( ! function_exists('app_get_term_link')) {
 }
 
 if ( ! function_exists('app_term_link_filter')) {
-    /**
-     * @param \WP_Term $term
-     */
+	/**
+	 * @param  \WP_Term  $term
+	 * @param  string  $termlink
+	 *
+	 * @return string
+	 */
     function app_term_link_filter(WP_Term $term, string $termlink): string {
         switch ($term->taxonomy) {
             case 'post_tag':
@@ -237,7 +242,7 @@ if ( ! function_exists('app_get_taxonomy_ancestors')) {
      * @param int $mode
      * @param int ...$args PDO fetch options
      *
-     * @return mixed|false
+     * @return array|false
      */
     function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args) {
         global $wpdb;
@@ -279,7 +284,7 @@ SQL
             $sql->execute(compact('termId', 'taxonomy'));
 
             return $sql->fetchAll($mode, ...$args);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             app_error_log($exception, 'app_get_taxonomy_ancestors');
 
             return false;
@@ -331,7 +336,7 @@ SQL
 
                     wp_cache_set("term_all_children_$termId", $children, Cache::CACHE_GROUP);
                 }
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 app_error_log($exception, __FUNCTION__);
             }
         }
@@ -373,7 +378,7 @@ if ( ! function_exists('app_get_wp_block')) {
                 if ( ! empty($result)) {
                     wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
                 }
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 app_error_log($exception, __FUNCTION__);
             }
         }
@@ -425,7 +430,7 @@ SQL
             ]);
 
             return $statement->fetchColumn();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return false;
         }
     }
