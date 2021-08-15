@@ -33,8 +33,6 @@ class WPQuery implements AutoloadInterface
 
         add_filter('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
         add_filter('posts_clauses_request', [$this, 'postsClausesRequest'], 10, 2);
-
-        add_filter('woocommerce_install_skip_create_files', '__return_true');
     }
 
     /**
