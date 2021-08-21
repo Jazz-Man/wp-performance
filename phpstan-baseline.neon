@@ -6,11 +6,6 @@ parameters:
 			path: src/Optimization/CleanUp.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\DuplicatePost\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/DuplicatePost.php
-
-		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Enqueue\\:\\:load\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Optimization/Enqueue.php

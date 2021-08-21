@@ -6,16 +6,6 @@
       <code>'__return_false'</code>
     </InvalidScalarArgument>
   </file>
-  <file src="src/Optimization/DuplicatePost.php">
-    <PossiblyInvalidArgument occurrences="3">
-      <code>$newPostId</code>
-      <code>$newPostId</code>
-      <code>$newPostId</code>
-    </PossiblyInvalidArgument>
-    <PossiblyInvalidMethodCall occurrences="1">
-      <code>get_error_message</code>
-    </PossiblyInvalidMethodCall>
-  </file>
   <file src="src/Optimization/Enqueue.php">
     <HookNotFound occurrences="5">
       <code>add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn'])</code>
