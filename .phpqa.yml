@@ -10,12 +10,9 @@ phpqa:
   execution: no-parallel
   output: file
   tools:
-    - phpmetrics
-    - phploc
 #    - phpcs
 #    - php-cs-fixer
     - phpmd
-    - pdepend
 #    - phpcpd
     - phpstan
 #    - phpunit
@@ -29,18 +26,10 @@ phpmd:
   standard: phpmd.ruleset.xml
   ignoreParsingErrors: true
 
-phpmetrics:
-  # v1
-  config: null
-  # v2
-  git: true
-  # junit: build/log-junit.xml
-  # composer: composer.json
-
 psalm:
-  config: psalm.xml
+  config: ./psalm.xml
   deadCode: true
 
 phpstan:
   level: 8
-  standard: phpstan.neon.dist
+  standard: ./phpstan.neon.dist
