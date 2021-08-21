@@ -151,7 +151,9 @@ class NavMenuCache implements AutoloadInterface {
     /**
      * @param array<string,mixed> $args
      *
-     * @return array<string,mixed>
+     * @return array
+     *
+     * @psalm-return array<string, mixed>
      */
     public function setMenuFallbackParams(array $args): array {
         $args['fallback_cb'] = '__return_empty_string';

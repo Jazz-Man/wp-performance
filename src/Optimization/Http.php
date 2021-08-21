@@ -41,7 +41,8 @@ class Http implements AutoloadInterface
 
             foreach ($provider->getLinks() as $link) {
                 if (!$link->isTemplated()) {
-                    $attributes = [
+                    /** @var array<string,string> $attributes */
+                	$attributes = [
                         'rel' => $link->getRels(),
                         'href' => $link->getHref(),
                     ];
@@ -81,29 +82,33 @@ class Http implements AutoloadInterface
         header('X-DNS-Prefetch-Control: on');
     }
 
-    public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
+	public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
     {
-        return (new Link($relAttribute, app_make_link_relative($href)))
-            ->withAttribute('as', $asAttribute)
-            ->withAttribute('importance', 'high')
-        ;
+    	$link = new Link($relAttribute, app_make_link_relative($href));
+	    $link->withAttribute('as', $asAttribute)
+	         ->withAttribute('importance', 'high');
+
+        return $link;
     }
 
     public static function prefetchLink(string $href): Link
     {
-        return (new Link(Link::REL_PREFETCH, app_make_link_relative($href)))
-            ->withAttribute('as', 'fetch')
-        ;
+	    $link = new Link(Link::REL_PREFETCH, app_make_link_relative($href));
+	    $link->withAttribute('as', 'fetch');
+
+        return $link;
     }
 
     public static function preloadFont(string $href, string $type): Link
     {
-        return (new Link(Link::REL_PRELOAD, app_make_link_relative($href)))
-            ->withAttribute('as', 'font')
-            ->withAttribute('type', $type)
-            ->withAttribute('importance', 'high')
-            ->withAttribute('crossorigin', true)
-        ;
+    	$link = new Link(Link::REL_PRELOAD, app_make_link_relative($href));
+
+    	$link->withAttribute('as', 'font')
+	         ->withAttribute('type', $type)
+	         ->withAttribute('importance', 'high')
+	         ->withAttribute('crossorigin', true);
+
+    	return $link;
     }
 
     public static function dnsPrefetchLink(string $href): Link

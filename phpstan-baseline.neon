@@ -1,29 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\CleanUp\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/CleanUp.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Enqueue\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/Enqueue.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Http\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/Http.php
-
-		-
 			message: "#^Parameter \\#1 \\$attr of function app_add_attr_to_el expects array\\<string, array\\<string\\>\\|string\\>, array\\<int\\|string, mixed\\> given\\.$#"
 			count: 1
 			path: src/Optimization/Http.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\LastPostModified\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/LastPostModified.php
 
 		-
 			message: "#^Call to function is_wp_error\\(\\) with array\\|false will always evaluate to false\\.$#"
@@ -31,7 +11,7 @@ parameters:
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Cannot access offset 0 on array\\|false\\.$#"
+			message: "#^Cannot access offset 0 on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
@@ -51,27 +31,12 @@ parameters:
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:fixMimeTypeSvg\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:fixSvgSizeAttributes\\(\\) should return array\\<string, mixed\\> but returns array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:fixSvgSizeAttributes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:resizeImageOnTheFly\\(\\) has parameter \\$image with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:resizeImageOnTheFly\\(\\) has parameter \\$size with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:resizeImageOnTheFly\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:resizeImageOnTheFly\\(\\) should return array\\<string, mixed\\>\\|false but returns array\\<1\\|2\\|string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
@@ -126,17 +91,7 @@ parameters:
 			path: src/Optimization/NavMenu/MenuItemClasses.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\NavMenu\\\\NavMenuCache\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/NavMenuCache.php
-
-		-
 			message: "#^Call to static method line\\(\\) on an unknown class WP_CLI\\.$#"
-			count: 1
-			path: src/Optimization/PostGuid.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\PostGuid\\:\\:load\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Optimization/PostGuid.php
 
@@ -144,11 +99,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$text of function esc_attr expects string, int given\\.$#"
 			count: 1
 			path: src/Optimization/PostGuid.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\PostMeta\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/PostMeta.php
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$ID\\.$#"
@@ -167,11 +117,6 @@ parameters:
 
 		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:handleTermRelationshipChange\\(\\) has parameter \\$termTaxIds with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:load\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
 
@@ -201,37 +146,12 @@ parameters:
 			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Update\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/Update.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Update\\:\\:preventAutoUpdates\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Update.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\WPQuery\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Optimization/WPQuery.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Security\\\\ContactFormSpamTester\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Security/ContactFormSpamTester.php
-
-		-
 			message: "#^Array has 2 duplicate keys with value 'â€' \\('â€', 'â€'\\)\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
 
 		-
 			message: "#^Array has 6 duplicate keys with value 'Ã' \\('Ã', 'Ã', 'Ã', 'Ã', 'Ã', 'Ã'\\)\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Security\\\\SanitizeFileName\\:\\:load\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
 
@@ -294,16 +214,6 @@ parameters:
 			message: "#^Call to function is_wp_error\\(\\) with array\\<WP_Term\\> will always evaluate to false\\.$#"
 			count: 1
 			path: src/Utils/Cache.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Utils\\\\Cache\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Utils/Cache.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Utils\\\\WPBlocks\\:\\:load\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Utils/WPBlocks.php
 
 		-
 			message: "#^Parameter \\#2 \\$options of method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) expects array\\<string, string\\>, array\\<string, bool\\> given\\.$#"

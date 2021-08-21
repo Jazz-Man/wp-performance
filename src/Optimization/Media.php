@@ -200,12 +200,14 @@ SQL
     }
 
 	/**
-	 * @param  array<string,string|false>  $data
-	 * @param  string  $file
-	 * @param  string  $filename
-	 *
-	 * @return array
-	 */
+     * @param array<string,string|false>  $data
+     * @param string  $file
+     * @param string  $filename
+     *
+     * @return array<string, false|string>
+     *
+     * @psalm-return array<string, false|string>
+     */
     public function fixMimeTypeSvg(array $data, string $file, string $filename): array
     {
         $ext = ! empty($data['ext']) ? $data['ext'] : '';
@@ -226,18 +228,22 @@ SQL
     }
 
 	/**
-	 * @param  array<string,mixed>  $image
+	 * @param array<mixed>|false $image
 	 * @param  int  $attachmentId
-	 * @param  int[]|string  $size
+	 * @param $size
 	 *
-	 * @return array
-	 *
+	 * @return array<mixed>|false
 	 */
     public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
     {
         if (is_admin()) {
             return $image;
         }
+
+        /** @var string $imageUrl */
+        /** @var int $width */
+        /** @var int $height */
+        /** @var bool $resized */
 
         [$imageUrl, $width, $height, $resized] = $image;
 
@@ -258,10 +264,10 @@ SQL
     }
 
     /**
-     * @param array|false  $image
-     * @param array|string $size
+     * @param array<string,mixed>|false  $image
+     * @param int[]|string $size
      *
-     * @return array|false
+     * @return array<string,mixed>|false
      */
     public function resizeImageOnTheFly($image, int $attachmentId, $size)
     {

@@ -213,7 +213,9 @@ class Update implements AutoloadInterface
      * @param string[]  $caps returns the user's actual capabilities
      * @param string $cap  capability name
      *
-     * @return array the user's filtered capabilities
+     * @return string[] the user's filtered capabilities
+     *
+     * @psalm-return array<string>
      */
     public function preventAutoUpdates(array $caps, string $cap): array
     {
@@ -368,7 +370,9 @@ class Update implements AutoloadInterface
      *
      * @param array<string,mixed>|stdClass $current Empty array
      *
-     * @return array<string,mixed>|stdClass Lookalike data which is stored in site transient 'update_plugins'
+     * @return array|stdClass
+     *
+     * @psalm-return array<string, mixed>|stdClass
      */
     public function removePluginUpdates($current)
     {
@@ -388,11 +392,13 @@ class Update implements AutoloadInterface
     }
 
 	/**
-	 * Returns installed languages instead of all possibly available languages.
-	 *
-	 * @return array<string,mixed>
-	 *
-	 */
+     * 	 * Returns installed languages instead of all possibly available languages.
+     * 	 *
+     *
+     * @return (mixed|string|string[])[][]
+     *
+     * @psalm-return array<string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}>
+     */
     public function availableTranslations(): array
     {
         $coreLanguges = self::coreBlockerGetLanguages();
