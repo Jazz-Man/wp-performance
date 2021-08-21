@@ -33,6 +33,7 @@
         "phpmd/phpmd": "@stable",
         "phpstan/phpstan": "@stable",
         "roave/security-advisories": "dev-master",
+        "roots/wordpress": "^5.8",
         "szepeviktor/phpstan-wordpress": "^0.7.7",
         "vimeo/psalm": "@stable"
     },
@@ -47,6 +48,14 @@
         "files": [
             "src/helper.php"
         ]
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+            "vendor/wp/wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
+            "vendor/wp/wp-content/themes/{$name}/": ["type:wordpress-theme"]
+        },
+        "wordpress-install-dir": "vendor/wp"
     },
     "scripts": {
         "clear-cache" : [
