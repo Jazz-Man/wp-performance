@@ -24,4 +24,7 @@
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php"/>
     </stubs>
+    <plugins>
+        <plugin filename="vendor/humanmade/psalm-plugin-wordpress/Plugin.php"/>
+    </plugins>
 </psalm>
