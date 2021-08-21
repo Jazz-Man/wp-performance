@@ -6,9 +6,6 @@
     </TooManyArguments>
   </file>
   <file src="src/Optimization/Media.php">
-    <InvalidGlobal occurrences="1">
-      <code>global $wpdb;</code>
-    </InvalidGlobal>
     <InvalidScalarArgument occurrences="1">
       <code>$size</code>
     </InvalidScalarArgument>
@@ -128,9 +125,6 @@
       <code>$sizes['width']</code>
       <code>$this-&gt;metadata[$sizeKey][$attachmentSize]</code>
     </InvalidArrayOffset>
-    <InvalidGlobal occurrences="1">
-      <code>global $wpdb;</code>
-    </InvalidGlobal>
     <InvalidIterator occurrences="1">
       <code>$this-&gt;metadata[$sizesKey]</code>
     </InvalidIterator>
