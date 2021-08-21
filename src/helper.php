@@ -185,7 +185,9 @@ if ( ! function_exists('app_get_term_link')) {
 
                 if (empty($hierarchicalSlugs)) {
                     $result = [];
-                    $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
+
+	                /** @var \stdClass[] $ancestors */
+	                $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
 
                     if ( ! empty($ancestors)) {
                         foreach ($ancestors as $ancestor) {
@@ -242,7 +244,7 @@ if ( ! function_exists('app_get_taxonomy_ancestors')) {
      * @param int $mode
      * @param int ...$args PDO fetch options
      *
-     * @return array|false
+     * @return array<string,string|int>|false
      */
     function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args) {
         global $wpdb;
