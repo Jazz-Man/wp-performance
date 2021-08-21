@@ -1,46 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.9.3@4c262932602b9bbab5020863d1eb22d49de0dbf4">
-  <file src="src/Optimization/CleanUp.php">
-    <InvalidScalarArgument occurrences="3">
-      <code>'__return_false'</code>
-      <code>'__return_false'</code>
-    </InvalidScalarArgument>
-  </file>
   <file src="src/Optimization/Enqueue.php">
-    <HookNotFound occurrences="5">
-      <code>add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn'])</code>
-      <code>add_action('wp_enqueue_scripts', [$this, 'jsToFooter'])</code>
-      <code>add_filter('app_preload_links', [$this, 'preloadLinks'])</code>
-      <code>add_filter('script_loader_src', [$this, 'setScriptVersion'], 15, 2)</code>
-      <code>add_filter('style_loader_src', [$this, 'setScriptVersion'], 15, 2)</code>
-    </HookNotFound>
     <TooManyArguments occurrences="1">
       <code>apply_filters('enqueue_add_script_version', true, $handle)</code>
     </TooManyArguments>
   </file>
-  <file src="src/Optimization/LastPostModified.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>[$this, 'overrideGetLastPostModified']</code>
-    </InvalidScalarArgument>
-  </file>
   <file src="src/Optimization/Media.php">
-    <HookNotFound occurrences="16">
-      <code>add_action('add_attachment', [$this, 'setAttachmentAltTitle'])</code>
-      <code>add_action('add_attachment', [$this, 'setMediaMonthsCache'])</code>
-      <code>add_action('pre_get_posts', [$this, 'filterQueryAttachmentFilenames'])</code>
-      <code>add_filter('bp_core_fetch_avatar_no_grav', '__return_true')</code>
-      <code>add_filter('default_avatar_select', [$this, 'defaultAvatar'])</code>
-      <code>add_filter('get_avatar', [$this, 'replaceGravatar'], 1, 5)</code>
-      <code>add_filter('media_library_months_with_files', [$this, 'mediaLibraryMonthsWithFiles'])</code>
-      <code>add_filter('media_library_show_audio_playlist', '__return_true')</code>
-      <code>add_filter('media_library_show_video_playlist', '__return_true')</code>
-      <code>add_filter('upload_mimes', [$this, 'allowSvg'])</code>
-      <code>add_filter('wp_calculate_image_srcset_meta', '__return_empty_array', PHP_INT_MAX)</code>
-      <code>add_filter('wp_check_filetype_and_ext', [$this, 'fixMimeTypeSvg'], 75, 3)</code>
-      <code>add_filter('wp_get_attachment_image_src', [$this, 'fixSvgSizeAttributes'], 10, 3)</code>
-      <code>add_filter('wp_get_attachment_image_src', [$this, 'resizeImageOnTheFly'], 10, 3)</code>
-      <code>add_filter('wp_insert_attachment_data', [$this, 'setAttachmentTitle'], 10, 2)</code>
-    </HookNotFound>
     <InvalidGlobal occurrences="1">
       <code>global $wpdb;</code>
     </InvalidGlobal>
@@ -102,10 +67,6 @@
     </UndefinedPropertyFetch>
   </file>
   <file src="src/Optimization/NavMenu/NavMenuCache.php">
-    <HookNotFound occurrences="2">
-      <code>add_filter('pre_wp_nav_menu', [$this, 'buildWpNavMenu'], 10, 2)</code>
-      <code>add_filter('wp_nav_menu_args', [$this, 'setMenuFallbackParams'])</code>
-    </HookNotFound>
     <PossiblyFalseArgument occurrences="1">
       <code>$menuItems</code>
     </PossiblyFalseArgument>
@@ -127,19 +88,7 @@
       <code>$postId</code>
     </InvalidScalarArgument>
   </file>
-  <file src="src/Optimization/PostMeta.php">
-    <InvalidArgument occurrences="1">
-      <code>'__return_false'</code>
-    </InvalidArgument>
-  </file>
   <file src="src/Optimization/TermCount.php">
-    <HookNotFound occurrences="5">
-      <code>add_action('added_term_relationship', [$this, 'addedTermRelationship'], 10, 3)</code>
-      <code>add_action('deleted_term_relationships', [$this, 'deletedTermRelationships'], 10, 3)</code>
-      <code>add_action('edit_term', [$this, 'maybeRecountPostsForTerm'], 10, 3)</code>
-      <code>add_action('init', [$this, 'setup'])</code>
-      <code>add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3)</code>
-    </HookNotFound>
     <PossiblyInvalidArgument occurrences="3">
       <code>$taxonomy</code>
       <code>$taxonomy</code>
@@ -158,51 +107,9 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="src/Optimization/Update.php">
-    <HookNotFound occurrences="38">
-      <code>add_action('admin_init', [$this, 'removeDashboards'])</code>
-      <code>add_action('admin_init', [$this, 'removeScheduleHook'])</code>
-      <code>add_action('admin_init', [$this, 'removeUpdateCrons'])</code>
-      <code>add_action('install_themes_upload', 'install_themes_upload', 10, 0)</code>
-      <code>add_action('network_admin_menu', [$this, 'removeMultisiteMenuItems' ], 9999)</code>
-      <code>add_filter('allow_dev_auto_core_updates', '__return_false')</code>
-      <code>add_filter('allow_major_auto_core_updates', '__return_false')</code>
-      <code>add_filter('allow_minor_auto_core_updates', '__return_false')</code>
-      <code>add_filter('auto_core_update_send_email', '__return_false')</code>
-      <code>add_filter('auto_update_core', '__return_false')</code>
-      <code>add_filter('auto_update_plugin', '__return_false')</code>
-      <code>add_filter('auto_update_theme', '__return_false')</code>
-      <code>add_filter('auto_update_translation', '__return_false')</code>
-      <code>add_filter('automatic_updater_disabled', '__return_true')</code>
-      <code>add_filter('automatic_updates_is_vcs_checkout', '__return_true')</code>
-      <code>add_filter('automatic_updates_send_debug_email ', '__return_false', 1)</code>
-      <code>add_filter('automatic_updates_send_debug_email', '__return_false')</code>
-      <code>add_filter('bulk_actions-plugins', [$this, 'removeBulkActions'])</code>
-      <code>add_filter('bulk_actions-plugins-network', [$this, 'removeBulkActions'])</code>
-      <code>add_filter('bulk_actions-themes', [$this, 'removeBulkActions'])</code>
-      <code>add_filter('bulk_actions-themes-network', [$this, 'removeBulkActions'])</code>
-      <code>add_filter('install_plugins_tabs', [$this, 'disablePluginAddTabs'])</code>
-      <code>add_filter('map_meta_cap', [$this, 'preventAutoUpdates'], 10, 2)</code>
-      <code>add_filter('pre_option_update_core', '__return_null')</code>
-      <code>add_filter('pre_site_transient_available_translations', [$this, 'availableTranslations'])</code>
-      <code>add_filter('pre_site_transient_update_core', [$this, 'lastCheckedCore'])</code>
-      <code>add_filter('pre_site_transient_update_plugins', [$this, 'lastCheckedCore'])</code>
-      <code>add_filter('pre_site_transient_update_themes', [$this, 'lastCheckedCore'])</code>
-      <code>add_filter('send_core_update_notification_email', '__return_false')</code>
-      <code>add_filter('site_transient_update_plugins', [$this, 'removePluginUpdates'])</code>
-      <code>add_filter('site_transient_update_themes', '__return_empty_array')</code>
-      <code>add_filter('themes_api', '__return_false')</code>
-      <code>add_filter('themes_api', '__return_true')</code>
-      <code>add_filter('update_footer', '__return_empty_string', 11)</code>
-      <code>add_filter('wp_auto_update_core', '__return_false')</code>
-    </HookNotFound>
     <UndefinedConstant occurrences="1">
       <code>ABSPATH</code>
     </UndefinedConstant>
-  </file>
-  <file src="src/Optimization/WPQuery.php">
-    <InvalidArgument occurrences="1">
-      <code>[$this, 'setQueryParams']</code>
-    </InvalidArgument>
   </file>
   <file src="src/Security/SanitizeFileName.php">
     <DuplicateArrayKey occurrences="6">
@@ -232,12 +139,6 @@
       <code>! $srcMatched || ! is_array($sources)</code>
       <code>! is_array($sources)</code>
     </TypeDoesNotContainType>
-  </file>
-  <file src="src/Utils/Cache.php">
-    <HookNotFound occurrences="2">
-      <code>add_action('save_post_attachment', [$this, 'resetAttachmentCache'])</code>
-      <code>add_action('saved_nav_menu', [$this, 'resetMenuCacheByTermId'])</code>
-    </HookNotFound>
   </file>
   <file src="src/Utils/WPBlocks.php">
     <InvalidScalarArgument occurrences="1"/>
