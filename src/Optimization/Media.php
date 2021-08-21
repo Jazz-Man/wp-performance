@@ -163,10 +163,11 @@ class Media implements AutoloadInterface
      */
     public function mediaLibraryMonthsWithFiles()
     {
+	    global $wpdb;
+
         $months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (false === $months) {
-            global $wpdb;
             $pdo = app_db_pdo();
 
             $statement = $pdo->prepare(
