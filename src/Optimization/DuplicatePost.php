@@ -19,7 +19,7 @@ class DuplicatePost implements AutoloadInterface
      */
     private $nonce = 'duplicate_nonce';
 
-    public function load()
+    public function load(): void
     {
         add_filter('post_row_actions', [$this, 'duplicatePostLink'], 10, 2);
         add_filter('page_row_actions', [$this, 'duplicatePostLink'], 10, 2);
@@ -112,7 +112,7 @@ class DuplicatePost implements AutoloadInterface
 
         $newPostId = wp_insert_post($newPostArgs, true);
 
-        if (is_wp_error($newPostId)) {
+        if ($newPostId instanceof \WP_Error) {
             wp_die($newPostId->get_error_message());
         }
 
@@ -123,7 +123,7 @@ class DuplicatePost implements AutoloadInterface
             $postTerms = wp_get_object_terms($oldPostId, $taxonomy, ['fields' => 'slugs']);
 
             if ( ! empty($postTerms)) {
-                wp_set_object_terms($newPostId, $postTerms, $taxonomy, false);
+                wp_set_object_terms((int)$newPostId, $postTerms, $taxonomy, false);
             }
         }
 
@@ -131,11 +131,11 @@ class DuplicatePost implements AutoloadInterface
 
         foreach ($data as $key => $values) {
             foreach ($values as $value) {
-                add_post_meta($newPostId, $key, $value);
+                add_post_meta((int)$newPostId, $key, $value);
             }
         }
 
-        $editPostLink = get_edit_post_link($newPostId, 'edit');
+        $editPostLink = get_edit_post_link((int)$newPostId, 'edit');
         if ( ! empty($editPostLink)) {
             // finally, redirect to the edit post screen for the new draft
             wp_redirect($editPostLink);
