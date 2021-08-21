@@ -10,6 +10,9 @@ class Cache implements AutoloadInterface
     public const CACHE_GROUP = 'wp-performance';
     public const QUERY_CACHE_GROUP = 'query';
 
+    /**
+     * @return void
+     */
     public function load()
     {
         add_action('delete_post', [$this, 'resetMenuCacheByMenuId']);

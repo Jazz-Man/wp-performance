@@ -16,6 +16,9 @@ class LastPostModified implements AutoloadInterface
     public const LOCK_TIME_IN_SECONDS = 30;
     public const OPTION_PREFIX = 'lastpostmodified';
 
+    /**
+     * @return void
+     */
     public function load()
     {
         add_filter('pre_get_lastpostmodified', [$this, 'overrideGetLastPostModified'], 10, 3);

@@ -13,6 +13,9 @@ class WPBlocks implements AutoloadInterface
      */
     private $postType;
 
+    /**
+     * @return void
+     */
     public function load()
     {
         $wpBlock = new CustomPostType('wp_block');

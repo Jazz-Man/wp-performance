@@ -9,6 +9,9 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
  */
 class CleanUp implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         add_action('init', [$this, 'headCleanup']);

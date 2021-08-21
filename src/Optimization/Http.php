@@ -18,6 +18,9 @@ class Http implements AutoloadInterface
      */
     private $preloadLinks = [];
 
+    /**
+     * @return void
+     */
     public function load()
     {
         add_action('init', [$this, 'removeResourceHints']);

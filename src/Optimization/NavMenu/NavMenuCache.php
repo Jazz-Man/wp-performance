@@ -7,6 +7,9 @@ use stdClass;
 use WP_Term;
 
 class NavMenuCache implements AutoloadInterface {
+    /**
+     * @return void
+     */
     public function load() {
         add_filter('wp_nav_menu_args', [$this, 'setMenuFallbackParams']);
         add_filter('pre_wp_nav_menu', [$this, 'buildWpNavMenu'], 10, 2);

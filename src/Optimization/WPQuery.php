@@ -27,6 +27,9 @@ class WPQuery implements AutoloadInterface
      */
     private $queryHash;
 
+    /**
+     * @return void
+     */
     public function load()
     {
         add_action('save_post', [$this, 'flushFoundRowsCach']);

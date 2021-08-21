@@ -12,6 +12,9 @@ use Normalizer;
  */
 class SanitizeFileName implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         // Remove accents from all uploaded files

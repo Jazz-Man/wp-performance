@@ -30,6 +30,9 @@ class TermCount implements AutoloadInterface
      */
     public $countedTerms = [];
 
+    /**
+     * @return void
+     */
     public function load()
     {
         add_action('init', [$this, 'setup']);

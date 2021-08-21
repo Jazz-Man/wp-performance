@@ -11,6 +11,9 @@ use WP_Site;
  */
 class Enqueue implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         add_filter('app_preload_links', [$this, 'preloadLinks']);

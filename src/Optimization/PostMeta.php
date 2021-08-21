@@ -9,6 +9,9 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
  */
 class PostMeta implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         // Disable custom fields meta box dropdown (very slow)

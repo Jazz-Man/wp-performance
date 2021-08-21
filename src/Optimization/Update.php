@@ -10,6 +10,9 @@ use stdClass;
  */
 class Update implements AutoloadInterface
 {
+    /**
+     * @return void
+     */
     public function load()
     {
         // Remove admin news dashboard widget
