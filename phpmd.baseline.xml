@@ -24,4 +24,6 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Utils/AttachmentData.php" method="calculateImageSecretSources"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Utils/AttachmentData.php" method="calculateImageSecretSources"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Utils/AttachmentData.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/helper.php"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/helper.php"/>
 </phpmd-baseline>
