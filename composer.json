@@ -27,26 +27,18 @@
     },
     "require-dev": {
         "edgedesign/phpqa": "^1.25",
-        "friendsofphp/php-cs-fixer": "^3.0",
+        "friendsofphp/php-cs-fixer": "@stable",
         "humanmade/psalm-plugin-wordpress": "^2.0",
         "php-stubs/wp-cli-stubs": "^2.5",
-        "phpmd/phpmd": "^2.10",
-        "phpstan/phpstan": "^0.12.95",
+        "phpmd/phpmd": "@stable",
+        "phpstan/phpstan": "@stable",
         "roave/security-advisories": "dev-master",
         "szepeviktor/phpstan-wordpress": "^0.7.7",
-        "vimeo/psalm": "^4.9"
+        "vimeo/psalm": "@stable"
     },
     "replace": {
         "phpmetrics/phpmetrics": "*",
         "sebastian/phpcpd": "*"
-    },
-    "extra": {
-        "installer-paths": {
-            "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
-            "vendor/wp/wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
-            "vendor/wp/wp-content/themes/{$name}/": ["type:wordpress-theme"]
-        },
-        "wordpress-install-dir": "vendor/wp"
     },
     "autoload": {
         "psr-4": {
