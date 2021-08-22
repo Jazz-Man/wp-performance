@@ -390,9 +390,11 @@ if ( ! function_exists('app_get_wp_block')) {
 }
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
-    /**
-     * @return scalar|null
-     */
+	/**
+	 * @param  string  $url
+	 *
+	 * @return false|mixed
+	 */
     function app_attachment_url_to_postid(string $url) {
         if ( ! filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
@@ -405,11 +407,11 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
         $siteUrl = parse_url($uploadDir['url']);
         $imagePath = parse_url($url);
 
-        if ($siteUrl['host'] !== $imagePath['host']) {
+        if ((!empty($siteUrl['host']) && !empty($imagePath['host'])) && ($siteUrl['host'] !== $imagePath['host'])) {
             return false;
         }
 
-        if ($imagePath['scheme'] !== $siteUrl['scheme']) {
+        if ((!empty($imagePath['scheme']) && !empty($siteUrl['scheme'])) && ($imagePath['scheme'] !== $siteUrl['scheme'])) {
             $url = str_replace($imagePath['scheme'], $siteUrl['scheme'], $url);
         }
 

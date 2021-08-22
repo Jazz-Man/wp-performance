@@ -15,9 +15,6 @@
     <InvalidScalarArgument occurrences="1">
       <code>$size</code>
     </InvalidScalarArgument>
-    <MismatchingDocblockReturnType occurrences="1">
-      <code>array&lt;mixed&gt;|false</code>
-    </MismatchingDocblockReturnType>
     <PossiblyInvalidArrayAssignment occurrences="3">
       <code>$image[0]</code>
       <code>$image[1]</code>
@@ -162,12 +159,6 @@
     <PossiblyInvalidArgument occurrences="1">
       <code>$size</code>
     </PossiblyInvalidArgument>
-    <PossiblyUndefinedArrayOffset occurrences="4">
-      <code>$imagePath['host']</code>
-      <code>$imagePath['scheme']</code>
-      <code>$siteUrl['host']</code>
-      <code>$siteUrl['scheme']</code>
-    </PossiblyUndefinedArrayOffset>
     <TooManyArguments occurrences="5">
       <code>apply_filters('category_link', $termlink, $term-&gt;term_id)</code>
       <code>apply_filters('pre_term_link', $termlink, $term)</code>
