@@ -230,13 +230,13 @@ SQL
 	/**
 	 * @param array<mixed>|false $image
 	 * @param  int  $attachmentId
-	 * @param $size
+	 * @param string|int[] $size
 	 *
 	 * @return array<mixed>|false
 	 */
-    public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
+    public function fixSvgSizeAttributes($image, int $attachmentId, $size)
     {
-        if (is_admin()) {
+        if (is_admin() || empty($image)) {
             return $image;
         }
 
