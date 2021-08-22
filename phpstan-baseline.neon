@@ -6,11 +6,6 @@ parameters:
 			path: src/Optimization/Http.php
 
 		-
-			message: "#^Call to function is_wp_error\\(\\) with array\\|false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
 			message: "#^Cannot access offset 0 on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
@@ -27,11 +22,6 @@ parameters:
 
 		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:defaultAvatar\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:resizeImageOnTheFly\\(\\) should return array\\<string, mixed\\>\\|false but returns array\\<1\\|2\\|string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
@@ -71,52 +61,12 @@ parameters:
 			path: src/Optimization/PostGuid.php
 
 		-
-			message: "#^Parameter \\#1 \\$text of function esc_attr expects string, int given\\.$#"
-			count: 1
-			path: src/Optimization/PostGuid.php
-
-		-
-			message: "#^Access to an undefined property object\\:\\:\\$ID\\.$#"
-			count: 3
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Access to an undefined property object\\:\\:\\$post_type\\.$#"
-			count: 2
-			path: src/Optimization/TermCount.php
-
-		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:deletedTermRelationships\\(\\) has parameter \\$termTaxIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:handleTermRelationshipChange\\(\\) has parameter \\$termTaxIds with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:quickUpdateTermsCount\\(\\) has parameter \\$termTaxIds with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^PHPDoc tag @var above a method has no effect\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Parameter \\#2 \\$taxonomies of function wp_get_object_terms expects array\\<string\\>\\|string, string\\|WP_Taxonomy given\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Parameter \\#3 \\$taxonomy of method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:quickUpdateTermsCount\\(\\) expects string, string\\|WP_Taxonomy given\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Property JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:\\$countedTerms type has no value type specified in iterable type array\\.$#"
+			message: "#^Negated boolean expression is always false\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
 
@@ -212,7 +162,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'scheme' on array\\(\\?'scheme' \\=\\> string, \\?'host' \\=\\> string, \\?'port' \\=\\> int, \\?'user' \\=\\> string, \\?'pass' \\=\\> string, \\?'path' \\=\\> string, \\?'query' \\=\\> string, \\?'fragment' \\=\\> string\\)\\|false\\.$#"
-			count: 4
+			count: 2
 			path: src/helper.php
 
 		-
@@ -222,11 +172,6 @@ parameters:
 
 		-
 			message: "#^Cannot assign offset 'srcset' to array\\<string, mixed\\>\\|string\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Function app_attachment_url_to_postid\\(\\) never returns float so it can be removed from the return typehint\\.$#"
 			count: 1
 			path: src/helper.php
 

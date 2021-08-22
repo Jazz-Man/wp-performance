@@ -66,24 +66,17 @@
     </StringIncrement>
   </file>
   <file src="src/Optimization/TermCount.php">
-    <PossiblyInvalidArgument occurrences="3">
-      <code>$taxonomy</code>
-      <code>$taxonomy</code>
-      <code>$termIds</code>
-    </PossiblyInvalidArgument>
     <PossiblyInvalidArrayOffset occurrences="1">
       <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
     </PossiblyInvalidArrayOffset>
-    <PossiblyInvalidDocblockTag occurrences="2">
-      <code>@var int    $ID        post ID</code>
-      <code>@var string $post_type Post type.</code>
-    </PossiblyInvalidDocblockTag>
-    <PossiblyInvalidPropertyFetch occurrences="2">
-      <code>$post-&gt;post_status</code>
-      <code>$post-&gt;post_type</code>
-    </PossiblyInvalidPropertyFetch>
   </file>
   <file src="src/Optimization/Update.php">
+    <LessSpecificReturnStatement occurrences="1">
+      <code>$available</code>
+    </LessSpecificReturnStatement>
+    <MoreSpecificReturnType occurrences="1">
+      <code>array&lt;string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}&gt;</code>
+    </MoreSpecificReturnType>
     <UndefinedConstant occurrences="1">
       <code>ABSPATH</code>
     </UndefinedConstant>
