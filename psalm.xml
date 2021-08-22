@@ -19,6 +19,14 @@
             <directory name="cache"/>
         </ignoreFiles>
     </projectFiles>
+
+    <issueHandlers>
+        <TooManyArguments>
+            <errorLevel type="suppress">
+                <referencedFunction name="apply_filters"/>
+            </errorLevel>
+        </TooManyArguments>
+    </issueHandlers>
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php"/>

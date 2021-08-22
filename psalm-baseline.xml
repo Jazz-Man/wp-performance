@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.9.3@4c262932602b9bbab5020863d1eb22d49de0dbf4">
-  <file src="src/Optimization/Enqueue.php">
-    <TooManyArguments occurrences="1">
-      <code>apply_filters('enqueue_add_script_version', true, $handle)</code>
-    </TooManyArguments>
-  </file>
   <file src="src/Optimization/Media.php">
     <InvalidReturnStatement occurrences="1">
       <code>$image</code>
@@ -61,10 +56,6 @@
       <code>$postTypeObject-&gt;labels</code>
       <code>$postTypeObject-&gt;labels</code>
     </PossiblyNullPropertyFetch>
-    <TooManyArguments occurrences="2">
-      <code>apply_filters( 'app_nav_menu_cache_items', $menuItems, $menuObject )</code>
-      <code>apply_filters( 'the_title', $originalTerm-&gt;post_title, $originalTerm-&gt;ID )</code>
-    </TooManyArguments>
     <UndefinedPropertyFetch occurrences="1">
       <code>$originalTerm-&gt;name</code>
     </UndefinedPropertyFetch>
@@ -79,12 +70,6 @@
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>
     </StringIncrement>
-    <TooManyArguments occurrences="4">
-      <code>apply_filters("wp_nav_menu_{$menu-&gt;slug}_items", $items, $args)</code>
-      <code>apply_filters('wp_nav_menu', $navMenu, $args)</code>
-      <code>apply_filters('wp_nav_menu_items', $items, $args)</code>
-      <code>apply_filters('wp_nav_menu_objects', $sortedMenuItems, $args)</code>
-    </TooManyArguments>
   </file>
   <file src="src/Optimization/PostGuid.php">
     <InvalidScalarArgument occurrences="1">
@@ -134,7 +119,6 @@
     <InvalidIterator occurrences="1">
       <code>$this-&gt;metadata[$sizesKey]</code>
     </InvalidIterator>
-    <TooManyArguments occurrences="1"/>
     <TypeDoesNotContainType occurrences="2">
       <code>! $srcMatched || ! is_array($sources)</code>
       <code>! is_array($sources)</code>
@@ -159,12 +143,5 @@
     <PossiblyInvalidArgument occurrences="1">
       <code>$size</code>
     </PossiblyInvalidArgument>
-    <TooManyArguments occurrences="5">
-      <code>apply_filters('category_link', $termlink, $term-&gt;term_id)</code>
-      <code>apply_filters('pre_term_link', $termlink, $term)</code>
-      <code>apply_filters('tag_link', $termlink, $term-&gt;term_id)</code>
-      <code>apply_filters('term_link', $termlink, $term, $term-&gt;taxonomy)</code>
-      <code>apply_filters('wp_get_attachment_image_attributes', $attributes, $post, $size)</code>
-    </TooManyArguments>
   </file>
 </files>
