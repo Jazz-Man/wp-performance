@@ -17,11 +17,11 @@ class PostGuid implements AutoloadInterface
 
     public static function fixPostGuid(int $postId, \WP_Post $post): void
     {
+	    global $wpdb;
+
         if (\defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
         }
-
-        global $wpdb;
 
         $guid = 'attachment' === $post->post_type ?
             app_get_attachment_image_url($postId, 'full') :
