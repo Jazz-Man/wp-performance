@@ -242,7 +242,7 @@ if ( ! function_exists('app_term_link_filter')) {
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
      * @param int $mode
-     * @param int ...$args PDO fetch options
+     * @param array<array-key, mixed>|null ...$args PDO fetch options
      *
      * @return array<string,string|int>|false
      */
