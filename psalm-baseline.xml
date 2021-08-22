@@ -6,17 +6,18 @@
     </TooManyArguments>
   </file>
   <file src="src/Optimization/Media.php">
-    <InvalidReturnStatement occurrences="2">
+    <InvalidReturnStatement occurrences="1">
       <code>$image</code>
-      <code>[$imageUrl, $width, $height, $resized]</code>
     </InvalidReturnStatement>
-    <InvalidReturnType occurrences="2">
-      <code>array&lt;string,mixed&gt;</code>
+    <InvalidReturnType occurrences="1">
       <code>array&lt;string,mixed&gt;|false</code>
     </InvalidReturnType>
     <InvalidScalarArgument occurrences="1">
       <code>$size</code>
     </InvalidScalarArgument>
+    <MismatchingDocblockReturnType occurrences="1">
+      <code>array&lt;mixed&gt;|false</code>
+    </MismatchingDocblockReturnType>
     <PossiblyInvalidArrayAssignment occurrences="3">
       <code>$image[0]</code>
       <code>$image[1]</code>
@@ -112,9 +113,6 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="src/Optimization/Update.php">
-    <ParseError occurrences="1">
-      <code>c</code>
-    </ParseError>
     <UndefinedConstant occurrences="1">
       <code>ABSPATH</code>
     </UndefinedConstant>
