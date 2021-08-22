@@ -58,16 +58,25 @@
         "wordpress-install-dir": "vendor/wp"
     },
     "scripts": {
-        "clear-cache" : [
+        "post-autoload-dump": [
+            "@rm-cache"
+        ],
+        "rm-cache" : [
             "phpstan clear-result-cache",
             "psalm --clear-cache",
             "psalm --clear-global-cache"
         ],
-        "generate-base-line": [
+        "init-baseline": [
             "@phpmd -- --generate-baseline",
-            "phpstan --generate-baseline",
+            "@phpstan-baseline",
             "psalm --set-baseline=psalm-baseline.xml"
         ],
+        "update-baseline": [
+            "psalm --update-baseline",
+            "@phpstan-baseline",
+            "@phpmd -- --update-baseline"
+        ],
+        "phpstan-baseline": "phpstan --generate-baseline=phpstan-baseline.neon",
         "phpqa": "phpqa",
         "phpmd": "phpmd . text phpmd.ruleset.xml --exclude \"build/,vendor/,cache/\"",
         "server": "php -S 0.0.0.0:8000 -t build"
