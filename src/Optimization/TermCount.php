@@ -3,7 +3,8 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use WP_Query;
+use WP_Error;
+use WP_Post;
 use WP_Screen;
 use WP_Taxonomy;
 
@@ -21,14 +22,14 @@ class TermCount implements AutoloadInterface
      *
      * @var string
      */
-    private static $countedStatus = 'publish';
+    private static string $countedStatus = 'publish';
     /**
      * Store the terms that have been incremented or decremented to avoid
      * duplicated efforts.
      *
-     * @var array
+     * @var array<int,array<string,mixed>>
      */
-    public $countedTerms = [];
+    public array $countedTerms = [];
 
     /**
      * @return void
@@ -83,13 +84,14 @@ class TermCount implements AutoloadInterface
      * Update term counts when term relationships are added or deleted.
      *
      * @param int    $objectId       object ID
-     * @param array  $termTaxIds     array of term taxonomy IDs
+     * @param int[]  $termTaxIds     array of term taxonomy IDs
      * @param string $taxonomy       taxonomy slug
      * @param string $transitionType transition type (increment or decrement)
      *
      */
     protected function handleTermRelationshipChange(int $objectId, array $termTaxIds, string $taxonomy, string $transitionType): void
     {
+    	/** @var WP_Post $post */
         $post = get_post($objectId);
 
         if ( ! $post || ! is_object_in_taxonomy($post->post_type, $taxonomy)) {
@@ -114,50 +116,44 @@ class TermCount implements AutoloadInterface
      *
      * @param string $newStatus new post status
      * @param string $oldStatus old post status
-     * @param object $post      {
-     *                          Post being transitioned. This not always a \WP_Post.
-     *
-     * @var int    $ID        post ID
-     * @var string $post_type Post type.
-     * }
+     * @param WP_Post $post
      *
      * @return void
      */
-    public function transitionPostStatus(string $newStatus, string $oldStatus, $post): void
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void
     {
-        foreach (get_object_taxonomies($post->post_type) as $taxonomy) {
-            $termIds = wp_get_object_terms($post->ID, $taxonomy, [
+    	/** @var string[] $taxonomies */
+    	$taxonomies = get_object_taxonomies($post->post_type);
+
+        foreach ($taxonomies as $taxonomy) {
+            /** @var int[]|WP_Error $termIds */
+        	$termIds = wp_get_object_terms($post->ID, $taxonomy, [
                 'fields' => 'tt_ids',
             ]);
-            if ( ! empty($termIds) && ! is_wp_error($termIds)) {
-                $this->quickUpdateTermsCount(
-                    $post->ID,
-                    $termIds,
-                    $taxonomy,
-                    $this->transitionType($newStatus, $oldStatus)
-                );
+            if ( ! empty($termIds) && ! ($termIds instanceof WP_Error)) {
+                $this->quickUpdateTermsCount( $post->ID, (array)$termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
             }
         }
         // For non-attachments, let's check if there are any attachment children
         // with inherited post status -- if so those will need to be re-counted.
         if ('attachment' !== $post->post_type) {
-            $attachments = new WP_Query([
-                'post_type' => 'attachment',
-                'post_parent' => $post->ID,
-                'post_status' => 'inherit',
-                'ignore_sticky_posts' => true,
-                'no_found_rows' => true,
-                'posts_per_page' => -1,
-                'fields' => 'ids',
-                'orderby' => 'ID',
-                'order' => 'ASC',
-            ]);
-            if ($attachments->have_posts()) {
-                foreach ($attachments->posts as $attachmentId) {
-                    $this->transitionPostStatus($newStatus, $oldStatus, (object) [
-                        'ID' => $attachmentId,
-                        'post_type' => 'attachment',
-                    ]);
+
+        	/** @var WP_Post[] $attachments */
+	        $attachments = get_posts([
+		        'post_type' => 'attachment',
+		        'post_parent' => $post->ID,
+		        'post_status' => 'inherit',
+		        'ignore_sticky_posts' => true,
+		        'no_found_rows' => true,
+		        'posts_per_page' => -1,
+//                'fields' => 'ids',
+		        'orderby' => 'ID',
+		        'order' => 'ASC',
+	        ]);
+
+            if (!empty($attachments)) {
+                foreach ($attachments as $attachment) {
+                    $this->transitionPostStatus($newStatus, $oldStatus, $attachment);
                 }
             }
         }
@@ -167,13 +163,12 @@ class TermCount implements AutoloadInterface
      * Update term counts using a very light SQL query.
      *
      * @param int    $objectId       object ID with the term relationship
-     * @param array  $termTaxIds     term taxonomy IDs
+     * @param int[]  $termTaxIds     term taxonomy IDs
      * @param string $taxonomy       taxonomy slug
      * @param string|bool $transitionType 'increment' or 'decrement'
      *
      */
-    private function quickUpdateTermsCount(int $objectId, array $termTaxIds, string $taxonomy, $transitionType): bool
-    {
+    private function quickUpdateTermsCount(int $objectId, array $termTaxIds, string $taxonomy, $transitionType): void {
         global $wpdb;
 
         $taxonomyObj = get_taxonomy($taxonomy);
@@ -181,7 +176,7 @@ class TermCount implements AutoloadInterface
         $termTaxIds = array_filter(array_map('intval', $termTaxIds));
 
         if (! $transitionType || empty($termTaxIds) || !($taxonomyObj instanceof WP_Taxonomy)){
-          return false;
+	        return;
         }
 
         // Respect if a taxonomy has a callback override.
@@ -197,7 +192,7 @@ class TermCount implements AutoloadInterface
         $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][$transitionType]);
         if (empty($termTaxIds)) {
             // No term to process. So return.
-            return false;
+	        return;
         }
 
         $this->countedTerms[$objectId][$taxonomy][$transitionType] = array_merge(
@@ -226,8 +221,6 @@ class TermCount implements AutoloadInterface
             do_action('edited_term_taxonomy', $termId, $taxonomy);
         }
         clean_term_cache($termTaxIds, $taxonomy, false);
-
-        return true;
     }
 
     /**
