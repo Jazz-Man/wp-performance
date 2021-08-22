@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.9.3@4c262932602b9bbab5020863d1eb22d49de0dbf4">
   <file src="src/Optimization/Media.php">
-    <InvalidReturnStatement occurrences="1">
-      <code>$image</code>
-    </InvalidReturnStatement>
-    <InvalidReturnType occurrences="1">
-      <code>array&lt;string,mixed&gt;|false</code>
-    </InvalidReturnType>
     <InvalidScalarArgument occurrences="1">
       <code>$size</code>
     </InvalidScalarArgument>

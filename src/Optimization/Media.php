@@ -267,7 +267,9 @@ SQL
      * @param array<string,mixed>|false  $image
      * @param int[]|string $size
      *
-     * @return array<string,mixed>|false
+     * @return array|false
+     *
+     * @psalm-return array<0|1|2|string, mixed>|false
      */
     public function resizeImageOnTheFly($image, int $attachmentId, $size)
     {
@@ -301,11 +303,7 @@ SQL
         // Generate new size
         $resized = image_make_intermediate_size($filePath, $width, $height, true);
 
-        if (is_wp_error($resized)) {
-            return $image;
-        }
-
-        if ($resized) {
+        if (!empty($resized)) {
             $metaSizeKey = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
             $meta['sizes'][$metaSizeKey] = $resized;
             wp_update_attachment_metadata($attachmentId, $meta);
