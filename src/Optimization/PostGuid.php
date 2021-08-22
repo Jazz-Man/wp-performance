@@ -33,7 +33,7 @@ class PostGuid implements AutoloadInterface
                     sprintf(
                         'Update guid "%s" for post_id "%d" and post_type "%s"',
                         esc_attr($guid),
-                        esc_attr($postId),
+                        esc_attr((string)$postId),
                         esc_attr($post->post_type)
                     )
                 );

@@ -71,11 +71,6 @@
       <code>$matches[1]</code>
     </StringIncrement>
   </file>
-  <file src="src/Optimization/PostGuid.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>$postId</code>
-    </InvalidScalarArgument>
-  </file>
   <file src="src/Optimization/TermCount.php">
     <PossiblyInvalidArgument occurrences="3">
       <code>$taxonomy</code>
