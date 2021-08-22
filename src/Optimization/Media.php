@@ -85,7 +85,7 @@ class Media implements AutoloadInterface
      * to remove the call to remote service.
      *
      * @param string            $avatar    image tag for the user's avatar
-     * @param int|object|string $idOrEmail a user ID, email address, or comment object
+     * @param mixed $idOrEmail a user ID, email address, or comment object
      * @param int               $size      square avatar width and height in pixels to retrieve
      * @param string            $default   URL to a default image to use if no avatar is available
      * @param string            $alt       alternative text to use in the avatar image tag
@@ -104,7 +104,7 @@ class Media implements AutoloadInterface
             '<img alt="%1$s" src="%2$s" class="avatar avatar-%3$s photo" height="%3$s" width="%3$s" style="background:#eee;" />',
             esc_attr($alt),
             'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-            esc_attr($size)
+            esc_attr((string)$size)
         );
     }
 

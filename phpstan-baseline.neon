@@ -41,11 +41,6 @@ parameters:
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Parameter \\#1 \\$text of function esc_attr expects string, int given\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
 			message: "#^Access to an undefined property WP_Post\\|WP_User\\:\\:\\$ancestors\\.$#"
 			count: 1
 			path: src/Optimization/NavMenu/MenuItemClasses.php
@@ -151,7 +146,7 @@ parameters:
 			path: src/Utils/WPBlocks.php
 
 		-
-			message: "#^Parameter \\#5 \\$function of function add_menu_page expects callable\\(\\)\\: mixed, '' given\\.$#"
+			message: "#^Parameter \\#5 \\$function of function add_menu_page expects callable\\(\\)\\: mixed, null given\\.$#"
 			count: 1
 			path: src/Utils/WPBlocks.php
 
