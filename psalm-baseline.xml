@@ -1,50 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.9.3@4c262932602b9bbab5020863d1eb22d49de0dbf4">
   <file src="src/Optimization/DuplicatePost.php">
-    <MixedArgument occurrences="3">
-      <code>$postId</code>
-      <code>$postId</code>
-      <code>$postId</code>
-    </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$key</code>
-    </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="4">
-      <code>$action</code>
-      <code>$postId</code>
-      <code>$value</code>
-      <code>$values</code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Optimization/Http.php">
-    <MixedArgumentTypeCoercion occurrences="2">
-      <code>$attributes</code>
-      <code>$this-&gt;preloadLinks</code>
-    </MixedArgumentTypeCoercion>
-    <MixedArrayOffset occurrences="1">
-      <code>$attributes[$key]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="4">
-      <code>$attributes[$key]</code>
-      <code>$key</code>
-      <code>$link</code>
-      <code>$value</code>
-    </MixedAssignment>
-    <MixedMethodCall occurrences="5">
-      <code>getAttributes</code>
-      <code>getAttributes</code>
-      <code>getHref</code>
-      <code>getRels</code>
-      <code>isTemplated</code>
-    </MixedMethodCall>
-    <MixedPropertyTypeCoercion occurrences="1">
-      <code>(array) apply_filters('app_preload_links', $this-&gt;preloadLinks)</code>
-    </MixedPropertyTypeCoercion>
-  </file>
-  <file src="src/Optimization/LastPostModified.php">
-    <MixedAssignment occurrences="1">
-      <code>$lastPostModified</code>
-    </MixedAssignment>
+    <MixedAssignment occurrences="1"/>
   </file>
   <file src="src/Optimization/Media.php">
     <MixedArgument occurrences="6">

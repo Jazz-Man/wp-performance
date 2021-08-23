@@ -80,16 +80,17 @@ class LastPostModified implements AutoloadInterface
     }
 
     /**
-     * @return bool|mixed
+     * @return false|string
      */
     public function overrideGetLastPostModified(bool $boolean, string $timezone, string $postType)
     {
+    	/** @var string|false $lastPostModified */
         $lastPostModified = $this->getLastPostModified($timezone, $postType);
         if (false === $lastPostModified) {
             return $boolean;
         }
 
-        return $lastPostModified;
+        return (string)$lastPostModified;
     }
 
     /**

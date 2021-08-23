@@ -39,16 +39,22 @@ class Http implements AutoloadInterface
         if (!empty($this->preloadLinks)) {
             $provider = new GenericLinkProvider($this->preloadLinks);
 
-            foreach ($provider->getLinks() as $link) {
+            /** @var Link[] $links */
+	        $links = $provider->getLinks();
+
+            foreach ($links as $link) {
                 if (!$link->isTemplated()) {
-                    /** @var array<string,string> $attributes */
+                    /** @var array<string,string|string[]> $attributes */
                 	$attributes = [
                         'rel' => $link->getRels(),
                         'href' => $link->getHref(),
                     ];
 
-                    if (!empty($link->getAttributes())) {
-                        foreach ($link->getAttributes() as $key => $value) {
+                	/** @var array<string,string|string[]> $linkAttributes */
+                	$linkAttributes = $link->getAttributes();
+
+                    if (!empty($linkAttributes)) {
+                        foreach ($linkAttributes as $key => $value) {
                             $attributes[$key] = $value;
                         }
                     }
@@ -65,7 +71,7 @@ class Http implements AutoloadInterface
             return;
         }
 
-        $this->preloadLinks = (array) apply_filters('app_preload_links', $this->preloadLinks);
+        $this->preloadLinks = apply_filters('app_preload_links', $this->preloadLinks);
 
         if (!empty($this->preloadLinks)) {
             /** @var LinkInterface[]|\Traversable $links */
