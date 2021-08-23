@@ -134,7 +134,7 @@ class CleanUp implements AutoloadInterface
      */
     public function filterRewrites(array $rules): array
     {
-        foreach ($rules as $rule => $rewrite) {
+        foreach ($rules as $rule => $_rewrite) {
             if (preg_match('/trackback\/\?\$$/i', $rule)) {
                 unset($rules[$rule]);
             }
