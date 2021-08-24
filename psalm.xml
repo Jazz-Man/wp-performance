@@ -31,4 +31,9 @@
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php"/>
     </stubs>
+    <globals>
+        <var name="wpdb" type="\wpdb"/>
+        <var name="wp_query" type="\WP_Query"/>
+        <var name="wp_rewrite" type="\WP_Rewrite"/>
+    </globals>
 </psalm>
