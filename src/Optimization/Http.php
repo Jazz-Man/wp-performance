@@ -16,17 +16,20 @@ class Http implements AutoloadInterface
     /**
      * @var Link[]
      */
-    private $preloadLinks = [];
+    private array $preloadLinks = [];
 
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
-        add_action('init', [$this, 'removeResourceHints']);
+        add_action('init', function () : void {
+									$this->removeResourceHints();
+								});
 
-        add_action('template_redirect', [$this, 'preloadLinks']);
-        add_action('wp_head', [$this, 'preloadLinksInHeader']);
+        add_action('template_redirect', function () : void {
+									$this->preloadLinks();
+								});
+        add_action('wp_head', function () : void {
+									$this->preloadLinksInHeader();
+								});
     }
 
     public function removeResourceHints(): void

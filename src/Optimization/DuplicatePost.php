@@ -19,10 +19,12 @@ class DuplicatePost implements AutoloadInterface {
 	private string $nonce = 'duplicate_nonce';
 
 	public function load(): void {
-		add_filter( 'post_row_actions', [ $this, 'duplicatePostLink' ], 10, 2 );
-		add_filter( 'page_row_actions', [ $this, 'duplicatePostLink' ], 10, 2 );
+		add_filter( 'post_row_actions', fn(array $actions, \WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
+		add_filter( 'page_row_actions', fn(array $actions, \WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
 
-		add_action( "admin_action_$this->action", [ $this, 'duplicatePostAsDraft' ] );
+		add_action( "admin_action_$this->action", function () : void {
+			$this->duplicatePostAsDraft();
+		} );
 	}
 
 	/**
@@ -62,7 +64,7 @@ class DuplicatePost implements AutoloadInterface {
 		/** @var string|null $action */
 		$action = $request->get( 'action' );
 
-		if ( ! ( $postId || ( $this->action === $action ) ) ) {
+		if ( !$postId && $this->action !== $action ) {
 			wp_die( 'No post to duplicate has been supplied!' );
 		}
 

@@ -9,10 +9,7 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
  */
 class ContactFormSpamTester implements AutoloadInterface
 {
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
         $recaptchaEnable = ! app_is_wp_cli() && apply_filters('contact_form_recaptcha_enable', true);
 

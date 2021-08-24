@@ -22,20 +22,18 @@ class WPQuery implements AutoloadInterface
      * @var string
      */
     public const FOUND_POSTS_KEY = 'found-posts';
-    /**
-     * @var string
-     */
-    private $queryHash;
+    private ?string $queryHash = null;
 
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
-        add_action('save_post', [$this, 'flushFoundRowsCach']);
+        add_action('save_post', function (int $postId) : void {
+									$this->flushFoundRowsCach($postId);
+								});
 
-        add_filter('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
-        add_filter('posts_clauses_request', [$this, 'postsClausesRequest'], 10, 2);
+        add_filter('pre_get_posts', function (\WP_Query $query) : void {
+									$this->setQueryParams($query);
+								}, 10, 1);
+        add_filter('posts_clauses_request', fn(array $clauses, \WP_Query $query): array => $this->postsClausesRequest($clauses, $query), 10, 2);
     }
 
     /**

@@ -10,20 +10,33 @@ class Cache implements AutoloadInterface
     public const CACHE_GROUP = 'wp-performance';
     public const QUERY_CACHE_GROUP = 'query';
 
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
-        add_action('delete_post', [$this, 'resetMenuCacheByMenuId']);
-        add_action('delete_term', [$this, 'resetMenuCacheByTermId']);
-        add_action('wp_update_nav_menu_item', [$this, 'resetMenuCacheByMenuId']);
-        add_action('wp_add_nav_menu_item', [$this, 'resetMenuCacheByMenuId']);
-        add_action('wp_create_nav_menu', [$this, 'resetMenuCacheByTermId']);
-        add_action('saved_nav_menu', [$this, 'resetMenuCacheByTermId']);
+        add_action('delete_post', function (int $menuId) : void {
+            $this->resetMenuCacheByMenuId($menuId);
+        });
+        add_action('delete_term', function (int $termId) : void {
+            $this->resetMenuCacheByTermId($termId);
+        });
+        add_action('wp_update_nav_menu_item', function (int $menuId) : void {
+            $this->resetMenuCacheByMenuId($menuId);
+        });
+        add_action('wp_add_nav_menu_item', function (int $menuId) : void {
+            $this->resetMenuCacheByMenuId($menuId);
+        });
+        add_action('wp_create_nav_menu', function (int $termId) : void {
+            $this->resetMenuCacheByTermId($termId);
+        });
+        add_action('saved_nav_menu', function (int $termId) : void {
+            $this->resetMenuCacheByTermId($termId);
+        });
 
-        add_action('save_post_attachment', [$this, 'resetAttachmentCache']);
-        add_action('saved_term', [$this, 'termsCache'], 10, 3);
+        add_action('save_post_attachment', function (int $postId) : void {
+            $this->resetAttachmentCache($postId);
+        });
+        add_action('saved_term', function (int $termId, int $termTaxId, string $taxonomy) : void {
+            $this->termsCache($termId, $termTaxId, $taxonomy);
+        }, 10, 3);
     }
 
     /**

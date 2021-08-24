@@ -13,10 +13,7 @@ class WPBlocks implements AutoloadInterface
      */
     private string $postType;
 
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
         $wpBlock = new CustomPostType('wp_block');
         $wpBlock->registerTaxonomy('block_category', [
@@ -35,18 +32,19 @@ class WPBlocks implements AutoloadInterface
             'date' => __('Date'),
         ]);
 
-        $wpBlock->setPopulateColumns('post_name', static function ($column, WP_Post $post) {
+        $wpBlock->setPopulateColumns('post_name', static function ($column, WP_Post $post): void {
             printf('<code>%s</code>', esc_attr($post->post_name));
         });
 
-        add_action('admin_menu', [$this, 'reusableBlocks']);
-        add_action("save_post_$this->postType", [$this, 'resetWpBlockCache'], 10, 2);
+        add_action('admin_menu', function () : void {
+            $this->reusableBlocks();
+        });
+        add_action("save_post_$this->postType", function (int $postId, \WP_Post $post) : void {
+            $this->resetWpBlockCache($postId, $post);
+        }, 10, 2);
     }
 
-    /**
-     * @return void
-     */
-    public function reusableBlocks()
+    public function reusableBlocks(): void
     {
         $postTypeProps = [
             'post_type' => $this->postType,
@@ -70,11 +68,9 @@ class WPBlocks implements AutoloadInterface
     }
 
     /**
-     * @param  int  $postId
      * @param  WP_Post  $post
-     * @return void
      */
-    public function resetWpBlockCache(int $postId, WP_Post $post)
+    public function resetWpBlockCache(int $postId, WP_Post $post): void
     {
         wp_cache_delete("{$post->post_type}_$post->post_name", Cache::CACHE_GROUP);
     }

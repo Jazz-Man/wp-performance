@@ -11,18 +11,19 @@ use WP_Site;
  */
 class Enqueue implements AutoloadInterface
 {
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
-        add_filter('app_preload_links', [$this, 'preloadLinks']);
-        add_action('wp_enqueue_scripts', [$this, 'jsToFooter']);
-        add_action('wp_enqueue_scripts', [$this, 'jqueryFromCdn']);
+        add_filter('app_preload_links', fn(array $links): array => $this->preloadLinks($links));
+        add_action('wp_enqueue_scripts', function () : void {
+            $this->jsToFooter();
+        });
+        add_action('wp_enqueue_scripts', function () : void {
+            $this::jqueryFromCdn();
+        });
 
         if ( ! is_admin()) {
-            add_filter('script_loader_src', [$this, 'setScriptVersion'], 15, 2);
-            add_filter('style_loader_src', [$this, 'setScriptVersion'], 15, 2);
+            add_filter('script_loader_src', fn(string $scriptSrc, string $handle): string => $this->setScriptVersion($scriptSrc, $handle), 15, 2);
+            add_filter('style_loader_src', fn(string $scriptSrc, string $handle): string => $this->setScriptVersion($scriptSrc, $handle), 15, 2);
         }
     }
 
@@ -66,7 +67,7 @@ class Enqueue implements AutoloadInterface
     }
 
     /**
-     * @return false|string
+     * @return string|bool
      */
     private static function prepareScriptFilePath(string $scriptSrc)
     {

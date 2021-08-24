@@ -7,10 +7,7 @@ use WP_CLI;
 
 class PostGuid implements AutoloadInterface
 {
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
         add_action('save_post', [__CLASS__, 'fixPostGuid'], 10, 2);
     }

@@ -31,12 +31,11 @@ class TermCount implements AutoloadInterface
      */
     public array $countedTerms = [];
 
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
-        add_action('init', [$this, 'setup']);
+        add_action('init', function () : void {
+									$this->setup();
+								});
     }
 
     /**
@@ -48,11 +47,17 @@ class TermCount implements AutoloadInterface
         wp_defer_term_counting(true);
         remove_action('transition_post_status', '_update_term_count_on_transition_post_status');
 
-        add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
-        add_action('added_term_relationship', [$this, 'addedTermRelationship'], 10, 3);
-        add_action('deleted_term_relationships', [$this, 'deletedTermRelationships'], 10, 3);
+        add_action('transition_post_status', function (string $newStatus, string $oldStatus, \WP_Post $post) : void {
+									$this->transitionPostStatus($newStatus, $oldStatus, $post);
+								}, 10, 3);
+        add_action('added_term_relationship', function (int $objectId, int $termTaxId, string $taxonomy) : void {
+									$this->addedTermRelationship($objectId, $termTaxId, $taxonomy);
+								}, 10, 3);
+        add_action('deleted_term_relationships', function (int $objectId, array $termTaxIds, string $taxonomy) : void {
+									$this->deletedTermRelationships($objectId, $termTaxIds, $taxonomy);
+								}, 10, 3);
         // Possibly recount posts for a term once it's been edited.
-        add_action('edit_term', [$this, 'maybeRecountPostsForTerm'], 10, 3);
+        add_action('edit_term', fn(int $termId, int $termTaxId, string $taxonomy): bool => $this->maybeRecountPostsForTerm($termId, $termTaxId, $taxonomy), 10, 3);
     }
 
     /**
@@ -224,13 +229,13 @@ class TermCount implements AutoloadInterface
     }
 
     /**
-     * Determine if a term count should be incremented or decremented.
-     *
-     * @return false|string 'increment', 'decrement', or false
-     *
-     * @psalm-return 'decrement'|'increment'|false
-     */
-    private function transitionType(string $newStatus, string $oldStatus)
+				 * Determine if a term count should be incremented or decremented.
+				 *
+				 * @return string|bool 'increment', 'decrement', or false
+				 *
+				 * @psalm-return 'decrement'|'increment'|false
+				 */
+				private function transitionType(string $newStatus, string $oldStatus)
     {
         $newIsCounted = $newStatus === self::$countedStatus;
         $oldIsCounted = $oldStatus === self::$countedStatus;

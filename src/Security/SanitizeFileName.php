@@ -12,14 +12,11 @@ use Normalizer;
  */
 class SanitizeFileName implements AutoloadInterface
 {
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
         // Remove accents from all uploaded files
 
-        add_filter('sanitize_file_name', [$this, 'sanitizeFilenamesOnUpload']);
+        add_filter('sanitize_file_name', fn(string $filename): string => $this->sanitizeFilenamesOnUpload($filename));
     }
 
     /**
@@ -91,13 +88,9 @@ class SanitizeFileName implements AutoloadInterface
         // Check which one $filename uses and use it
         // If $filename doesn't use FORM_D or FORM_C don't convert errors
         if (Normalizer::isNormalized($filename, Normalizer::FORM_D)) {
-            $errorChars = array_map(static function ($string) {
-                return Normalizer::normalize($string, Normalizer::FORM_D);
-            }, $errorChars);
+            $errorChars = array_map(static fn($string) => Normalizer::normalize($string, Normalizer::FORM_D), $errorChars);
         } elseif (Normalizer::isNormalized($filename)) {
-            $errorChars = array_map(static function ($string) {
-                return Normalizer::normalize($string);
-            }, $errorChars);
+            $errorChars = array_map(static fn($string) => Normalizer::normalize($string), $errorChars);
         }
 
         // Replaces all accented characters with encoding errors
@@ -265,7 +258,7 @@ class SanitizeFileName implements AutoloadInterface
      * @param  bool  $sanitize  - Sanitized all special characters as well?
      * @return string
      */
-    public static function removeAccents(string $fileName, $sanitize = true): string
+    public static function removeAccents(string $fileName, bool $sanitize = true): string
     {
         // Get path and basename
         $fileInfo = pathinfo($fileName);
@@ -300,11 +293,9 @@ class SanitizeFileName implements AutoloadInterface
     /**
      * Removes all non-ascii characters.
      *
-     * @param  string  $string
      *
-     * @return string
      */
-    public static function removeNonASCIICharacters(string $string): string
+    public static function removeNonASCIICharacters(string $string): ?string
     {
         return preg_replace("/[^(\x20-\x7F)]*/", '', $string);
     }

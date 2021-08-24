@@ -22,7 +22,7 @@ class MenuItem extends stdClass {
     /**
      * The title attribute of the link element for this menu item.
      */
-    public ?string $attr_title;
+    public ?string $attr_title = null;
 
     /**
      * The array of class attribute values for the link element of this menu item.
@@ -41,7 +41,7 @@ class MenuItem extends stdClass {
     /**
      * The description of this menu item.
      */
-    public ?string $description;
+    public ?string $description = null;
 
     /**
      * The DB ID of the nav_menu_item that is this item's menu parent, if any. 0 otherwise.
@@ -80,32 +80,32 @@ class MenuItem extends stdClass {
     /**
      * The target attribute of the link element for this menu item.
      */
-    public ?string $target;
+    public ?string $target = null;
 
     /**
      * The title of this menu item.
      */
-    public ?string $title;
+    public ?string $title = null;
 
     /**
      * The family of objects originally represented, such as "post_type" or "taxonomy.".
      */
-    public ?string $type;
+    public ?string $type = null;
 
     /**
      * The singular label used to describe this type of menu item.
      */
-    public ?string $type_label;
+    public ?string $type_label = null;
 
     /**
      * The URL to which this menu item points.
      */
-    public ?string $url;
+    public ?string $url = null;
 
     /**
      * The XFN relationship expressed in the link of this menu item.
      */
-    public ?string $xfn;
+    public ?string $xfn = null;
 
     /**
      * Whether the menu item represents an object that no longer exists.

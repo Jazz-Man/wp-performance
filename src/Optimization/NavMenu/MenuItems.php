@@ -21,7 +21,7 @@ class MenuItems {
     /**
      * @return MenuItem[]|stdClass[]|false
      */
-    public static function getItems(WP_Term $menuObject) {
+    public static function getItems(WP_Term $menuObject): array {
         $cacheKey = Cache::getMenuItemCacheKey( $menuObject );
 
         /** @var MenuItem[]|stdClass[]|false $menuItems */
@@ -151,8 +151,8 @@ class MenuItems {
     /**
      * @param MenuItem|stdClass $menuItem
      */
-    private static function setupNavMenuItem($menuItem): stdClass {
-        if ( isset( $menuItem->post_type ) ) {
+    private static function setupNavMenuItem(MenuItem $menuItem): stdClass {
+        if ( property_exists($menuItem, 'post_type') && $menuItem->post_type !== null ) {
             if ( 'nav_menu_item' === $menuItem->post_type ) {
                 $menuItem->db_id = (int) $menuItem->ID;
                 $menuItem->menu_item_parent = (int) $menuItem->menu_item_parent;
@@ -162,7 +162,7 @@ class MenuItems {
 
                 $menuItem->attr_title = $menuItem->attr_title ?: apply_filters( 'nav_menu_attr_title', $menuItem->post_excerpt );
 
-                if ( ! isset( $menuItem->description ) ) {
+                if ( ! (property_exists($menuItem, 'description') && $menuItem->description !== null) ) {
                     $menuItem->description = apply_filters( 'nav_menu_description', wp_trim_words( $menuItem->post_content, 200 ) );
                 }
 
@@ -217,7 +217,7 @@ class MenuItems {
 
             $termDescription = get_term_field( 'description', $menuItem->term_id, $menuItem->taxonomy );
 
-	        $menuItem->description = !is_wp_error($termDescription)? (string)$termDescription: '';
+	        $menuItem->description = is_wp_error($termDescription)? '': (string)$termDescription;
 
             $menuItem->classes = [];
             $menuItem->xfn = '';
@@ -231,7 +231,7 @@ class MenuItems {
      *
      * @return MenuItem|stdClass
      */
-    private static function setupNavMenuItemByType($menuItem) {
+    private static function setupNavMenuItemByType(MenuItem $menuItem): \stdClass {
         switch ( $menuItem->type ) {
             case 'post_type':
                 $postTypeObject = get_post_type_object( $menuItem->object );

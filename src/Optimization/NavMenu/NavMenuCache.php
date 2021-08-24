@@ -9,21 +9,16 @@ use stdClass;
 use WP_Term;
 
 class NavMenuCache implements AutoloadInterface {
-    /**
-     * @return void
-     */
-    public function load() {
-        add_filter('wp_nav_menu_args', [$this, 'setMenuFallbackParams']);
-        add_filter('pre_wp_nav_menu', [$this, 'buildWpNavMenu'], 10, 2);
+    public function load(): void {
+        add_filter('wp_nav_menu_args', fn(array $args): array => $this->setMenuFallbackParams($args));
+        add_filter('pre_wp_nav_menu', fn(?string $output, \stdClass $args) => $this->buildWpNavMenu($output, $args), 10, 2);
     }
 
 	/**
-	 * @param string|null $output
-	 * @param  NavMenuArgs|stdClass $args
-	 *
-	 * @return false|mixed|string
-	 */
-    public function buildWpNavMenu($output, stdClass $args) {
+				 * @param  NavMenuArgs|stdClass $args
+				 * @return false|mixed|string
+				 */
+				public function buildWpNavMenu(?string $output, stdClass $args) {
         $menu = wp_get_nav_menu_object($args->menu);
 
         if ($menu === false) {
@@ -36,7 +31,7 @@ class NavMenuCache implements AutoloadInterface {
             $menuItems = array_filter($menuItems, '_is_valid_nav_menu_item');
         }
 
-        if ((empty($menuItems) && ! $args->theme_location) && isset($args->fallback_cb) && $args->fallback_cb && is_callable($args->fallback_cb)) {
+        if ((empty($menuItems) && ! $args->theme_location) && (property_exists($args, 'fallback_cb') && $args->fallback_cb !== null) && $args->fallback_cb && is_callable($args->fallback_cb)) {
             return call_user_func($args->fallback_cb, (array) $args);
         }
 
@@ -56,7 +51,7 @@ class NavMenuCache implements AutoloadInterface {
         }
 
         // Add the menu-item-has-children class where applicable.
-        if ($menuWithChildren) {
+        if ($menuWithChildren !== []) {
             foreach ($sortedMenuItems as &$menuItem) {
                 if (isset($menuWithChildren[$menuItem->ID])) {
                     $menuItem->classes[] = 'menu-item-has-children';
@@ -103,7 +98,7 @@ class NavMenuCache implements AutoloadInterface {
 	 *
 	 * @return string
 	 */
-	private function getMenuWrapId(WP_Term $menu, $args): string {
+	private function getMenuWrapId(WP_Term $menu, NavMenuArgs $args): string {
 		/** @var string[] $menuIdSlugs */
         static $menuIdSlugs = [];
 
@@ -118,7 +113,7 @@ class NavMenuCache implements AutoloadInterface {
             $pattern = '#-(\d+)$#';
             preg_match($pattern, $wrapId, $matches);
 
-            $wrapId = ! empty($matches) ? (string) preg_replace($pattern, '-' . ++$matches[1], $wrapId) : $wrapId . '-1';
+            $wrapId = empty($matches) ? $wrapId . '-1' : (string) preg_replace($pattern, '-' . ++$matches[1], $wrapId);
         }
 
         $menuIdSlugs[] = $wrapId;
@@ -127,13 +122,12 @@ class NavMenuCache implements AutoloadInterface {
     }
 
 	/**
-	 * @param  NavMenuArgs|stdClass  $args
-	 * @param  \WP_Term  $menu
-	 * @param  string  $navMenu
-	 *
-	 * @return string
-	 */
-    private function wrapToContainer($args, WP_Term $menu, string $navMenu): string {
+				 * @param  NavMenuArgs|stdClass  $args
+				 * @param  \WP_Term  $menu
+				 *
+				 * @return string
+				 */
+				private function wrapToContainer(NavMenuArgs $args, WP_Term $menu, string $navMenu): string {
         /** @var string[] $allowedTags */
     	$allowedTags = (array)apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
 

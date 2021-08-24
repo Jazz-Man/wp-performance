@@ -30,7 +30,7 @@ class NavMenuArgs extends stdClass {
      * The ID that is applied to the ul element which forms the menu.
      * Default is the menu slug, incremented.
      */
-    public ?string $menu_id;
+    public ?string $menu_id = null;
 
     /**
      * Whether to wrap the ul, and what to wrap it with. Default 'div'.
@@ -40,17 +40,17 @@ class NavMenuArgs extends stdClass {
     /**
      * Class that is applied to the container. Default 'menu-{menu slug}-container'.
      */
-    public ?string $container_class;
+    public ?string $container_class = null;
 
     /**
      * The ID that is applied to the container. Default empty.
      */
-    public ?string $container_id;
+    public ?string $container_id = null;
 
     /**
      * The aria-label attribute that is applied to the container when it's a nav element.
      */
-    public ?string $container_aria_label;
+    public ?string $container_aria_label = null;
 
     /**
      * If the menu doesn't exists, a callback function will fire.
@@ -63,22 +63,22 @@ class NavMenuArgs extends stdClass {
     /**
      * Text before the link markup. Default empty.
      */
-    public ?string $before;
+    public ?string $before = null;
 
     /**
      * Text after the link markup. Default empty.
      */
-    public ?string $after;
+    public ?string $after = null;
 
     /**
      * Text before the link text. Default empty.
      */
-    public ?string $link_before;
+    public ?string $link_before = null;
 
     /**
      * Text after the link text. Default empty.
      */
-    public ?string $link_after;
+    public ?string $link_after = null;
 
     /**
      * Whether to echo the menu or return it. Default true.
@@ -102,7 +102,7 @@ class NavMenuArgs extends stdClass {
      * Theme location to be used. Must be registered with register_nav_menu()
      * in order to be selectable by the user.
      */
-    public ?string $theme_location;
+    public ?string $theme_location = null;
 
     /**
      * How the list items should be wrapped. Default is a ul with an id and class.

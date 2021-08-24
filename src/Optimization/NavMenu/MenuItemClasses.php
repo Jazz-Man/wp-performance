@@ -302,7 +302,7 @@ class MenuItemClasses {
 
             case 'taxonomy':
 
-                return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! isset($object->term_id) || $parent->object_id !== $object->term_id);
+                return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! (property_exists($object, 'term_id') && $object->term_id !== null) || $parent->object_id !== $object->term_id);
 
         }
 

@@ -21,7 +21,7 @@ class AttachmentData
     /**
      * @var string[]
      */
-    private static $validSizeKeys = [
+    private static array $validSizeKeys = [
         self::SIZES_JPEG,
         self::SIZES_WEBP,
     ];
@@ -69,11 +69,11 @@ class AttachmentData
     }
 
     /**
-     * @throws \InvalidArgumentException
-     *
-     * @return mixed
-     */
-    private function getAttachmentFromDb(int $attachmentId = 0)
+				 * @throws \InvalidArgumentException
+				 *
+				 * @return mixed
+				 */
+				private function getAttachmentFromDb(int $attachmentId = 0)
     {
 	    global $wpdb;
 
@@ -187,7 +187,7 @@ class AttachmentData
             ];
         }
 
-        $sizeArray['sizes'] = ! empty($sizeArray['width']) ? sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']) : false;
+        $sizeArray['sizes'] = empty($sizeArray['width']) ? false : sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']);
 
         if ($addDirData && ! empty($this->metadata['file'])) {
             $dirname = _wp_get_attachment_relative_path($this->metadata['file']);
@@ -209,9 +209,9 @@ class AttachmentData
     }
 
     /**
-     * @return false|string
-     */
-    private function getImageSrcset(string $sizeKey = self::SIZES_JPEG, string $attachmentSize = self::SIZE_FULL)
+				 * @return bool|string
+				 */
+				private function getImageSrcset(string $sizeKey = self::SIZES_JPEG, string $attachmentSize = self::SIZE_FULL)
     {
         if ( ! in_array($sizeKey, self::$validSizeKeys, true)) {
             throw new InvalidArgumentException(
@@ -266,7 +266,7 @@ class AttachmentData
         // Retrieve the uploads sub-directory from the full size image.
         $dirname = $sizeData['dirname'];
 
-        $isImageEdited = preg_match('/-e[0-9]{13}/', wp_basename($sizeData['src']), $imageEditHash);
+        $isImageEdited = preg_match('/-e\d{13}/', wp_basename($sizeData['src']), $imageEditHash);
 
         $maxSrcsetImageWidth = apply_filters('max_srcset_image_width', 2048, [
             $imageWidth,

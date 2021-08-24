@@ -16,13 +16,12 @@ class LastPostModified implements AutoloadInterface
     public const LOCK_TIME_IN_SECONDS = 30;
     public const OPTION_PREFIX = 'lastpostmodified';
 
-    /**
-     * @return void
-     */
-    public function load()
+    public function load(): void
     {
-        add_filter('pre_get_lastpostmodified', [$this, 'overrideGetLastPostModified'], 10, 3);
-        add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
+        add_filter('pre_get_lastpostmodified', fn(bool $boolean, string $timezone, string $postType) => $this->overrideGetLastPostModified($boolean, $timezone, $postType), 10, 3);
+        add_action('transition_post_status', function (string $newStatus, string $oldStatus, \WP_Post $post) : void {
+									$this->transitionPostStatus($newStatus, $oldStatus, $post);
+								}, 10, 3);
     }
 
 	/**
@@ -130,9 +129,9 @@ class LastPostModified implements AutoloadInterface
     }
 
     /**
-     * @return mixed
-     */
-    private function getLastPostModified(string $timezone, string $postType)
+				 * @return mixed
+				 */
+				private function getLastPostModified(string $timezone, string $postType)
     {
         return get_option($this->getOptionName($timezone, $postType), false);
     }

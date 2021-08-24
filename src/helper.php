@@ -102,11 +102,11 @@ if ( ! function_exists('app_get_attachment_image')) {
                 'src' => $image['url'],
                 'class' => sprintf('attachment-%1$s size-%1$s', $size),
                 'alt' => app_trim_string(strip_tags($image['alt'])),
-                'width' => !empty($image['width']) ? (int) $image['width'] : false,
-                'height' => !empty($image['height']) ? (int) $image['height'] : false,
+                'width' => empty($image['width']) ? false : (int) $image['width'],
+                'height' => empty($image['height']) ? false : (int) $image['height'],
                 'loading' => $lazyLoading ? 'lazy' : false,
-                'srcset' => !empty($attributes['srcset']) ? $attributes['srcset'] : (! empty($image['srcset']) ? $image['srcset'] : false),
-                'sizes' => !empty($attributes['sizes']) ? $attributes['sizes'] : (! empty($image['sizes']) ? $image['sizes'] : false),
+                'srcset' => empty($attributes['srcset']) ? (empty($image['srcset']) ? false : $image['srcset']) : ($attributes['srcset']),
+                'sizes' => empty($attributes['sizes']) ? (empty($image['sizes']) ? false : $image['sizes']) : ($attributes['sizes']),
             ];
 
             $attributes = wp_parse_args($attributes, $defaultAttributes);
@@ -241,12 +241,10 @@ if ( ! function_exists('app_term_link_filter')) {
 
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
-     * @param int $mode
-     * @param array<array-key, mixed>|null ...$args PDO fetch options
-     *
-     * @return array<string,string|int>|false
-     */
-    function app_get_taxonomy_ancestors(int $termId, string $taxonomy, $mode = PDO::FETCH_COLUMN, ...$args) {
+				 * @param array<array-key, mixed>|null ...$args PDO fetch options
+				 * @return array<string,string|int>|false
+				 */
+				function app_get_taxonomy_ancestors(int $termId, string $taxonomy, int $mode = PDO::FETCH_COLUMN, ...$args) {
         global $wpdb;
 
         try {
@@ -283,7 +281,7 @@ from ancestors a
 SQL
             );
 
-            $sql->execute(compact('termId', 'taxonomy'));
+            $sql->execute(['termId' => $termId, 'taxonomy' => $taxonomy]);
 
             return $sql->fetchAll($mode, ...$args);
         } catch (Exception $exception) {
@@ -329,7 +327,7 @@ from children c
 SQL
                 );
 
-                $sql->execute(compact('termId'));
+                $sql->execute(['termId' => $termId]);
 
                 $children = $sql->fetchAll(PDO::FETCH_COLUMN);
 
