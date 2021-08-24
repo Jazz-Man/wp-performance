@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.9.3@4c262932602b9bbab5020863d1eb22d49de0dbf4">
   <file src="src/Optimization/DuplicatePost.php">
-    <MixedAssignment occurrences="1"/>
+    <MixedAssignment occurrences="1">
+      <code>$metaValues</code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Optimization/Http.php">
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;preloadLinks</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$this-&gt;preloadLinks</code>
+    </MixedAssignment>
   </file>
   <file src="src/Optimization/Media.php">
     <MixedArgument occurrences="6">
