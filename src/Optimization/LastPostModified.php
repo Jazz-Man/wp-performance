@@ -37,6 +37,8 @@ class LastPostModified implements AutoloadInterface
         if ( ! in_array('publish', [$oldStatus, $newStatus], true)) {
             return;
         }
+
+        /** @var string[] $publicPostTypes */
         $publicPostTypes = get_post_types(['public' => true]);
         if ( ! in_array($post->post_type, $publicPostTypes, true)) {
             return;
