@@ -3,6 +3,8 @@
 namespace JazzMan\Performance\Optimization\NavMenu;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\Performance\Optimization\NavMenu\Placeholder\NavMenuArgs;
+use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
 use stdClass;
 use WP_Term;
 
@@ -15,15 +17,16 @@ class NavMenuCache implements AutoloadInterface {
         add_filter('pre_wp_nav_menu', [$this, 'buildWpNavMenu'], 10, 2);
     }
 
-    /**
-     * @param mixed $output
-     *
-     * @return string|false
-     */
+	/**
+	 * @param string|null $output
+	 * @param  NavMenuArgs|stdClass $args
+	 *
+	 * @return false|mixed|string
+	 */
     public function buildWpNavMenu($output, stdClass $args) {
         $menu = wp_get_nav_menu_object($args->menu);
 
-        if (empty($menu)) {
+        if ($menu === false) {
             return $output;
         }
 
@@ -39,14 +42,16 @@ class NavMenuCache implements AutoloadInterface {
 
 	    MenuItemClasses::setMenuItemClassesByContext($menuItems);
 
+        /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = [];
+        /** @var array<int,boolean> $menuWithChildren */
         $menuWithChildren = [];
 
         foreach ($menuItems as $menuItem) {
-            $sortedMenuItems[$menuItem->menu_order] = $menuItem;
+            $sortedMenuItems[(int)$menuItem->menu_order] = $menuItem;
 
             if ($menuItem->menu_item_parent) {
-                $menuWithChildren[$menuItem->menu_item_parent] = true;
+                $menuWithChildren[(int)$menuItem->menu_item_parent] = true;
             }
         }
 
@@ -61,6 +66,7 @@ class NavMenuCache implements AutoloadInterface {
 
         unset($menuItems, $menuItem, $menuWithChildren);
 
+	    /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = apply_filters('wp_nav_menu_objects', $sortedMenuItems, $args);
 
         $items = walk_nav_menu_tree($sortedMenuItems, $args->depth, $args);
@@ -68,31 +74,37 @@ class NavMenuCache implements AutoloadInterface {
 
         $wrapId = $this->getMenuWrapId($menu, $args);
 
-        $wrapClass = $args->menu_class ?: '';
+        $wrapClass = (string)$args->menu_class ?: '';
 
-        $items = apply_filters('wp_nav_menu_items', $items, $args);
+        $items = (string)apply_filters('wp_nav_menu_items', $items, $args);
 
-        $items = apply_filters("wp_nav_menu_{$menu->slug}_items", $items, $args);
+        $items = (string)apply_filters("wp_nav_menu_{$menu->slug}_items", $items, $args);
 
         if (empty($items)) {
             return false;
         }
 
-        $navMenu = sprintf($args->items_wrap, esc_attr($wrapId), esc_attr($wrapClass), $items);
+        $navMenu = sprintf(
+        	$args->items_wrap,
+	        esc_attr($wrapId),
+	        esc_attr($wrapClass),
+	        $items
+        );
         unset($items);
 
         $navMenu = $this->wrapToContainer($args, $menu, $navMenu);
 
-        return apply_filters('wp_nav_menu', $navMenu, $args);
+        return (string)apply_filters('wp_nav_menu', $navMenu, $args);
     }
 
 	/**
 	 * @param  \WP_Term  $menu
-	 * @param  \stdClass  $args
+	 * @param  NavMenuArgs|stdClass  $args
 	 *
 	 * @return string
 	 */
-	private function getMenuWrapId(WP_Term $menu, stdClass $args): string {
+	private function getMenuWrapId(WP_Term $menu, $args): string {
+		/** @var string[] $menuIdSlugs */
         static $menuIdSlugs = [];
 
         // Attributes.
@@ -115,17 +127,19 @@ class NavMenuCache implements AutoloadInterface {
     }
 
 	/**
-	 * @param  \stdClass  $args
+	 * @param  NavMenuArgs|stdClass  $args
 	 * @param  \WP_Term  $menu
 	 * @param  string  $navMenu
 	 *
 	 * @return string
 	 */
-    private function wrapToContainer(stdClass $args, WP_Term $menu, string $navMenu): string {
-        $allowedTags = apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
+    private function wrapToContainer($args, WP_Term $menu, string $navMenu): string {
+        /** @var string[] $allowedTags */
+    	$allowedTags = (array)apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
 
         if (($args->container && is_string($args->container)) && in_array($args->container, $allowedTags, true)) {
-            $attributes = [
+            /** @var array<string,string|string[]> $attributes */
+        	$attributes = [
                 'class' => $args->container_class ?: sprintf('menu-%s-container', $menu->slug),
             ];
 
