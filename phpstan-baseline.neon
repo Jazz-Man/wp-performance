@@ -1,68 +1,8 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Only booleans are allowed in an if condition, int\\|false given\\.$#"
-			count: 1
-			path: src/Optimization/CleanUp.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, string given\\.$#"
-			count: 1
-			path: src/Optimization/CleanUp.php
-
-		-
-			message: "#^Casting to int something that's already int\\.$#"
-			count: 3
-			path: src/Optimization/DuplicatePost.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 4
-			path: src/Optimization/DuplicatePost.php
-
-		-
-			message: "#^Only booleans are allowed in \\|\\|, int given on the left side\\.$#"
-			count: 1
-			path: src/Optimization/DuplicatePost.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 4
-			path: src/Optimization/Enqueue.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, string\\|false given\\.$#"
-			count: 1
-			path: src/Optimization/Enqueue.php
-
-		-
-			message: "#^Only booleans are allowed in an elseif condition, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Optimization/Enqueue.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, string\\|false given\\.$#"
-			count: 1
-			path: src/Optimization/Enqueue.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 4
-			path: src/Optimization/Http.php
-
-		-
 			message: "#^Cannot access offset 0 on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Casting to int something that's already int\\.$#"
-			count: 2
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 12
 			path: src/Optimization/Media.php
 
 		-
@@ -106,69 +46,9 @@ parameters:
 			path: src/Optimization/NavMenu/MenuItemClasses.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 7
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Only booleans are allowed in &&, mixed given on the right side\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 4
-			path: src/Optimization/NavMenu/MenuItems.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 3
-			path: src/Optimization/NavMenu/MenuItems.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 6
-			path: src/Optimization/NavMenu/NavMenuCache.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, array\\<int\\|string, true\\> given\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/NavMenuCache.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Optimization/NavMenu/NavMenuCache.php
-
-		-
 			message: "#^Call to static method line\\(\\) on an unknown class WP_CLI\\.$#"
 			count: 1
 			path: src/Optimization/PostGuid.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Optimization/PostGuid.php
-
-		-
-			message: "#^Casting to array\\<int\\> something that's already array\\<int\\>\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 5
-			path: src/Optimization/TermCount.php
 
 		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\TermCount\\:\\:deletedTermRelationships\\(\\) has parameter \\$termTaxIds with no value type specified in iterable type array\\.$#"
@@ -181,49 +61,9 @@ parameters:
 			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, WP_Post given\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, bool\\|string given\\.$#"
-			count: 1
-			path: src/Optimization/TermCount.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Optimization/Update.php
-
-		-
-			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
-			count: 1
-			path: src/Optimization/Update.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Optimization/Update.php
-
-		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Update\\:\\:availableTranslations\\(\\) should return array\\<string, array\\('language' \\=\\> string, 'iso' \\=\\> array\\(string\\), 'version' \\=\\> mixed, 'updated' \\=\\> string, 'strings' \\=\\> array\\('continue' \\=\\> string\\), 'package' \\=\\> string, 'english_name' \\=\\> string, 'native_name' \\=\\> string\\)\\> but returns array\\<string, array\\<string, mixed\\>&nonEmpty\\>\\.$#"
 			count: 1
 			path: src/Optimization/Update.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<string, mixed\\>\\|stdClass given\\.$#"
-			count: 1
-			path: src/Optimization/Update.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 5
-			path: src/Optimization/WPQuery.php
-
-		-
-			message: "#^Only booleans are allowed in &&, mixed given on the right side\\.$#"
-			count: 1
-			path: src/Security/ContactFormSpamTester.php
 
 		-
 			message: "#^Array has 2 duplicate keys with value 'â€' \\('â€', 'â€'\\)\\.$#"
@@ -232,11 +72,6 @@ parameters:
 
 		-
 			message: "#^Array has 6 duplicate keys with value 'Ã' \\('Ã', 'Ã', 'Ã', 'Ã', 'Ã', 'Ã'\\)\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
 
@@ -271,18 +106,8 @@ parameters:
 			path: src/Utils/AttachmentData.php
 
 		-
-			message: "#^Call to function is_array\\(\\) with array\\(\\) will always evaluate to true\\.$#"
-			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
 			message: "#^Comparison operation \"\\<\" between 0 and 2 is always true\\.$#"
 			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 12
 			path: src/Utils/AttachmentData.php
 
 		-
@@ -293,26 +118,6 @@ parameters:
 		-
 			message: "#^Negated boolean expression is always true\\.$#"
 			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Only booleans are allowed in &&, int\\|false given on the left side\\.$#"
-			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Only booleans are allowed in &&, mixed given on the left side\\.$#"
-			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<string, string\\>\\|null given\\.$#"
-			count: 2
 			path: src/Utils/AttachmentData.php
 
 		-
@@ -329,16 +134,6 @@ parameters:
 			message: "#^Call to function is_wp_error\\(\\) with array\\<WP_Term\\> will always evaluate to false\\.$#"
 			count: 1
 			path: src/Utils/Cache.php
-
-		-
-			message: "#^Instanceof between WP_Term and WP_Term will always evaluate to true\\.$#"
-			count: 1
-			path: src/Utils/Cache.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Utils/WPBlocks.php
 
 		-
 			message: "#^Parameter \\#2 \\$options of method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) expects array\\<string, string\\>, array\\<string, bool\\> given\\.$#"
@@ -376,22 +171,7 @@ parameters:
 			path: src/helper.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 22
-			path: src/helper.php
-
-		-
 			message: "#^Function app_get_image_data_array\\(\\) should return array\\('size' \\=\\> array\\<int\\>\\|string, 'url' \\=\\> string, 'width' \\=\\> float\\|int\\|\\(string&numeric\\), 'height' \\=\\> float\\|int\\|\\(string&numeric\\), \\?'alt' \\=\\> string\\|null, \\?'id' \\=\\> int, \\?'srcset' \\=\\> string, \\?'sizes' \\=\\> string\\)\\|false but returns array\\('size' \\=\\> array\\<int\\>\\|string, 'id' \\=\\> int, 'url' \\=\\> string, 'width' \\=\\> int, 'height' \\=\\> int, 'alt' \\=\\> string\\|null, 'srcset' \\=\\> string\\|false, 'sizes' \\=\\> string\\|false\\)\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, string\\|false given\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, int given\\.$#"
 			count: 1
 			path: src/helper.php
 
