@@ -32,8 +32,8 @@
         "php-stubs/wp-cli-stubs": "^2.5",
         "phpmd/phpmd": "@stable",
         "phpstan/extension-installer": "@stable",
-        "phpstan/phpstan": "@stable",
         "phpstan/phpstan-deprecation-rules": "@stable",
+        "rector/rector": "^0.11.49",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.8",
         "szepeviktor/phpstan-wordpress": "^0.7.7",
@@ -76,6 +76,9 @@
             "@phpmd --update-baseline"
         ],
         "check": [
+            "@php-cs-fixer -- --dry-run"
+        ],
+        "cs-fix": [
             "@php-cs-fixer"
         ],
         "phpstan": "phpstan --no-progress",
@@ -85,6 +88,6 @@
         "psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress",
         "psalm-phpstorm": "@psalm --output-format=phpstorm",
         "server": "php -S 0.0.0.0:8000 -t build",
-        "php-cs-fixer": "php-cs-fixer fix -v --diff --dry-run"
+        "php-cs-fixer": "php-cs-fixer fix -v --diff"
     }
 }
