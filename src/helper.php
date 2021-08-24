@@ -10,7 +10,7 @@ if ( ! function_exists('app_get_image_data_array')) {
     /**
      * @param int[]|string $size
      *
-     * @return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt: null|string, id?: int, srcset?: string, sizes?: string}|false
+     * @return array|false
      *
      * @psalm-return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt?: null|string, id?: int, srcset?: string, sizes?: string}|false
      */
@@ -43,7 +43,7 @@ if ( ! function_exists('app_get_image_data_array')) {
         try {
             $attachment = new AttachmentData($attachmentId);
 
-            $image = $attachment->getUrl($size);
+            $image = $attachment->getUrl((string)$size);
 
             $imageData['id'] = $attachmentId;
             $imageData['url'] = $image['src'];
