@@ -4,17 +4,15 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_CLI;
+use WP_Post;
 
-class PostGuid implements AutoloadInterface
-{
-    public function load(): void
-    {
+class PostGuid implements AutoloadInterface {
+    public function load(): void {
         add_action('save_post', [__CLASS__, 'fixPostGuid'], 10, 2);
     }
 
-    public static function fixPostGuid(int $postId, \WP_Post $post): void
-    {
-	    global $wpdb;
+    public static function fixPostGuid(int $postId, WP_Post $post): void {
+        global $wpdb;
 
         if (\defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
@@ -30,7 +28,7 @@ class PostGuid implements AutoloadInterface
                     sprintf(
                         'Update guid "%s" for post_id "%d" and post_type "%s"',
                         esc_attr($guid),
-                        esc_attr((string)$postId),
+                        esc_attr((string) $postId),
                         esc_attr($post->post_type)
                     )
                 );

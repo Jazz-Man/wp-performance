@@ -19,7 +19,7 @@ use WP_Term;
 
 class MenuItems {
     /**
-     * @return MenuItem[]|stdClass[]|false
+     * @return MenuItem[]|stdClass[]
      */
     public static function getItems(WP_Term $menuObject): array {
         $cacheKey = Cache::getMenuItemCacheKey( $menuObject );
@@ -151,7 +151,7 @@ class MenuItems {
     /**
      * @param MenuItem|stdClass $menuItem
      */
-    private static function setupNavMenuItem(MenuItem $menuItem): stdClass {
+    private static function setupNavMenuItem(stdClass $menuItem): stdClass {
         if ( property_exists($menuItem, 'post_type') && $menuItem->post_type !== null ) {
             if ( 'nav_menu_item' === $menuItem->post_type ) {
                 $menuItem->db_id = (int) $menuItem->ID;
@@ -166,7 +166,7 @@ class MenuItems {
                     $menuItem->description = apply_filters( 'nav_menu_description', wp_trim_words( $menuItem->post_content, 200 ) );
                 }
 
-                $menuItem->classes = (array) maybe_unserialize( (string)$menuItem->classes );
+                $menuItem->classes = (array) maybe_unserialize( (string) $menuItem->classes );
 
                 return $menuItem;
             }
@@ -217,7 +217,7 @@ class MenuItems {
 
             $termDescription = get_term_field( 'description', $menuItem->term_id, $menuItem->taxonomy );
 
-	        $menuItem->description = is_wp_error($termDescription)? '': (string)$termDescription;
+            $menuItem->description = is_wp_error($termDescription) ? '' : (string) $termDescription;
 
             $menuItem->classes = [];
             $menuItem->xfn = '';
@@ -231,7 +231,7 @@ class MenuItems {
      *
      * @return MenuItem|stdClass
      */
-    private static function setupNavMenuItemByType(MenuItem $menuItem): \stdClass {
+    private static function setupNavMenuItemByType(stdClass $menuItem): stdClass {
         switch ( $menuItem->type ) {
             case 'post_type':
                 $postTypeObject = get_post_type_object( $menuItem->object );
@@ -292,7 +292,7 @@ class MenuItems {
 
                 $menuItem->type_label = $isTaxonomy ? $taxonomyObject->labels->singular_name : $menuItem->object;
 
-                $menuItem->url = $isTerm ? (string)app_get_term_link( $menuItem->object_id, $menuItem->object ) : '';
+                $menuItem->url = $isTerm ? (string) app_get_term_link( $menuItem->object_id, $menuItem->object ) : '';
 
                 $originalTitle = $isTerm ? $originalTerm->name : sprintf( __( '#%d (no title)' ), $menuItem->object_id );
 

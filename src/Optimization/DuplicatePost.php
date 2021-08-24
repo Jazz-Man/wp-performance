@@ -3,169 +3,161 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use WP_Error;
 use WP_Post;
 
 /**
  * Class DuplicatePost.
  */
 class DuplicatePost implements AutoloadInterface {
-	/**
-	 * @var string
-	 */
-	private string $action = 'duplicate_post_as_draft';
-	/**
-	 * @var string
-	 */
-	private string $nonce = 'duplicate_nonce';
 
-	public function load(): void {
-		add_filter( 'post_row_actions', fn(array $actions, \WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
-		add_filter( 'page_row_actions', fn(array $actions, \WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
+    private string $action = 'duplicate_post_as_draft';
 
-		add_action( "admin_action_$this->action", function () : void {
-			$this->duplicatePostAsDraft();
-		} );
-	}
+    private string $nonce = 'duplicate_nonce';
 
-	/**
-	 * @param  array<string,string>  $actions
-	 *
-	 * @return array<string,string>
-	 */
-	public function duplicatePostLink( array $actions, WP_Post $post ): array {
-		if ( 'publish' === $post->post_status && current_user_can( 'edit_posts' ) ) {
-			$actions['duplicate'] = sprintf(
-				'<a href="%s" title="%s" rel="permalink">%s</a>',
-				wp_nonce_url(
-					add_query_arg(
-						[
-							'action' => $this->action,
-							'post'   => $post->ID,
-						],
-						'admin.php'
-					),
-					basename( __FILE__ ),
-					$this->nonce
-				),
-				esc_attr__( 'Duplicate this item' ),
-				esc_attr__( 'Duplicate' )
-			);
-		}
+    public function load(): void {
+        add_filter( 'post_row_actions', fn (array $actions, WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
+        add_filter( 'page_row_actions', fn (array $actions, WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
 
-		return $actions;
-	}
+        add_action( "admin_action_$this->action", function (): void {
+            $this->duplicatePostAsDraft();
+        } );
+    }
 
-	public function duplicatePostAsDraft(): void {
-		check_ajax_referer( basename( __FILE__ ), $this->nonce );
+    /**
+     * @param array<string,string> $actions
+     *
+     * @return array<string,string>
+     */
+    public function duplicatePostLink(array $actions, WP_Post $post): array {
+        if ( 'publish' === $post->post_status && current_user_can( 'edit_posts' ) ) {
+            $actions['duplicate'] = sprintf(
+                '<a href="%s" title="%s" rel="permalink">%s</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        [
+                            'action' => $this->action,
+                            'post' => $post->ID,
+                        ],
+                        'admin.php'
+                    ),
+                    basename( __FILE__ ),
+                    $this->nonce
+                ),
+                esc_attr__( 'Duplicate this item' ),
+                esc_attr__( 'Duplicate' )
+            );
+        }
 
-		$request = app_get_request_data();
+        return $actions;
+    }
 
-		$postId = (int) $request->getDigits( 'post' );
-		/** @var string|null $action */
-		$action = $request->get( 'action' );
+    public function duplicatePostAsDraft(): void {
+        check_ajax_referer( basename( __FILE__ ), $this->nonce );
 
-		if ( !$postId && $this->action !== $action ) {
-			wp_die( 'No post to duplicate has been supplied!' );
-		}
+        $request = app_get_request_data();
 
-		// get the original post data
-		$post = get_post( $postId );
+        $postId = (int) $request->getDigits( 'post' );
+        /** @var string|null $action */
+        $action = $request->get( 'action' );
 
-		// if post data exists, create the post duplicate
-		if ( $post instanceof WP_Post ) {
-			$this->createNewDraftPost( $post, $postId );
+        if ( !$postId && $this->action !== $action ) {
+            wp_die( 'No post to duplicate has been supplied!' );
+        }
 
-			exit;
-		}
+        // get the original post data
+        $post = get_post( $postId );
 
-		$title = 'Post creation failed!';
-		wp_die( sprintf( '<span>%s</span>> could not find original post: %d', $title, $postId ), $title );
-	}
+        // if post data exists, create the post duplicate
+        if ( $post instanceof WP_Post ) {
+            $this->createNewDraftPost( $post, $postId );
 
-	private function createNewDraftPost( WP_Post $post, int $oldPostId ): void {
-		/**
-		 * if you don't want current user to be the new post author,
-		 * then change next couple of lines to this: $new_post_author = $post->post_author;.
-		 */
-		$currentUser = wp_get_current_user();
+            exit;
+        }
 
-		$newPostAuthor = (int) $post->post_author === $currentUser->ID ? $post->post_author : $currentUser->ID;
+        $title = 'Post creation failed!';
+        wp_die( sprintf( '<span>%s</span>> could not find original post: %d', $title, $postId ), $title );
+    }
 
-		// new post data array
-		$postData = $post->to_array();
-		unset(
-			$postData['post_date'],
-			$postData['post_date_gmt'],
-			$postData['post_modified'],
-			$postData['post_modified_gmt'],
-			$postData['page_template'],
-			$postData['guid'],
-			$postData['ancestors']
-		);
+    private function createNewDraftPost(WP_Post $post, int $oldPostId): void {
+        /**
+         * if you don't want current user to be the new post author,
+         * then change next couple of lines to this: $new_post_author = $post->post_author;.
+         */
+        $currentUser = wp_get_current_user();
 
-		$newPostArgs = wp_parse_args( [
-			'post_author' => $newPostAuthor,
-			'post_status' => 'draft',
-		],
-			$postData );
+        $newPostAuthor = (int) $post->post_author === $currentUser->ID ? $post->post_author : $currentUser->ID;
 
-		$newPostId = wp_insert_post( $newPostArgs, true );
+        // new post data array
+        $postData = $post->to_array();
+        unset(
+            $postData['post_date'],
+            $postData['post_date_gmt'],
+            $postData['post_modified'],
+            $postData['post_modified_gmt'],
+            $postData['page_template'],
+            $postData['guid'],
+            $postData['ancestors']
+        );
 
-		if ( $newPostId instanceof \WP_Error ) {
-			wp_die( $newPostId->get_error_message() );
-		}
+        $newPostArgs = wp_parse_args(
+            [
+                'post_author' => $newPostAuthor,
+                'post_status' => 'draft',
+            ],
+            $postData
+        );
 
-		$this->addTerms( $post, (int) $newPostId, $oldPostId );
-		$this->addMetaData( (int) $newPostId, $oldPostId );
+        $newPostId = wp_insert_post( $newPostArgs, true );
 
-		$editPostLink = get_edit_post_link( (int) $newPostId, 'edit' );
-		if ( ! empty( $editPostLink ) ) {
-			// finally, redirect to the edit post screen for the new draft
-			wp_redirect( $editPostLink );
-		}
-	}
+        if ( $newPostId instanceof WP_Error ) {
+            wp_die( $newPostId->get_error_message() );
+        }
 
-	/**
-	 * @param  \WP_Post  $post
-	 * @param  int  $newPostId
-	 * @param  int  $oldPostId
-	 */
-	private function addTerms( WP_Post $post, int $newPostId, int $oldPostId ): void {
-		/** @var string[] $taxonomies */
-		$taxonomies = get_object_taxonomies( $post->post_type );
-		foreach ( $taxonomies as $taxonomy ) {
-			/** @var string[] $postTerms */
-			$postTerms = wp_get_object_terms( $oldPostId, $taxonomy, [ 'fields' => 'slugs' ] );
+        $this->addTerms( $post, (int) $newPostId, $oldPostId );
+        $this->addMetaData( (int) $newPostId, $oldPostId );
 
-			if ( ! empty( $postTerms ) ) {
-				wp_set_object_terms( $newPostId, $postTerms, $taxonomy, false );
-			}
-		}
-	}
+        $editPostLink = get_edit_post_link( (int) $newPostId, 'edit' );
 
-	/**
-	 * @param  int  $newPostId
-	 * @param  int  $oldPostId
-	 */
-	private function addMetaData( int $newPostId, int $oldPostId ): void {
-		/** @var array<string,array|mixed>|null $data */
-		$data = get_post_custom( $oldPostId );
+        if ( ! empty( $editPostLink ) ) {
+            // finally, redirect to the edit post screen for the new draft
+            wp_redirect( $editPostLink );
+        }
+    }
 
-		if ( empty( $data ) ) {
-			return;
-		}
+    private function addTerms(WP_Post $post, int $newPostId, int $oldPostId): void {
+        /** @var string[] $taxonomies */
+        $taxonomies = get_object_taxonomies( $post->post_type );
 
-		foreach ( $data as $metaKey => $metaValues ) {
-			if ( ! empty( $metaValues ) ) {
-				/** @var string[]|string $metaValues */
-				if ( is_array( $metaValues ) ) {
-					foreach ( $metaValues as $value ) {
-						add_post_meta( $newPostId, $metaKey, $value );
-					}
-				} else {
-					add_post_meta( $newPostId, $metaKey, $metaValues );
-				}
-			}
-		}
-	}
+        foreach ( $taxonomies as $taxonomy ) {
+            /** @var string[] $postTerms */
+            $postTerms = wp_get_object_terms( $oldPostId, $taxonomy, [ 'fields' => 'slugs' ] );
+
+            if ( ! empty( $postTerms ) ) {
+                wp_set_object_terms( $newPostId, $postTerms, $taxonomy, false );
+            }
+        }
+    }
+
+    private function addMetaData(int $newPostId, int $oldPostId): void {
+        /** @var array<string,array|mixed>|null $data */
+        $data = get_post_custom( $oldPostId );
+
+        if ( empty( $data ) ) {
+            return;
+        }
+
+        foreach ( $data as $metaKey => $metaValues ) {
+            if ( ! empty( $metaValues ) ) {
+                /** @var string[]|string $metaValues */
+                if ( is_array( $metaValues ) ) {
+                    foreach ( $metaValues as $value ) {
+                        add_post_meta( $newPostId, $metaKey, $value );
+                    }
+                } else {
+                    add_post_meta( $newPostId, $metaKey, $metaValues );
+                }
+            }
+        }
+    }
 }

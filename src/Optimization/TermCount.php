@@ -13,16 +13,14 @@ use WP_Taxonomy;
  *
  * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/lightweight-term-count-update/lightweight-term-count-update.php
  */
-class TermCount implements AutoloadInterface
-{
+class TermCount implements AutoloadInterface {
     /**
      * Post statuses which should be counted in term post counting. By default,
      * this is [ 'publish' ], but it can be altered via the
      * `ltcu_counted_statuses` filter.
-     *
-     * @var string
      */
     private static string $countedStatus = 'publish';
+
     /**
      * Store the terms that have been incremented or decremented to avoid
      * duplicated efforts.
@@ -31,33 +29,31 @@ class TermCount implements AutoloadInterface
      */
     public array $countedTerms = [];
 
-    public function load(): void
-    {
-        add_action('init', function () : void {
-									$this->setup();
-								});
+    public function load(): void {
+        add_action('init', function (): void {
+            $this->setup();
+        });
     }
 
     /**
      * Set up the singleton.
      */
-    public function setup(): void
-    {
+    public function setup(): void {
         // Prevent core from counting terms.
         wp_defer_term_counting(true);
         remove_action('transition_post_status', '_update_term_count_on_transition_post_status');
 
-        add_action('transition_post_status', function (string $newStatus, string $oldStatus, \WP_Post $post) : void {
-									$this->transitionPostStatus($newStatus, $oldStatus, $post);
-								}, 10, 3);
-        add_action('added_term_relationship', function (int $objectId, int $termTaxId, string $taxonomy) : void {
-									$this->addedTermRelationship($objectId, $termTaxId, $taxonomy);
-								}, 10, 3);
-        add_action('deleted_term_relationships', function (int $objectId, array $termTaxIds, string $taxonomy) : void {
-									$this->deletedTermRelationships($objectId, $termTaxIds, $taxonomy);
-								}, 10, 3);
+        add_action('transition_post_status', function (string $newStatus, string $oldStatus, WP_Post $post): void {
+            $this->transitionPostStatus($newStatus, $oldStatus, $post);
+        }, 10, 3);
+        add_action('added_term_relationship', function (int $objectId, int $termTaxId, string $taxonomy): void {
+            $this->addedTermRelationship($objectId, $termTaxId, $taxonomy);
+        }, 10, 3);
+        add_action('deleted_term_relationships', function (int $objectId, array $termTaxIds, string $taxonomy): void {
+            $this->deletedTermRelationships($objectId, $termTaxIds, $taxonomy);
+        }, 10, 3);
         // Possibly recount posts for a term once it's been edited.
-        add_action('edit_term', fn(int $termId, int $termTaxId, string $taxonomy): bool => $this->maybeRecountPostsForTerm($termId, $termTaxId, $taxonomy), 10, 3);
+        add_action('edit_term', fn (int $termId, int $termTaxId, string $taxonomy): bool => $this->maybeRecountPostsForTerm($termId, $termTaxId, $taxonomy), 10, 3);
     }
 
     /**
@@ -67,8 +63,7 @@ class TermCount implements AutoloadInterface
      * @param int    $termTaxId single term taxonomy ID
      * @param string $taxonomy  taxonomy slug
      */
-    public function addedTermRelationship(int $objectId, int $termTaxId, string $taxonomy): void
-    {
+    public function addedTermRelationship(int $objectId, int $termTaxId, string $taxonomy): void {
         $this->handleTermRelationshipChange($objectId, (array) $termTaxId, $taxonomy, 'increment');
     }
 
@@ -78,10 +73,8 @@ class TermCount implements AutoloadInterface
      * @param int    $objectId   object ID
      * @param array  $termTaxIds array of term taxonomy IDs
      * @param string $taxonomy   taxonomy slug
-     *
      */
-    public function deletedTermRelationships(int $objectId, array $termTaxIds, string $taxonomy): void
-    {
+    public function deletedTermRelationships(int $objectId, array $termTaxIds, string $taxonomy): void {
         $this->handleTermRelationshipChange($objectId, $termTaxIds, $taxonomy, 'decrement');
     }
 
@@ -92,17 +85,14 @@ class TermCount implements AutoloadInterface
      * @param int[]  $termTaxIds     array of term taxonomy IDs
      * @param string $taxonomy       taxonomy slug
      * @param string $transitionType transition type (increment or decrement)
-     *
      */
-    protected function handleTermRelationshipChange(int $objectId, array $termTaxIds, string $taxonomy, string $transitionType): void
-    {
-    	/** @var WP_Post $post */
+    protected function handleTermRelationshipChange(int $objectId, array $termTaxIds, string $taxonomy, string $transitionType): void {
+        /** @var WP_Post $post */
         $post = get_post($objectId);
 
         if ( ! $post || ! is_object_in_taxonomy($post->post_type, $taxonomy)) {
             // If this object isn't a post, we can jump right into counting it.
             $this->quickUpdateTermsCount($objectId, $termTaxIds, $taxonomy, $transitionType);
-
         } elseif ($post->post_status === self::$countedStatus) {
             // If this is a post, we only count it if it's in a counted status.
             // If the status changed, that will be caught by
@@ -121,40 +111,37 @@ class TermCount implements AutoloadInterface
      *
      * @param string $newStatus new post status
      * @param string $oldStatus old post status
-     * @param WP_Post $post
-     *
-     * @return void
      */
-    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void
-    {
-    	/** @var string[] $taxonomies */
-    	$taxonomies = get_object_taxonomies($post->post_type);
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void {
+        /** @var string[] $taxonomies */
+        $taxonomies = get_object_taxonomies($post->post_type);
 
         foreach ($taxonomies as $taxonomy) {
             /** @var int[]|WP_Error $termIds */
-        	$termIds = wp_get_object_terms($post->ID, $taxonomy, [
+            $termIds = wp_get_object_terms($post->ID, $taxonomy, [
                 'fields' => 'tt_ids',
             ]);
+
             if ( ! empty($termIds) && ! ($termIds instanceof WP_Error)) {
-                $this->quickUpdateTermsCount( $post->ID, (array)$termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
+                $this->quickUpdateTermsCount( $post->ID, (array) $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
             }
         }
         // For non-attachments, let's check if there are any attachment children
         // with inherited post status -- if so those will need to be re-counted.
         if ('attachment' !== $post->post_type) {
 
-        	/** @var WP_Post[] $attachments */
-	        $attachments = get_posts([
-		        'post_type' => 'attachment',
-		        'post_parent' => $post->ID,
-		        'post_status' => 'inherit',
-		        'ignore_sticky_posts' => true,
-		        'no_found_rows' => true,
-		        'posts_per_page' => -1,
-//                'fields' => 'ids',
-		        'orderby' => 'ID',
-		        'order' => 'ASC',
-	        ]);
+            /** @var WP_Post[] $attachments */
+            $attachments = get_posts([
+                'post_type' => 'attachment',
+                'post_parent' => $post->ID,
+                'post_status' => 'inherit',
+                'ignore_sticky_posts' => true,
+                'no_found_rows' => true,
+                'posts_per_page' => -1,
+                //                'fields' => 'ids',
+                'orderby' => 'ID',
+                'order' => 'ASC',
+            ]);
 
             if (!empty($attachments)) {
                 foreach ($attachments as $attachment) {
@@ -167,11 +154,10 @@ class TermCount implements AutoloadInterface
     /**
      * Update term counts using a very light SQL query.
      *
-     * @param int    $objectId       object ID with the term relationship
-     * @param int[]  $termTaxIds     term taxonomy IDs
-     * @param string $taxonomy       taxonomy slug
+     * @param int         $objectId       object ID with the term relationship
+     * @param int[]       $termTaxIds     term taxonomy IDs
+     * @param string      $taxonomy       taxonomy slug
      * @param string|bool $transitionType 'increment' or 'decrement'
-     *
      */
     private function quickUpdateTermsCount(int $objectId, array $termTaxIds, string $taxonomy, $transitionType): void {
         global $wpdb;
@@ -180,8 +166,8 @@ class TermCount implements AutoloadInterface
 
         $termTaxIds = array_filter(array_map('intval', $termTaxIds));
 
-        if (! $transitionType || empty($termTaxIds) || !($taxonomyObj instanceof WP_Taxonomy)){
-	        return;
+        if (! $transitionType || empty($termTaxIds) || !($taxonomyObj instanceof WP_Taxonomy)) {
+            return;
         }
 
         // Respect if a taxonomy has a callback override.
@@ -195,9 +181,10 @@ class TermCount implements AutoloadInterface
 
         // Ensure that these terms haven't already been counted.
         $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][$transitionType]);
+
         if (empty($termTaxIds)) {
             // No term to process. So return.
-	        return;
+            return;
         }
 
         $this->countedTerms[$objectId][$taxonomy][$transitionType] = array_merge(
@@ -205,7 +192,7 @@ class TermCount implements AutoloadInterface
             $termTaxIds
         );
 
-        $termIdsString = '('.implode(',', $termTaxIds).')';
+        $termIdsString = '(' . implode(',', $termTaxIds) . ')';
 
         $isIncrement = 'increment' === $transitionType;
 
@@ -229,16 +216,16 @@ class TermCount implements AutoloadInterface
     }
 
     /**
-				 * Determine if a term count should be incremented or decremented.
-				 *
-				 * @return string|bool 'increment', 'decrement', or false
-				 *
-				 * @psalm-return 'decrement'|'increment'|false
-				 */
-				private function transitionType(string $newStatus, string $oldStatus)
-    {
+     * Determine if a term count should be incremented or decremented.
+     *
+     * @return string|bool 'increment', 'decrement', or false
+     *
+     * @psalm-return 'decrement'|'increment'|false
+     */
+    private function transitionType(string $newStatus, string $oldStatus) {
         $newIsCounted = $newStatus === self::$countedStatus;
         $oldIsCounted = $oldStatus === self::$countedStatus;
+
         if ($newIsCounted && ! $oldIsCounted) {
             return 'increment';
         }
@@ -259,12 +246,13 @@ class TermCount implements AutoloadInterface
      *
      * @return bool false if the screen check fails, true otherwise
      */
-    public function maybeRecountPostsForTerm(int $termId, int $termTaxId, string $taxonomy): bool
-    {
+    public function maybeRecountPostsForTerm(int $termId, int $termTaxId, string $taxonomy): bool {
         $screen = function_exists('get_current_screen') ? get_current_screen() : '';
+
         if ( ! ($screen instanceof WP_Screen)) {
             return false;
         }
+
         if ("edit-$taxonomy" === $screen->id) {
             wp_update_term_count_now([$termTaxId], $taxonomy);
         }

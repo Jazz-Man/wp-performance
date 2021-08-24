@@ -7,54 +7,51 @@ use Psr\Link\LinkInterface;
 use Symfony\Component\WebLink\GenericLinkProvider;
 use Symfony\Component\WebLink\HttpHeaderSerializer;
 use Symfony\Component\WebLink\Link;
+use Traversable;
 
 /**
  * Class Http.
  */
-class Http implements AutoloadInterface
-{
+class Http implements AutoloadInterface {
     /**
      * @var Link[]
      */
     private array $preloadLinks = [];
 
-    public function load(): void
-    {
-        add_action('init', function () : void {
-									$this->removeResourceHints();
-								});
+    public function load(): void {
+        add_action('init', function (): void {
+            $this->removeResourceHints();
+        });
 
-        add_action('template_redirect', function () : void {
-									$this->preloadLinks();
-								});
-        add_action('wp_head', function () : void {
-									$this->preloadLinksInHeader();
-								});
+        add_action('template_redirect', function (): void {
+            $this->preloadLinks();
+        });
+        add_action('wp_head', function (): void {
+            $this->preloadLinksInHeader();
+        });
     }
 
-    public function removeResourceHints(): void
-    {
+    public function removeResourceHints(): void {
         remove_action('wp_head', 'wp_resource_hints', 2);
     }
 
-    public function preloadLinksInHeader(): void
-    {
+    public function preloadLinksInHeader(): void {
         if (!empty($this->preloadLinks)) {
             $provider = new GenericLinkProvider($this->preloadLinks);
 
             /** @var Link[] $links */
-	        $links = $provider->getLinks();
+            $links = $provider->getLinks();
 
             foreach ($links as $link) {
                 if (!$link->isTemplated()) {
                     /** @var array<string,string|string[]> $attributes */
-                	$attributes = [
+                    $attributes = [
                         'rel' => $link->getRels(),
                         'href' => $link->getHref(),
                     ];
 
-                	/** @var array<string,string|string[]> $linkAttributes */
-                	$linkAttributes = $link->getAttributes();
+                    /** @var array<string,string|string[]> $linkAttributes */
+                    $linkAttributes = $link->getAttributes();
 
                     if (!empty($linkAttributes)) {
                         foreach ($linkAttributes as $key => $value) {
@@ -68,8 +65,7 @@ class Http implements AutoloadInterface
         }
     }
 
-    public function preloadLinks(): void
-    {
+    public function preloadLinks(): void {
         if (headers_sent()) {
             return;
         }
@@ -77,7 +73,7 @@ class Http implements AutoloadInterface
         $this->preloadLinks = apply_filters('app_preload_links', $this->preloadLinks);
 
         if (!empty($this->preloadLinks)) {
-            /** @var LinkInterface[]|\Traversable $links */
+            /** @var LinkInterface[]|Traversable $links */
             $links = (new GenericLinkProvider($this->preloadLinks))->getLinks();
 
             $header = (new HttpHeaderSerializer())->serialize($links);
@@ -91,43 +87,37 @@ class Http implements AutoloadInterface
         header('X-DNS-Prefetch-Control: on');
     }
 
-	public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
-    {
-    	$link = new Link($relAttribute, app_make_link_relative($href));
-	    $link->withAttribute('as', $asAttribute)
-	         ->withAttribute('importance', 'high');
+    public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link {
+        $link = new Link($relAttribute, app_make_link_relative($href));
+        $link->withAttribute('as', $asAttribute)
+            ->withAttribute('importance', 'high');
 
         return $link;
     }
 
-    public static function prefetchLink(string $href): Link
-    {
-	    $link = new Link(Link::REL_PREFETCH, app_make_link_relative($href));
-	    $link->withAttribute('as', 'fetch');
+    public static function prefetchLink(string $href): Link {
+        $link = new Link(Link::REL_PREFETCH, app_make_link_relative($href));
+        $link->withAttribute('as', 'fetch');
 
         return $link;
     }
 
-    public static function preloadFont(string $href, string $type): Link
-    {
-    	$link = new Link(Link::REL_PRELOAD, app_make_link_relative($href));
+    public static function preloadFont(string $href, string $type): Link {
+        $link = new Link(Link::REL_PRELOAD, app_make_link_relative($href));
 
-    	$link->withAttribute('as', 'font')
-	         ->withAttribute('type', $type)
-	         ->withAttribute('importance', 'high')
-	         ->withAttribute('crossorigin', true);
+        $link->withAttribute('as', 'font')
+            ->withAttribute('type', $type)
+            ->withAttribute('importance', 'high')
+            ->withAttribute('crossorigin', true);
 
-    	return $link;
+        return $link;
     }
 
-    public static function dnsPrefetchLink(string $href): Link
-    {
+    public static function dnsPrefetchLink(string $href): Link {
         return new Link(Link::REL_DNS_PREFETCH, app_make_link_relative($href));
     }
 
-    public static function preconnectLink(string $href): Link
-    {
+    public static function preconnectLink(string $href): Link {
         return new Link(Link::REL_PRECONNECT, app_make_link_relative($href));
     }
-
 }

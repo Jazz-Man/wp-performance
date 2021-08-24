@@ -23,7 +23,7 @@ if ( ! function_exists('app_get_image_data_array')) {
             $image = wp_get_attachment_image_src($attachmentId, $size);
 
             if ( ! empty($image)) {
-                [$url, $width, $height] = $image;
+                list($url, $width, $height) = $image;
 
                 /** @var string $alt */
                 $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
@@ -43,7 +43,7 @@ if ( ! function_exists('app_get_image_data_array')) {
         try {
             $attachment = new AttachmentData($attachmentId);
 
-            $image = $attachment->getUrl((string)$size);
+            $image = $attachment->getUrl((string) $size);
 
             $imageData['id'] = $attachmentId;
             $imageData['url'] = $image['src'];
@@ -86,16 +86,17 @@ if ( ! function_exists('app_get_attachment_image')) {
      * @param array<string,mixed>|string $attributes
      */
     function app_get_attachment_image(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL, $attributes = ''): string {
-    	/** @var array<string,mixed> $image */
-	    $image = app_get_image_data_array($attachmentId, $size);
+        /** @var array<string,mixed> $image */
+        $image = app_get_image_data_array($attachmentId, $size);
 
-	    if (empty($image)){
-		    $exception = new Exception(sprintf('Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size));
-		    app_error_log($exception,'app_get_attachment_image');
-		    return "";
-	    }
+        if (empty($image)) {
+            $exception = new Exception(sprintf('Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size));
+            app_error_log($exception, 'app_get_attachment_image');
 
-    	try {
+            return '';
+        }
+
+        try {
             $lazyLoading = function_exists('wp_lazy_loading_enabled') && wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' );
 
             $defaultAttributes = [
@@ -186,8 +187,8 @@ if ( ! function_exists('app_get_term_link')) {
                 if (empty($hierarchicalSlugs)) {
                     $result = [];
 
-	                /** @var \stdClass[] $ancestors */
-	                $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
+                    /** @var \stdClass[] $ancestors */
+                    $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
 
                     if ( ! empty($ancestors)) {
                         foreach ($ancestors as $ancestor) {
@@ -216,12 +217,9 @@ if ( ! function_exists('app_get_term_link')) {
 }
 
 if ( ! function_exists('app_term_link_filter')) {
-	/**
-	 * @param  \WP_Term  $term
-	 * @param  string  $termlink
-	 *
-	 * @return string
-	 */
+    /**
+     * @param \WP_Term $term
+     */
     function app_term_link_filter(WP_Term $term, string $termlink): string {
         switch ($term->taxonomy) {
             case 'post_tag':
@@ -241,10 +239,11 @@ if ( ! function_exists('app_term_link_filter')) {
 
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
-				 * @param array<array-key, mixed>|null ...$args PDO fetch options
-				 * @return array<string,string|int>|false
-				 */
-				function app_get_taxonomy_ancestors(int $termId, string $taxonomy, int $mode = PDO::FETCH_COLUMN, ...$args) {
+     * @param array<array-key, mixed>|null ...$args PDO fetch options
+     *
+     * @return array<string,string|int>|false
+     */
+    function app_get_taxonomy_ancestors(int $termId, string $taxonomy, int $mode = PDO::FETCH_COLUMN, ...$args) {
         global $wpdb;
 
         try {
@@ -388,11 +387,9 @@ if ( ! function_exists('app_get_wp_block')) {
 }
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
-	/**
-	 * @param  string  $url
-	 *
-	 * @return false|mixed
-	 */
+    /**
+     * @return false|mixed
+     */
     function app_attachment_url_to_postid(string $url) {
         if ( ! filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
@@ -439,7 +436,6 @@ SQL
 }
 
 if ( ! function_exists('app_make_link_relative')) {
-
     function app_make_link_relative(string $link): string {
         if (app_is_current_host($link)) {
             $link = wp_make_link_relative($link);
@@ -450,14 +446,12 @@ if ( ! function_exists('app_make_link_relative')) {
 }
 
 if ( ! function_exists('app_is_wp_importing')) {
-
     function app_is_wp_importing(): bool {
         return defined('WP_IMPORTING') && WP_IMPORTING;
     }
 }
 
 if ( ! function_exists('app_is_wp_cli')) {
-
     function app_is_wp_cli(): bool {
         return defined('WP_CLI') && WP_CLI;
     }

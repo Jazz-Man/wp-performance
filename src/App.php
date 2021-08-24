@@ -2,6 +2,8 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\Performance\Cli\FixPostGuidCommand;
+use JazzMan\Performance\Cli\SanitizeFileNameCommand;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\DuplicatePost;
 use JazzMan\Performance\Optimization\Enqueue;
@@ -18,16 +20,12 @@ use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\SanitizeFileName;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\WPBlocks;
-use JazzMan\Performance\Cli\FixPostGuidCommand;
-use JazzMan\Performance\Cli\SanitizeFileNameCommand;
 
 /**
  * Class App.
  */
-class App
-{
-    public function __construct()
-    {
+class App {
+    public function __construct() {
         $classes = [
             Cache::class,
             NavMenuCache::class,
@@ -54,5 +52,4 @@ class App
 
         app_autoload_classes($classes);
     }
-
 }
