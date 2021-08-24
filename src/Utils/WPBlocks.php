@@ -6,27 +6,19 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Post\CustomPostType;
 use WP_Post;
 
-class WPBlocks implements AutoloadInterface
-{
-    /**
-     * @var string
-     */
+class WPBlocks implements AutoloadInterface {
     private string $postType;
 
-    /**
-     * @return void
-     */
-    public function load()
-    {
-        $wpBlock = new CustomPostType('wp_block');
-        $wpBlock->registerTaxonomy('block_category', [
+    public function load(): void {
+        $customPostType = new CustomPostType('wp_block');
+        $customPostType->registerTaxonomy('block_category', [
             'public' => false,
             'show_ui' => true,
         ]);
 
-        $this->postType = $wpBlock->post_type;
+        $this->postType = $customPostType->post_type;
 
-        $wpBlock->setColumns([
+        $customPostType->setColumns([
             'cb' => '<input type="checkbox" />',
             'title' => __('Title'),
             'post_id' => __('Block ID'),
@@ -35,19 +27,19 @@ class WPBlocks implements AutoloadInterface
             'date' => __('Date'),
         ]);
 
-        $wpBlock->setPopulateColumns('post_name', static function ($column, WP_Post $post) {
+        $customPostType->setPopulateColumns('post_name', static function ($column, WP_Post $post): void {
             printf('<code>%s</code>', esc_attr($post->post_name));
         });
 
-        add_action('admin_menu', [$this, 'reusableBlocks']);
-        add_action("save_post_$this->postType", [$this, 'resetWpBlockCache'], 10, 2);
+        add_action('admin_menu', function (): void {
+            $this->reusableBlocks();
+        });
+        add_action(sprintf('save_post_%s', $this->postType), function (int $postId, WP_Post $post): void {
+            $this->resetWpBlockCache($postId, $post);
+        }, 10, 2);
     }
 
-    /**
-     * @return void
-     */
-    public function reusableBlocks()
-    {
+    public function reusableBlocks(): void {
         $postTypeProps = [
             'post_type' => $this->postType,
         ];
@@ -69,13 +61,7 @@ class WPBlocks implements AutoloadInterface
         add_submenu_page($wpBlockSlug, $taxTitle, $taxTitle, $capability, $wpBlockTaxSlug);
     }
 
-    /**
-     * @param  int  $postId
-     * @param  WP_Post  $post
-     * @return void
-     */
-    public function resetWpBlockCache(int $postId, WP_Post $post)
-    {
-        wp_cache_delete("{$post->post_type}_$post->post_name", Cache::CACHE_GROUP);
+    public function resetWpBlockCache(int $postId, WP_Post $wpPost): void {
+        wp_cache_delete(sprintf('%s_%s', $wpPost->post_type, $wpPost->post_name), Cache::CACHE_GROUP);
     }
 }

@@ -11,117 +11,79 @@ use WP_Post;
  *
  * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/lastpostmodified.php
  */
-class LastPostModified implements AutoloadInterface
-{
+class LastPostModified implements AutoloadInterface {
+    /**
+     * @var int
+     */
     public const LOCK_TIME_IN_SECONDS = 30;
-    public const OPTION_PREFIX = 'lastpostmodified';
 
     /**
-     * @return void
+     * @var string
      */
-    public function load()
-    {
-        add_filter('pre_get_lastpostmodified', [$this, 'overrideGetLastPostModified'], 10, 3);
-        add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
+    public const OPTION_PREFIX = 'lastpostmodified';
+
+    public function load(): void {
+        add_filter('pre_get_lastpostmodified', fn (bool $boolean, string $timezone, string $postType) => $this->overrideGetLastPostModified($boolean, $timezone, $postType), 10, 3);
+        add_action('transition_post_status', function (string $newStatus, string $oldStatus, WP_Post $post): void {
+            $this->transitionPostStatus($newStatus, $oldStatus, $post);
+        }, 10, 3);
     }
 
-	/**
-	 * @param  string  $newStatus
-	 * @param  string  $oldStatus
-	 * @param  \WP_Post  $post
-	 *
-	 * @return void
-	 */
-    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void
-    {
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $wpPost): void {
         if ( ! in_array('publish', [$oldStatus, $newStatus], true)) {
             return;
         }
 
         /** @var string[] $publicPostTypes */
         $publicPostTypes = get_post_types(['public' => true]);
-        if ( ! in_array($post->post_type, $publicPostTypes, true)) {
+
+        if ( ! in_array($wpPost->post_type, $publicPostTypes, true)) {
             return;
         }
 
-        if ($this->isLocked($post->post_type)) {
+        if ($this->isLocked($wpPost->post_type)) {
             return;
         }
-        $this->bumpLastPostModified($post);
+        $this->bumpLastPostModified($wpPost);
     }
 
-	/**
-	 * @param  string  $postType
-	 *
-	 * @return bool
-	 */
-    private function isLocked(string $postType): bool
-    {
+    private function isLocked(string $postType): bool {
         $key = $this->getLockName($postType);
 
         // if the add fails, then we already have a lock set
         return false === wp_cache_add($key, 1, Cache::CACHE_GROUP, self::LOCK_TIME_IN_SECONDS);
     }
 
-	/**
-	 * @param  string  $postType
-	 *
-	 * @return string
-	 */
-    private function getLockName(string $postType): string
-    {
+    private function getLockName(string $postType): string {
         return sprintf('%s_%s_lock', self::OPTION_PREFIX, $postType);
     }
 
-	/**
-	 * @param  \WP_Post  $post
-	 */
-    private function bumpLastPostModified(WP_Post $post): void
-    {
+    private function bumpLastPostModified(WP_Post $wpPost): void {
         // Update default of `any`
-        $this->updateLastPostModified($post->post_modified_gmt, 'gmt');
-        $this->updateLastPostModified($post->post_modified_gmt, 'server');
-        $this->updateLastPostModified($post->post_modified, 'blog');
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'gmt');
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'server');
+        $this->updateLastPostModified($wpPost->post_modified, 'blog');
         // Update value for post_type
-        $this->updateLastPostModified($post->post_modified_gmt, 'gmt', $post->post_type);
-        $this->updateLastPostModified($post->post_modified_gmt, 'server', $post->post_type);
-        $this->updateLastPostModified($post->post_modified, 'blog', $post->post_type);
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'gmt', $wpPost->post_type);
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'server', $wpPost->post_type);
+        $this->updateLastPostModified($wpPost->post_modified, 'blog', $wpPost->post_type);
     }
 
-	/**
-	 * @param  string  $time
-	 * @param  string  $timezone
-	 * @param  string  $postType
-	 *
-	 * @return bool
-	 */
-    public function updateLastPostModified(string $time, string $timezone, string $postType = 'any'): bool
-    {
+    public function updateLastPostModified(string $time, string $timezone, string $postType = 'any'): bool {
         return update_option($this->getOptionName($timezone, $postType), $time, false);
     }
 
-	/**
-	 * @param  string  $timezone
-	 * @param  string  $postType
-	 *
-	 * @return string
-	 */
-    private function getOptionName(string $timezone, string $postType): string
-    {
+    private function getOptionName(string $timezone, string $postType): string {
         return sprintf('%s_%s_%s', self::OPTION_PREFIX, strtolower($timezone), $postType);
     }
 
-	/**
-	 * @param  bool  $boolean
-	 * @param  string  $timezone
-	 * @param  string  $postType
-	 *
-	 * @return bool|string
-	 */
-    public function overrideGetLastPostModified(bool $boolean, string $timezone, string $postType)
-    {
-    	/** @var string|false $lastPostModified */
+    /**
+     * @return bool|string
+     */
+    public function overrideGetLastPostModified(bool $boolean, string $timezone, string $postType) {
+        /** @var string|false $lastPostModified */
         $lastPostModified = $this->getLastPostModified($timezone, $postType);
+
         if (false === $lastPostModified) {
             return $boolean;
         }
@@ -132,8 +94,7 @@ class LastPostModified implements AutoloadInterface
     /**
      * @return mixed
      */
-    private function getLastPostModified(string $timezone, string $postType)
-    {
+    private function getLastPostModified(string $timezone, string $postType) {
         return get_option($this->getOptionName($timezone, $postType), false);
     }
 }

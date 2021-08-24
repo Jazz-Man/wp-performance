@@ -52,18 +52,18 @@ class MenuItemClasses {
                             }
                         }
 
-                        foreach ($terms as $desc) {
+                        foreach ($terms as $term) {
                             do {
-                                $taxonomyAncestors[$taxonomy][] = $desc;
+                                $taxonomyAncestors[$taxonomy][] = $term;
 
-                                if (isset($termToAncestor[$desc])) {
-                                    $_desc = $termToAncestor[$desc];
-                                    unset($termToAncestor[$desc]);
-                                    $desc = $_desc;
+                                if (isset($termToAncestor[$term])) {
+                                    $_desc = $termToAncestor[$term];
+                                    unset($termToAncestor[$term]);
+                                    $term = $_desc;
                                 } else {
-                                    $desc = 0;
+                                    $term = 0;
                                 }
-                            } while ( ! empty($desc));
+                            } while ( ! empty($term));
                         }
                     }
                 }
@@ -105,8 +105,8 @@ class MenuItemClasses {
 
             $classes = (array) $menuItem->classes;
             $classes[] = 'menu-item';
-            $classes[] = "menu-item-type-$menuItem->type";
-            $classes[] = "menu-item-object-$menuItem->object";
+            $classes[] = sprintf('menu-item-type-%s', $menuItem->type);
+            $classes[] = sprintf('menu-item-object-%s', $menuItem->object);
 
             if ('post_type' === $menuItem->type) {
                 if ($frontPageId === (int) $menuItem->object_id) {
@@ -262,22 +262,18 @@ class MenuItemClasses {
             return true;
         }
 
-        switch ($menuItem->type) {
-            case 'post_type':
-                if ( ! empty($homePageId) && $wp_query->is_home && $homePageId === (int) $menuItem->object_id) {
-                    return true;
-                }
+        if ($menuItem->type == 'post_type') {
+            if ( ! empty($homePageId) && $wp_query->is_home && $homePageId === (int) $menuItem->object_id) {
+                return true;
+            }
 
-                if ($wp_query->is_singular) {
-                    return true;
-                }
-                break;
+            if ($wp_query->is_singular) {
+                return true;
+            }
+        } elseif ($menuItem->type == 'taxonomy') {
+            $isCategory = $wp_query->is_category || $wp_query->is_tag || $wp_query->is_tax;
 
-            case 'taxonomy':
-                $isCategory = $wp_query->is_category || $wp_query->is_tag || $wp_query->is_tax;
-
-                return  $isCategory && $queriedObject->taxonomy === $menuItem->object;
-
+            return  $isCategory && $queriedObject->taxonomy === $menuItem->object;
         }
 
         return false;
@@ -293,17 +289,14 @@ class MenuItemClasses {
             return false;
         }
 
-        switch ($parent->type) {
-            case 'post_type':
+        if ($parent->type == 'post_type') {
+            $isHierarchical = ! empty($object->post_type) && is_post_type_hierarchical($object->post_type);
 
-                $isHierarchical = ! empty($object->post_type) && is_post_type_hierarchical($object->post_type);
+            return $isHierarchical && in_array((int) $parent->object_id, $object->ancestors, true) && $parent->object !== $object->ID;
+        }
 
-                return $isHierarchical && in_array((int) $parent->object_id, $object->ancestors, true) && $parent->object !== $object->ID;
-
-            case 'taxonomy':
-
-                return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! isset($object->term_id) || $parent->object_id !== $object->term_id);
-
+        if ($parent->type == 'taxonomy') {
+            return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! (property_exists($object, 'term_id') && $object->term_id !== null) || $parent->object_id !== $object->term_id);
         }
 
         return false;

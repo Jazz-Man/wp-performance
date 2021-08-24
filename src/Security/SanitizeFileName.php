@@ -10,16 +10,11 @@ use Normalizer;
  *
  * @see https://github.com/devgeniem/wp-sanitize-accented-uploads
  */
-class SanitizeFileName implements AutoloadInterface
-{
-    /**
-     * @return void
-     */
-    public function load()
-    {
+class SanitizeFileName implements AutoloadInterface {
+    public function load(): void {
         // Remove accents from all uploaded files
 
-        add_filter('sanitize_file_name', [$this, 'sanitizeFilenamesOnUpload']);
+        add_filter('sanitize_file_name', fn (string $filename): string => $this->sanitizeFilenamesOnUpload($filename));
     }
 
     /**
@@ -31,8 +26,7 @@ class SanitizeFileName implements AutoloadInterface
      *
      * @return bool|mixed - return the name of the file which could be found
      */
-    public static function renameAccentedFilesInAnyForm(string $oldFile, string $newFile)
-    {
+    public static function renameAccentedFilesInAnyForm(string $oldFile, string $newFile) {
         // Try to move the file without any hacks before continuing
         $result = rename($oldFile, $newFile);
 
@@ -73,8 +67,7 @@ class SanitizeFileName implements AutoloadInterface
      *
      * @return string - filename with encoding errors
      */
-    public static function replaceFilenameWithEncodingErrors(string $filename): string
-    {
+    public static function replaceFilenameWithEncodingErrors(string $filename): string {
         // Get associative array of fixes
         $fixList = self::getEncodingFixList();
 
@@ -91,13 +84,9 @@ class SanitizeFileName implements AutoloadInterface
         // Check which one $filename uses and use it
         // If $filename doesn't use FORM_D or FORM_C don't convert errors
         if (Normalizer::isNormalized($filename, Normalizer::FORM_D)) {
-            $errorChars = array_map(static function ($string) {
-                return Normalizer::normalize($string, Normalizer::FORM_D);
-            }, $errorChars);
+            $errorChars = array_map(static fn ($string) => Normalizer::normalize($string, Normalizer::FORM_D), $errorChars);
         } elseif (Normalizer::isNormalized($filename)) {
-            $errorChars = array_map(static function ($string) {
-                return Normalizer::normalize($string);
-            }, $errorChars);
+            $errorChars = array_map(static fn ($string) => Normalizer::normalize($string), $errorChars);
         }
 
         // Replaces all accented characters with encoding errors
@@ -111,8 +100,7 @@ class SanitizeFileName implements AutoloadInterface
      *
      * @psalm-return array<string, string>
      */
-    public static function getEncodingFixList(): array
-    {
+    public static function getEncodingFixList(): array {
         // source: http://www.i18nqa.com/debug/utf8-debug.html,
         return [
             // 3 char errors first
@@ -246,13 +234,8 @@ class SanitizeFileName implements AutoloadInterface
 
     /**
      * Replaces all files immediately on upload.
-     *
-     * @param  string  $filename
-     *
-     * @return string
      */
-    public function sanitizeFilenamesOnUpload(string $filename): string
-    {
+    public function sanitizeFilenamesOnUpload(string $filename): string {
         // Remove accents and filename to lowercase for better urls
         // Don't sanitize file here because wordpress does this automatically
         return strtolower(self::removeAccents($filename, false));
@@ -261,18 +244,16 @@ class SanitizeFileName implements AutoloadInterface
     /**
      * Removes all accents from string.
      *
-     * @param  string  $fileName  - any filename with absolute path
-     * @param  bool  $sanitize  - Sanitized all special characters as well?
-     * @return string
+     * @param string $fileName - any filename with absolute path
+     * @param bool   $sanitize - Sanitized all special characters as well?
      */
-    public static function removeAccents(string $fileName, $sanitize = true): string
-    {
+    public static function removeAccents(string $fileName, bool $sanitize = true): ?string {
         // Get path and basename
         $fileInfo = pathinfo($fileName);
         $fileName = $fileInfo['basename'];
 
         // If available remove all NFD characters before doing anything else
-        if (class_exists('Normalizer')) {
+        if (class_exists(Normalizer::class)) {
             $fileName = Normalizer::normalize($fileName);
         }
 
@@ -290,7 +271,7 @@ class SanitizeFileName implements AutoloadInterface
         // If this was full path return it like it was before
         // pathinfo returns . for only filenames
         if ('.' !== $fileInfo['dirname']) {
-            $fileName = $fileInfo['dirname'].'/'.$fileName;
+            $fileName = $fileInfo['dirname'] . '/' . $fileName;
         }
 
         // Return full path
@@ -299,13 +280,8 @@ class SanitizeFileName implements AutoloadInterface
 
     /**
      * Removes all non-ascii characters.
-     *
-     * @param  string  $string
-     *
-     * @return string
      */
-    public static function removeNonASCIICharacters(string $string): string
-    {
-        return preg_replace("/[^(\x20-\x7F)]*/", '', $string);
+    public static function removeNonASCIICharacters(string $string): ?string {
+        return preg_replace('#[^( -)]*#', '', $string);
     }
 }

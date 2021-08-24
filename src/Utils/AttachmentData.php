@@ -2,87 +2,108 @@
 
 namespace JazzMan\Performance\Utils;
 
+use Exception;
 use InvalidArgumentException;
-use Latitude\QueryBuilder\QueryFactory;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
 use function Latitude\QueryBuilder\on;
+use Latitude\QueryBuilder\QueryFactory;
 
-class AttachmentData
-{
+class AttachmentData {
+    /**
+     * @var string
+     */
     public const SIZE_FULL = 'full';
+
+    /**
+     * @var string
+     */
     public const SIZE_THUMBNAIL = 'thumbnail';
+
+    /**
+     * @var string
+     */
     public const SIZE_MEDIUM = 'medium';
+
+    /**
+     * @var string
+     */
     public const SIZE_MEDIUM_LARGE = 'medium_large';
+
+    /**
+     * @var string
+     */
     public const SIZE_LARGE = 'large';
+
+    /**
+     * @var string
+     */
     public const SIZES_JPEG = 'sizes';
+
+    /**
+     * @var string
+     */
     public const SIZES_WEBP = 'sizes_webp';
 
     /**
      * @var string[]
      */
-    private static $validSizeKeys = [
+    private static array $validSizeKeys = [
         self::SIZES_JPEG,
         self::SIZES_WEBP,
     ];
 
-    /**
-     * @var null|string
-     */
-    private $fullJpegUrl;
+    private string $fullJpegUrl;
+
+    private ?string $fullWebpUrl = null;
 
     /**
-     * @var null|string
-     */
-    private $fullWebpUrl;
-
-    /**
-     * @var null|array<string,string>
+     * @var array<string,string>|null
      */
     private $metadata;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $imageAlt;
+
     /**
      * @var array<string,string>
      */
-    private $uploadDir;
+    private array $uploadDir = [];
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function __construct(int $attachmentId = 0)
-    {
+    public function __construct(int $attachmentId = 0) {
         $this->uploadDir = wp_upload_dir();
 
         $attachment = $this->getAttachmentFromDb($attachmentId);
 
         $this->metadata = maybe_unserialize($attachment->metadata);
+
         if ( ! empty($this->metadata['file_webp'])) {
-            $this->fullWebpUrl = "{$this->uploadDir['baseurl']}/{$this->metadata['file_webp']}";
+            $this->fullWebpUrl = sprintf('%s/%s', $this->uploadDir['baseurl'], $this->metadata['file_webp']);
         }
 
-        $this->fullJpegUrl = "{$this->uploadDir['baseurl']}/$attachment->fullUrl";
+        $this->fullJpegUrl = sprintf('%s/%s', $this->uploadDir['baseurl'], $attachment->fullUrl);
         $this->imageAlt = $attachment->imageAlt;
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return mixed
      */
-    private function getAttachmentFromDb(int $attachmentId = 0)
-    {
-	    global $wpdb;
+    private function getAttachmentFromDb(int $attachmentId = 0) {
+        global $wpdb;
 
-        $attachment = wp_cache_get("attachment_image_$attachmentId", Cache::CACHE_GROUP);
+        $attachment = wp_cache_get(sprintf('attachment_image_%d', $attachmentId), Cache::CACHE_GROUP);
 
         if (empty($attachment)) {
             $pdo = app_db_pdo();
 
-            $sql = (new QueryFactory())
+            $query = (new QueryFactory())
                 ->select(
                     alias('i.ID', 'attachmentId'),
                     alias('file.meta_value', 'fullUrl'),
@@ -108,14 +129,14 @@ class AttachmentData
                 ->compile()
             ;
 
-            $statement = $pdo->prepare($sql->sql());
+            $pdoStatement = $pdo->prepare($query->sql());
 
-            $statement->execute($sql->params());
+            $pdoStatement->execute($query->params());
 
-            $attachment = $statement->fetchObject();
+            $attachment = $pdoStatement->fetchObject();
 
             if ( ! empty($attachment)) {
-                wp_cache_set("attachment_image_$attachmentId", $attachment, Cache::CACHE_GROUP);
+                wp_cache_set(sprintf('attachment_image_%d', $attachmentId), $attachment, Cache::CACHE_GROUP);
             }
         }
 
@@ -131,8 +152,7 @@ class AttachmentData
      *
      * @psalm-return array{src: string, width: int, height: int, sizes: false|string, dirname?: string, image_baseurl?: string, srcset: false|string}
      */
-    public function getUrl(string $attachmentSize = self::SIZE_FULL): array
-    {
+    public function getUrl(string $attachmentSize = self::SIZE_FULL): array {
         $sizesKey = null !== $this->fullWebpUrl && app_use_webp() ? 'sizes_webp' : 'sizes';
 
         $sizeArray = $this->getSizeArray($sizesKey, $attachmentSize, false);
@@ -142,8 +162,7 @@ class AttachmentData
         return $sizeArray;
     }
 
-    public function getImageAlt(): ?string
-    {
+    public function getImageAlt(): ?string {
         return $this->imageAlt;
     }
 
@@ -152,16 +171,9 @@ class AttachmentData
      *
      * @psalm-return array{src: string, width: int, height: int, sizes: false|string, dirname?: string, image_baseurl?: string}
      */
-    private function getSizeArray(string $sizeKey = self::SIZES_JPEG, string $attachmentSize = self::SIZE_FULL, bool $addDirData = true): array
-    {
+    private function getSizeArray(string $sizeKey = self::SIZES_JPEG, string $attachmentSize = self::SIZE_FULL, bool $addDirData = true): array {
         if ( ! in_array($sizeKey, self::$validSizeKeys, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid size key, "%s" given. Available: %s',
-                    $sizeKey,
-                    implode(', ', self::$validSizeKeys)
-                )
-            );
+            throw new InvalidArgumentException(sprintf('Invalid size key, "%s" given. Available: %s', $sizeKey, implode(', ', self::$validSizeKeys)));
         }
 
         /** @var string $imgUrl */
@@ -187,14 +199,14 @@ class AttachmentData
             ];
         }
 
-        $sizeArray['sizes'] = ! empty($sizeArray['width']) ? sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']) : false;
+        $sizeArray['sizes'] = empty($sizeArray['width']) ? false : sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']);
 
         if ($addDirData && ! empty($this->metadata['file'])) {
             $dirname = _wp_get_attachment_relative_path($this->metadata['file']);
 
             $sizeArray['dirname'] = trailingslashit($dirname);
 
-            $imageBaseurl = trailingslashit($this->uploadDir['baseurl']).$sizeArray['dirname'];
+            $imageBaseurl = trailingslashit($this->uploadDir['baseurl']) . $sizeArray['dirname'];
 
             if (is_ssl()
                 && 'https' !== substr($imageBaseurl, 0, 5)
@@ -209,18 +221,11 @@ class AttachmentData
     }
 
     /**
-     * @return false|string
+     * @return bool|string
      */
-    private function getImageSrcset(string $sizeKey = self::SIZES_JPEG, string $attachmentSize = self::SIZE_FULL)
-    {
+    private function getImageSrcset(string $sizeKey = self::SIZES_JPEG, string $attachmentSize = self::SIZE_FULL) {
         if ( ! in_array($sizeKey, self::$validSizeKeys, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid size key, "%s" given. Available: %s',
-                    $sizeKey,
-                    implode(', ', self::$validSizeKeys)
-                )
-            );
+            throw new InvalidArgumentException(sprintf('Invalid size key, "%s" given. Available: %s', $sizeKey, implode(', ', self::$validSizeKeys)));
         }
 
         $sizeData = $this->getSizeArray($sizeKey, $attachmentSize);
@@ -230,7 +235,11 @@ class AttachmentData
             return false;
         }
 
-        if (empty($sizeData['dirname']) || empty($sizeData['image_baseurl'])) {
+        if (empty($sizeData['dirname'])) {
+            return false;
+        }
+
+        if (empty($sizeData['image_baseurl'])) {
             return false;
         }
 
@@ -252,11 +261,9 @@ class AttachmentData
     /**
      * @param array<string,mixed> $sizeData
      *
-     * @return array<string,mixed>|false
-     *
+     * @return bool|mixed
      */
-    private function calculateImageSecretSources(string $sizesKey, array $sizeData)
-    {
+    private function calculateImageSecretSources(string $sizesKey, array $sizeData) {
         $sizesKey = self::SIZES_JPEG === $sizesKey ? 'sizes' : 'sizes_webp';
 
         // Get the width and height of the image.
@@ -266,7 +273,7 @@ class AttachmentData
         // Retrieve the uploads sub-directory from the full size image.
         $dirname = $sizeData['dirname'];
 
-        $isImageEdited = preg_match('/-e[0-9]{13}/', wp_basename($sizeData['src']), $imageEditHash);
+        $isImageEdited = preg_match('#-e\d{13}#', wp_basename($sizeData['src']), $imageEditHash);
 
         $maxSrcsetImageWidth = apply_filters('max_srcset_image_width', 2048, [
             $imageWidth,
@@ -287,7 +294,7 @@ class AttachmentData
                 }
 
                 // If the file name is part of the `src`, we've confirmed a match.
-                if ( ! $srcMatched && false !== strpos($sizeData['src'], $dirname.$image['file'])) {
+                if ( ! $srcMatched && false !== strpos($sizeData['src'], $dirname . $image['file'])) {
                     $srcMatched = true;
                     $isSrc = true;
                 }
@@ -304,7 +311,7 @@ class AttachmentData
                 if (wp_image_matches_ratio($imageWidth, $imageHeight, $image['width'], $image['height'])) {
                     // Add the URL, descriptor, and value to the sources array to be returned.
                     $source = [
-                        'url' => $sizeData['image_baseurl'].$image['file'],
+                        'url' => $sizeData['image_baseurl'] . $image['file'],
                         'descriptor' => 'w',
                         'value' => $image['width'],
                     ];
@@ -318,9 +325,16 @@ class AttachmentData
                 }
             }
         }
-
         // Only return a 'srcset' value if there is more than one source.
-        if ( ! $srcMatched || ! is_array($sources) || count($sources) < 2) {
+        if (! $srcMatched) {
+            return false;
+        }
+
+        if (! is_array($sources)) {
+            return false;
+        }
+
+        if (count($sources) < 2) {
             return false;
         }
 
