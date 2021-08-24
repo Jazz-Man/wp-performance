@@ -125,7 +125,7 @@ class Media implements AutoloadInterface {
 
         // Remove images.
         // Send back the list.
-        return (string)preg_replace('#<img([^>]+)> #i', '', $avatarList);
+        return (string) preg_replace('#<img([^>]+)> #i', '', $avatarList);
     }
 
     /**

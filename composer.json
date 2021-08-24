@@ -76,7 +76,7 @@
             "@phpmd --update-baseline"
         ],
         "check": [
-            "@php-cs-fixer -- --dry-run"
+            "@php-cs-fixer --dry-run"
         ],
         "cs-fix": [
             "@php-cs-fixer"
