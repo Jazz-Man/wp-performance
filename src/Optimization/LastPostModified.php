@@ -25,10 +25,14 @@ class LastPostModified implements AutoloadInterface
         add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
     }
 
-    /**
-     * @return void
-     */
-    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post)
+	/**
+	 * @param  string  $newStatus
+	 * @param  string  $oldStatus
+	 * @param  \WP_Post  $post
+	 *
+	 * @return void
+	 */
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void
     {
         if ( ! in_array('publish', [$oldStatus, $newStatus])) {
             return;
@@ -44,6 +48,11 @@ class LastPostModified implements AutoloadInterface
         $this->bumpLastPostModified($post);
     }
 
+	/**
+	 * @param  string  $postType
+	 *
+	 * @return bool
+	 */
     private function isLocked(string $postType): bool
     {
         $key = $this->getLockName($postType);
@@ -52,11 +61,19 @@ class LastPostModified implements AutoloadInterface
         return false === wp_cache_add($key, 1, Cache::CACHE_GROUP, self::LOCK_TIME_IN_SECONDS);
     }
 
+	/**
+	 * @param  string  $postType
+	 *
+	 * @return string
+	 */
     private function getLockName(string $postType): string
     {
         return sprintf('%s_%s_lock', self::OPTION_PREFIX, $postType);
     }
 
+	/**
+	 * @param  \WP_Post  $post
+	 */
     private function bumpLastPostModified(WP_Post $post): void
     {
         // Update default of `any`
@@ -69,19 +86,36 @@ class LastPostModified implements AutoloadInterface
         $this->updateLastPostModified($post->post_modified, 'blog', $post->post_type);
     }
 
+	/**
+	 * @param  string  $time
+	 * @param  string  $timezone
+	 * @param  string  $postType
+	 *
+	 * @return bool
+	 */
     public function updateLastPostModified(string $time, string $timezone, string $postType = 'any'): bool
     {
         return update_option($this->getOptionName($timezone, $postType), $time, false);
     }
 
+	/**
+	 * @param  string  $timezone
+	 * @param  string  $postType
+	 *
+	 * @return string
+	 */
     private function getOptionName(string $timezone, string $postType): string
     {
         return sprintf('%s_%s_%s', self::OPTION_PREFIX, strtolower($timezone), $postType);
     }
 
-    /**
-     * @return false|string
-     */
+	/**
+	 * @param  bool  $boolean
+	 * @param  string  $timezone
+	 * @param  string  $postType
+	 *
+	 * @return bool|string
+	 */
     public function overrideGetLastPostModified(bool $boolean, string $timezone, string $postType)
     {
     	/** @var string|false $lastPostModified */
@@ -90,7 +124,7 @@ class LastPostModified implements AutoloadInterface
             return $boolean;
         }
 
-        return (string)$lastPostModified;
+        return $lastPostModified;
     }
 
     /**
