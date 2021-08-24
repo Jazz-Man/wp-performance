@@ -2,7 +2,9 @@
 
 namespace JazzMan\Performance\Optimization\NavMenu\Placeholder;
 
-class NavMenuArgs {
+use stdClass;
+
+class NavMenuArgs extends stdClass {
 	/**
 	 * Desired menu. Accepts a menu ID, slug, name, or object. Default empty.
 	 *
