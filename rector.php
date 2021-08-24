@@ -15,6 +15,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(SetList::CODE_QUALITY);
     $containerConfigurator->import(SetList::PHP_74);
     $containerConfigurator->import(SetList::TYPE_DECLARATION);
+    $containerConfigurator->import(SetList::EARLY_RETURN);
 
     $parameters = $containerConfigurator->parameters();
 

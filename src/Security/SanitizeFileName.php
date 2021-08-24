@@ -247,7 +247,7 @@ class SanitizeFileName implements AutoloadInterface {
      * @param string $fileName - any filename with absolute path
      * @param bool   $sanitize - Sanitized all special characters as well?
      */
-    public static function removeAccents(string $fileName, bool $sanitize = true): string {
+    public static function removeAccents(string $fileName, bool $sanitize = true): ?string {
         // Get path and basename
         $fileInfo = pathinfo($fileName);
         $fileName = $fileInfo['basename'];

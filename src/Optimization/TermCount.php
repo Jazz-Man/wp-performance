@@ -121,10 +121,13 @@ class TermCount implements AutoloadInterface {
             $termIds = wp_get_object_terms($post->ID, $taxonomy, [
                 'fields' => 'tt_ids',
             ]);
-
-            if ( ! empty($termIds) && ! ($termIds instanceof WP_Error)) {
-                $this->quickUpdateTermsCount( $post->ID, (array) $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
+            if (empty($termIds)) {
+                continue;
             }
+            if ($termIds instanceof WP_Error) {
+                continue;
+            }
+            $this->quickUpdateTermsCount( $post->ID, (array) $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
         }
         // For non-attachments, let's check if there are any attachment children
         // with inherited post status -- if so those will need to be re-counted.
@@ -162,11 +165,17 @@ class TermCount implements AutoloadInterface {
     private function quickUpdateTermsCount(int $objectId, array $termTaxIds, string $taxonomy, $transitionType): void {
         global $wpdb;
 
-        $taxonomyObj = get_taxonomy($taxonomy);
+        if (! $transitionType) {
+            return;
+        }
 
-        $termTaxIds = array_filter(array_map('intval', $termTaxIds));
+	    $termTaxIds = array_filter(array_map('intval', $termTaxIds));
+        if (empty($termTaxIds)) {
+            return;
+        }
 
-        if (! $transitionType || empty($termTaxIds) || !($taxonomyObj instanceof WP_Taxonomy)) {
+	    $taxonomyObj = get_taxonomy($taxonomy);
+        if (!($taxonomyObj instanceof WP_Taxonomy)) {
             return;
         }
 
@@ -229,12 +238,13 @@ class TermCount implements AutoloadInterface {
         if ($newIsCounted && ! $oldIsCounted) {
             return 'increment';
         }
-
-        if ($oldIsCounted && ! $newIsCounted) {
-            return 'decrement';
+        if (!$oldIsCounted) {
+            return false;
         }
-
-        return false;
+        if ($newIsCounted) {
+            return false;
+        }
+        return 'decrement';
     }
 
     /**

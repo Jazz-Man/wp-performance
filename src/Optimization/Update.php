@@ -28,10 +28,12 @@ class Update implements AutoloadInterface {
         // Remove menu items for updates from a standard WP install.
         add_action('admin_menu', static function (): void {
             // Bail if disabled, or on a multisite.
-            if ( ! app_is_enabled_wp_performance() || is_multisite()) {
+            if (! app_is_enabled_wp_performance()) {
                 return;
             }
-
+            if (is_multisite()) {
+                return;
+            }
             // Remove our items.
             remove_submenu_page('index.php', 'update-core.php');
         }, 9999);
@@ -148,10 +150,12 @@ class Update implements AutoloadInterface {
 
     public function removeMultisiteMenuItems(?string $menu = ''): void {
         // Bail if disabled or not on our network admin.
-        if ( ! app_is_enabled_wp_performance() || ! is_network_admin()) {
+        if (! app_is_enabled_wp_performance()) {
             return;
         }
-
+        if (! is_network_admin()) {
+            return;
+        }
         // Remove the items.
         remove_submenu_page('index.php', 'upgrade.php');
     }

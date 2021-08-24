@@ -219,8 +219,10 @@ class AttachmentData {
         if ($sizeData['width'] < 1) {
             return false;
         }
-
-        if (empty($sizeData['dirname']) || empty($sizeData['image_baseurl'])) {
+        if (empty($sizeData['dirname'])) {
+            return false;
+        }
+        if (empty($sizeData['image_baseurl'])) {
             return false;
         }
 
@@ -306,9 +308,14 @@ class AttachmentData {
                 }
             }
         }
-
         // Only return a 'srcset' value if there is more than one source.
-        if ( ! $srcMatched || ! is_array($sources) || count($sources) < 2) {
+        if (! $srcMatched) {
+            return false;
+        }
+        if (! is_array($sources)) {
+            return false;
+        }
+        if (count($sources) < 2) {
             return false;
         }
 

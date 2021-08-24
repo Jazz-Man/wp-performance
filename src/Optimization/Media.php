@@ -229,10 +229,12 @@ SQL
      * @return array<mixed>|false
      */
     public function fixSvgSizeAttributes($image, int $attachmentId, $size) {
-        if (is_admin() || empty($image)) {
+        if (is_admin()) {
             return $image;
         }
-
+        if (empty($image)) {
+            return $image;
+        }
         /** @var string $imageUrl */
         /** @var int $width */
         /** @var int $height */
@@ -264,10 +266,12 @@ SQL
      * @psalm-return array<0|1|2|string, mixed>|false
      */
     public function resizeImageOnTheFly($image, int $attachmentId, $size) {
-        if (is_admin() || ! is_array($size)) {
+        if (is_admin()) {
             return $image;
         }
-
+        if (! is_array($size)) {
+            return $image;
+        }
         $meta = wp_get_attachment_metadata($attachmentId);
 
         if (empty($meta)) {
@@ -312,9 +316,13 @@ SQL
      */
     private function isImageSizesExist(array $imageMeta, int $width, int $height): bool {
         foreach ($imageMeta['sizes'] as $key => $value) {
-            if ((int) $value['width'] === $width && (int) $value['height'] === $height) {
-                return true;
+            if ((int) $value['width'] !== $width) {
+                continue;
             }
+            if ((int) $value['height'] !== $height) {
+                continue;
+            }
+            return true;
         }
 
         return false;
