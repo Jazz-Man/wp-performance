@@ -34,11 +34,11 @@ class LastPostModified implements AutoloadInterface
 	 */
     public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void
     {
-        if ( ! in_array('publish', [$oldStatus, $newStatus])) {
+        if ( ! in_array('publish', [$oldStatus, $newStatus], true)) {
             return;
         }
         $publicPostTypes = get_post_types(['public' => true]);
-        if ( ! in_array($post->post_type, $publicPostTypes)) {
+        if ( ! in_array($post->post_type, $publicPostTypes, true)) {
             return;
         }
 
