@@ -31,7 +31,10 @@
         "nette/neon": "@stable",
         "php-stubs/wp-cli-stubs": "^2.5",
         "phpmd/phpmd": "@stable",
+        "phpstan/extension-installer": "@stable",
         "phpstan/phpstan": "@stable",
+        "phpstan/phpstan-deprecation-rules": "@stable",
+        "phpstan/phpstan-strict-rules": "@stable",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.8",
         "szepeviktor/phpstan-wordpress": "^0.7.7",
@@ -58,26 +61,23 @@
         "wordpress-install-dir": "vendor/wp"
     },
     "scripts": {
-        "post-autoload-dump": [
-            "@rm-cache"
-        ],
         "rm-cache" : [
             "phpstan clear-result-cache",
-            "@psalm -- --clear-cache",
-            "@psalm -- --clear-global-cache"
+            "psalm --clear-cache",
+            "psalm --clear-global-cache"
         ],
         "init-baseline": [
-            "@psalm -- --set-baseline=psalm-baseline.xml",
+            "@psalm --set-baseline=psalm-baseline.xml",
             "@phpstan-baseline",
-            "@phpmd -- --generate-baseline"
+            "@phpmd --generate-baseline"
         ],
         "update-baseline": [
-            "@psalm -- --update-baseline=psalm-baseline.xml",
+            "@psalm --update-baseline=psalm-baseline.xml",
             "@phpstan-baseline",
-            "@phpmd -- --update-baseline"
+            "@phpmd --update-baseline"
         ],
         "phpstan": "phpstan --no-progress",
-        "phpstan-baseline": "@phpstan -- --generate-baseline=phpstan-baseline.neon",
+        "phpstan-baseline": "@phpstan --generate-baseline=phpstan-baseline.neon",
         "phpqa": "phpqa",
         "phpmd": "phpmd . text phpmd.ruleset.xml --exclude \"build/,vendor/,cache/\"",
         "psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress",
