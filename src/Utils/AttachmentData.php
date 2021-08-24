@@ -70,7 +70,7 @@ class AttachmentData {
     /**
      * @var array<string,string>
      */
-    private $uploadDir = [];
+    private array $uploadDir = [];
 
     /**
      * @throws Exception
