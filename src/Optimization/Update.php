@@ -251,8 +251,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $key) {
-            unset($actions[$key]);
+        foreach ($removeActionList as $singleRemoveActionList) {
+            unset($actions[$singleRemoveActionList]);
         }
 
         // Return the remaining.
@@ -281,8 +281,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $key) {
-            unset($tabs[$key]);
+        foreach ($removeActionList as $singleRemoveActionList) {
+            unset($tabs[$singleRemoveActionList]);
         }
 
         // Return the tabs.
@@ -392,22 +392,22 @@ class Update implements AutoloadInterface {
      * @psalm-return array<string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}>
      */
     public function availableTranslations(): array {
-        $coreLanguges = self::coreBlockerGetLanguages();
-        $installed = get_available_languages();
+	    // Call the global WP version.
+	    global $wp_version;
 
-        // Call the global WP version.
-        global $wp_version;
+        $coreLanguges = self::coreBlockerGetLanguages();
+        $languages = get_available_languages();
 
         // shared settings
         $date = date_i18n('Y-m-d H:is', time()); // eg. 2016-06-26 10:08:23
 
-        $available = [];
+        $availableLanguages = [];
 
-        foreach ($installed as $lang) {
+        foreach ($languages as $language) {
             // Try to mimick the data that wordpress puts into 'available_translations' transient
             $settings = [
-                'language' => $lang,
-                'iso' => [$lang],
+                'language' => $language,
+                'iso' => [$language],
                 'version' => $wp_version,
                 'updated' => $date,
                 'strings' => [
@@ -416,14 +416,14 @@ class Update implements AutoloadInterface {
                 'package' => sprintf(
                     'https://downloads.wordpress.org/translation/core/%s/%s.zip',
                     esc_attr($wp_version),
-                    esc_attr($lang)
+                    esc_attr($language)
                 ),
             ];
 
-            $available[$lang] = array_merge($settings, $coreLanguges[$lang]);
+            $availableLanguages[$language] = array_merge($settings, $coreLanguges[$language]);
         }
 
-        return $available;
+        return $availableLanguages;
     }
 
     /**
