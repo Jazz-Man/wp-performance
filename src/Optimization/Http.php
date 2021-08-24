@@ -89,8 +89,8 @@ class Http implements AutoloadInterface {
 
     public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link {
         $link = new Link($relAttribute, app_make_link_relative($href));
-        $link->withAttribute('as', $asAttribute)
-            ->withAttribute('importance', 'high');
+        $link->withAttribute('as', $asAttribute);
+        $link->withAttribute('importance', 'high');
 
         return $link;
     }
@@ -104,11 +104,10 @@ class Http implements AutoloadInterface {
 
     public static function preloadFont(string $href, string $type): Link {
         $link = new Link(Link::REL_PRELOAD, app_make_link_relative($href));
-
-        $link->withAttribute('as', 'font')
-            ->withAttribute('type', $type)
-            ->withAttribute('importance', 'high')
-            ->withAttribute('crossorigin', true);
+        $link->withAttribute('as', 'font');
+        $link->withAttribute('type', $type);
+        $link->withAttribute('importance', 'high');
+        $link->withAttribute('crossorigin', true);
 
         return $link;
     }

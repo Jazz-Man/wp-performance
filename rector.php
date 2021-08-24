@@ -13,6 +13,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // tip: use "SetList" class to autocomplete sets
 
     $containerConfigurator->import(SetList::CODE_QUALITY);
+    $containerConfigurator->import(SetList::DEFLUENT);
     $containerConfigurator->import(SetList::PHP_74);
     $containerConfigurator->import(SetList::TYPE_DECLARATION);
     $containerConfigurator->import(SetList::TYPE_DECLARATION_STRICT);

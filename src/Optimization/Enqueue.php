@@ -49,10 +49,10 @@ class Enqueue implements AutoloadInterface {
         if ($addVersion && app_is_current_host($scriptSrc)) {
             $file = self::prepareScriptFilePath($scriptSrc);
 
-            if ($file) {
+            if ($file !== false) {
                 $fileMap = sprintf('%s.map', $file);
 
-                $timestamp = is_readable($fileMap) ? filemtime($fileMap) : filemtime($file);
+                $timestamp = is_readable($fileMap) ? (int) filemtime($fileMap) : (int) filemtime($file);
 
                 $scriptSrc = add_query_arg([
                     'ver' => $timestamp,
@@ -81,7 +81,7 @@ class Enqueue implements AutoloadInterface {
 
         $file = sprintf('%s/%s', $root, $path);
 
-        return is_readable($file) ? $file : false;
+        return is_readable($file) ? (string) $file : false;
     }
 
     public static function jqueryFromCdn(): void {

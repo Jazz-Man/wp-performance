@@ -5,6 +5,7 @@ namespace JazzMan\Performance\Optimization;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
 use PDO;
+use WP_Comment;
 
 /**
  * Class Media.
@@ -12,6 +13,7 @@ use PDO;
 class Media implements AutoloadInterface {
     public function load(): void {
         // Disable gravatars
+
         add_filter('get_avatar', fn (string $avatar, $idOrEmail, int $size, string $default, string $alt): string => $this->replaceGravatar($avatar, $idOrEmail, $size, $default, $alt), 1, 5);
         add_filter('default_avatar_select', fn (string $avatarList): string => $this->defaultAvatar($avatarList));
         // Prevent BuddyPress from falling back to Gravatar avatars.
@@ -85,11 +87,11 @@ class Media implements AutoloadInterface {
      * Replace all instances of gravatar with a local image file
      * to remove the call to remote service.
      *
-     * @param string $avatar    image tag for the user's avatar
-     * @param mixed  $idOrEmail a user ID, email address, or comment object
-     * @param int    $size      square avatar width and height in pixels to retrieve
-     * @param string $default   URL to a default image to use if no avatar is available
-     * @param string $alt       alternative text to use in the avatar image tag
+     * @param string                $avatar    image tag for the user's avatar
+     * @param int|string|WP_Comment $idOrEmail a user ID, email address, or comment object
+     * @param int                   $size      square avatar width and height in pixels to retrieve
+     * @param string                $default   URL to a default image to use if no avatar is available
+     * @param string                $alt       alternative text to use in the avatar image tag
      *
      * @return string `<img>` tag for the user's avatar
      */
@@ -115,7 +117,7 @@ class Media implements AutoloadInterface {
      *
      * @return string Updated list with images removed
      */
-    public function defaultAvatar(string $avatarList): ?string {
+    public function defaultAvatar(string $avatarList): string {
         // Bail if disabled.
         if ( ! app_is_enabled_wp_performance()) {
             return $avatarList;
@@ -123,7 +125,7 @@ class Media implements AutoloadInterface {
 
         // Remove images.
         // Send back the list.
-        return preg_replace('#<img([^>]+)> #i', '', $avatarList);
+        return (string)preg_replace('#<img([^>]+)> #i', '', $avatarList);
     }
 
     /**
