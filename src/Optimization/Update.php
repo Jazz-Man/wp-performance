@@ -31,6 +31,7 @@ class Update implements AutoloadInterface {
             if (! app_is_enabled_wp_performance()) {
                 return;
             }
+
             if (is_multisite()) {
                 return;
             }
@@ -153,6 +154,7 @@ class Update implements AutoloadInterface {
         if (! app_is_enabled_wp_performance()) {
             return;
         }
+
         if (! is_network_admin()) {
             return;
         }

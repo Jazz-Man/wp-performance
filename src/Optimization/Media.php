@@ -232,6 +232,7 @@ SQL
         if (is_admin()) {
             return $image;
         }
+
         if (empty($image)) {
             return $image;
         }
@@ -269,6 +270,7 @@ SQL
         if (is_admin()) {
             return $image;
         }
+
         if (! is_array($size)) {
             return $image;
         }
@@ -319,9 +321,11 @@ SQL
             if ((int) $value['width'] !== $width) {
                 continue;
             }
+
             if ((int) $value['height'] !== $height) {
                 continue;
             }
+
             return true;
         }
 

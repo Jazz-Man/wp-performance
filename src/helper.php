@@ -69,12 +69,15 @@ if ( ! function_exists('app_get_attachment_image_url')) {
     function app_get_attachment_image_url(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL) {
         try {
             $image = app_get_image_data_array($attachmentId, $size);
+
             if (!is_array($image)) {
                 return false;
             }
+
             if (empty($image['url'])) {
                 return false;
             }
+
             return $image['url'];
         } catch (Exception $exception) {
             return false;

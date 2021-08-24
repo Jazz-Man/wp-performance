@@ -219,9 +219,11 @@ class AttachmentData {
         if ($sizeData['width'] < 1) {
             return false;
         }
+
         if (empty($sizeData['dirname'])) {
             return false;
         }
+
         if (empty($sizeData['image_baseurl'])) {
             return false;
         }
@@ -312,9 +314,11 @@ class AttachmentData {
         if (! $srcMatched) {
             return false;
         }
+
         if (! is_array($sources)) {
             return false;
         }
+
         if (count($sources) < 2) {
             return false;
         }
