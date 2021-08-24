@@ -2,7 +2,7 @@
 <psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://getpsalm.org/schema/config"
        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-       cacheDirectory="cache/psalm"
+       cacheDirectory="build/cache/psalm"
        serializer="igbinary"
        allowPhpStormGenerics="true"
        errorBaseline="psalm-baseline.xml"
@@ -14,7 +14,6 @@
         <ignoreFiles>
             <directory name="vendor"/>
             <directory name="build"/>
-            <directory name="cache"/>
         </ignoreFiles>
     </projectFiles>
 

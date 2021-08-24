@@ -6,7 +6,7 @@ parameters:
 	level: max
 	inferPrivatePropertyTypeFromConstructor: true
 	treatPhpDocTypesAsCertain: true
-	tmpDir: cache/phpstan
+	tmpDir: build/cache/phpstan
 	fileExtensions:
 	    - php
 	excludePaths:

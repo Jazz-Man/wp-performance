@@ -4,7 +4,6 @@ phpqa:
   ignoredDirs:
     - vendor
     - build
-    - cache
 #  ignoredFiles: ""
   report: true
   execution: no-parallel

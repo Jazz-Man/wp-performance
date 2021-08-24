@@ -15,16 +15,15 @@
  * they're not needed (back to back, beginning or end of function/class, etc.),
  * adding trailing commas in the last line of an array, etc.
  */
-
 $finder = PhpCsFixer\Finder::create()
-	->in(__DIR__)
-	->ignoreDotFiles(true)
-	->ignoreVCS(true)
-	->ignoreVCSIgnored(true)
-	->ignoreUnreadableDirs(true)
-	->files()
-	->name('*.php')
-	->exclude(['vendor','php-cs-fixer', 'node_modules', '.idea', '.github'])
+    ->in(__DIR__)
+    ->ignoreDotFiles(true)
+    ->ignoreVCS(true)
+    ->ignoreVCSIgnored(true)
+    ->ignoreUnreadableDirs(true)
+    ->files()
+    ->name('*.php')
+    ->exclude(['vendor', 'php-cs-fixer', 'node_modules', '.idea', '.github', 'build'])
 ;
 
 $config = new PhpCsFixer\Config();
