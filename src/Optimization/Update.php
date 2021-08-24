@@ -392,8 +392,8 @@ class Update implements AutoloadInterface {
      * @psalm-return array<string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}>
      */
     public function availableTranslations(): array {
-	    // Call the global WP version.
-	    global $wp_version;
+        // Call the global WP version.
+        global $wp_version;
 
         $coreLanguges = self::coreBlockerGetLanguages();
         $languages = get_available_languages();

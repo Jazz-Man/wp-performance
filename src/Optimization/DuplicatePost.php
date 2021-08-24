@@ -10,7 +10,6 @@ use WP_Post;
  * Class DuplicatePost.
  */
 class DuplicatePost implements AutoloadInterface {
-
     private string $action = 'duplicate_post_as_draft';
 
     private string $nonce = 'duplicate_nonce';
