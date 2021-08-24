@@ -31,4 +31,4 @@ jobs:
         run: composer install --prefer-dist --no-dev -o
 
       - name: PHPMD
-        run: 'phpmd . github phpmd.ruleset.xml --exclude "build/,vendor/,cache/"'
+        run: 'phpmd . github phpmd.ruleset.xml --exclude "build/,vendor/"'
