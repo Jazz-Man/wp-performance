@@ -1,14 +1,13 @@
 <?xml version="1.0"?>
-<psalm
-        errorLevel="3"
-        resolveFromConfigFile="true"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="https://getpsalm.org/schema/config"
-        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-        cacheDirectory="cache/psalm"
-        serializer="igbinary"
-        allowPhpStormGenerics="true"
-        errorBaseline="psalm-baseline.xml"
+<psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="https://getpsalm.org/schema/config"
+       xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+       cacheDirectory="cache/psalm"
+       serializer="igbinary"
+       allowPhpStormGenerics="true"
+       errorBaseline="psalm-baseline.xml"
+       totallyTyped="true"
+       phpVersion="7.4"
 >
     <projectFiles>
         <directory name="src"/>
@@ -18,10 +17,23 @@
             <directory name="cache"/>
         </ignoreFiles>
     </projectFiles>
+
+    <issueHandlers>
+        <TooManyArguments>
+            <errorLevel type="suppress">
+                <referencedFunction name="apply_filters"/>
+            </errorLevel>
+        </TooManyArguments>
+    </issueHandlers>
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php"/>
     </stubs>
+    <globals>
+        <var name="wpdb" type="\wpdb"/>
+        <var name="wp_query" type="\WP_Query"/>
+        <var name="wp_rewrite" type="\WP_Rewrite"/>
+    </globals>
 </psalm>

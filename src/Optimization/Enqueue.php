@@ -30,6 +30,8 @@ class Enqueue implements AutoloadInterface
      * @param Link[] $links
      *
      * @return Link[]
+     *
+     * @psalm-return array<Link>
      */
     public function preloadLinks(array $links): array
     {

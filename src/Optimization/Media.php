@@ -85,7 +85,7 @@ class Media implements AutoloadInterface
      * to remove the call to remote service.
      *
      * @param string            $avatar    image tag for the user's avatar
-     * @param int|object|string $idOrEmail a user ID, email address, or comment object
+     * @param mixed $idOrEmail a user ID, email address, or comment object
      * @param int               $size      square avatar width and height in pixels to retrieve
      * @param string            $default   URL to a default image to use if no avatar is available
      * @param string            $alt       alternative text to use in the avatar image tag
@@ -104,7 +104,7 @@ class Media implements AutoloadInterface
             '<img alt="%1$s" src="%2$s" class="avatar avatar-%3$s photo" height="%3$s" width="%3$s" style="background:#eee;" />',
             esc_attr($alt),
             'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-            esc_attr($size)
+            esc_attr((string)$size)
         );
     }
 
@@ -163,10 +163,11 @@ class Media implements AutoloadInterface
      */
     public function mediaLibraryMonthsWithFiles()
     {
+	    global $wpdb;
+
         $months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (false === $months) {
-            global $wpdb;
             $pdo = app_db_pdo();
 
             $statement = $pdo->prepare(
@@ -199,12 +200,14 @@ SQL
     }
 
 	/**
-	 * @param  array<string,string|false>  $data
-	 * @param  string  $file
-	 * @param  string  $filename
-	 *
-	 * @return array
-	 */
+     * @param array<string,string|false>  $data
+     * @param string  $file
+     * @param string  $filename
+     *
+     * @return array<string, false|string>
+     *
+     * @psalm-return array<string, false|string>
+     */
     public function fixMimeTypeSvg(array $data, string $file, string $filename): array
     {
         $ext = ! empty($data['ext']) ? $data['ext'] : '';
@@ -225,18 +228,22 @@ SQL
     }
 
 	/**
-	 * @param  array<string,mixed>  $image
+	 * @param array<mixed>|false $image
 	 * @param  int  $attachmentId
-	 * @param  int[]|string  $size
+	 * @param string|int[] $size
 	 *
-	 * @return array
-	 *
+	 * @return array<mixed>|false
 	 */
-    public function fixSvgSizeAttributes($image, int $attachmentId, $size): array
+    public function fixSvgSizeAttributes($image, int $attachmentId, $size)
     {
-        if (is_admin()) {
+        if (is_admin() || empty($image)) {
             return $image;
         }
+
+        /** @var string $imageUrl */
+        /** @var int $width */
+        /** @var int $height */
+        /** @var bool $resized */
 
         [$imageUrl, $width, $height, $resized] = $image;
 
@@ -257,10 +264,12 @@ SQL
     }
 
     /**
-     * @param array|false  $image
-     * @param array|string $size
+     * @param array<string,mixed>|false  $image
+     * @param int[]|string $size
      *
      * @return array|false
+     *
+     * @psalm-return array<0|1|2|string, mixed>|false
      */
     public function resizeImageOnTheFly($image, int $attachmentId, $size)
     {
@@ -294,11 +303,7 @@ SQL
         // Generate new size
         $resized = image_make_intermediate_size($filePath, $width, $height, true);
 
-        if (is_wp_error($resized)) {
-            return $image;
-        }
-
-        if ($resized) {
+        if (!empty($resized)) {
             $metaSizeKey = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
             $meta['sizes'][$metaSizeKey] = $resized;
             wp_update_attachment_metadata($attachmentId, $meta);

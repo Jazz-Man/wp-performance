@@ -75,10 +75,11 @@ class AttachmentData
      */
     private function getAttachmentFromDb(int $attachmentId = 0)
     {
+	    global $wpdb;
+
         $attachment = wp_cache_get("attachment_image_$attachmentId", Cache::CACHE_GROUP);
 
         if (empty($attachment)) {
-            global $wpdb;
             $pdo = app_db_pdo();
 
             $sql = (new QueryFactory())

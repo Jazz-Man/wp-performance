@@ -11,7 +11,7 @@ class WPBlocks implements AutoloadInterface
     /**
      * @var string
      */
-    private $postType;
+    private string $postType;
 
     /**
      * @return void
@@ -36,7 +36,7 @@ class WPBlocks implements AutoloadInterface
         ]);
 
         $wpBlock->setPopulateColumns('post_name', static function ($column, WP_Post $post) {
-            printf('<code>%s</code>', esc_attr($post->{$column}));
+            printf('<code>%s</code>', esc_attr($post->post_name));
         });
 
         add_action('admin_menu', [$this, 'reusableBlocks']);
@@ -64,7 +64,7 @@ class WPBlocks implements AutoloadInterface
             'edit-tags.php'
         );
 
-        add_menu_page($pageTitle, $pageTitle, $capability, $wpBlockSlug, '', 'dashicons-editor-table', 22);
+        add_menu_page($pageTitle, $pageTitle, $capability, $wpBlockSlug, null, 'dashicons-editor-table', 22);
 
         add_submenu_page($wpBlockSlug, $taxTitle, $taxTitle, $capability, $wpBlockTaxSlug);
     }

@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Optimization\NavMenu;
 
 use Exception;
+use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
 use JazzMan\Performance\Utils\Cache;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
@@ -17,14 +18,13 @@ use WP_Taxonomy;
 use WP_Term;
 
 class MenuItems {
-	/**
-	 * @param  \WP_Term  $menuObject
-	 *
-	 * @return array|false|mixed|void
-	 */
+    /**
+     * @return MenuItem[]|stdClass[]|false
+     */
     public static function getItems(WP_Term $menuObject) {
         $cacheKey = Cache::getMenuItemCacheKey( $menuObject );
 
+        /** @var MenuItem[]|stdClass[]|false $menuItems */
         $menuItems = wp_cache_get( $cacheKey, 'menu_items' );
 
         if ( false === $menuItems ) {
@@ -39,7 +39,8 @@ class MenuItems {
 
                 $menuItems = $navStatement->fetchAll( PDO::FETCH_OBJ );
 
-                $menuItems = apply_filters( 'app_nav_menu_cache_items', $menuItems, $menuObject );
+                /** @var MenuItem[]|stdClass[] $menuItems */
+                $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $menuObject );
 
                 foreach ( $menuItems as $key => $item ) {
                     $menuItems[ $key ] = self::setupNavMenuItem( $item );
@@ -60,11 +61,6 @@ class MenuItems {
         return $menuItems;
     }
 
-	/**
-	 * @param  \WP_Term  $menuObject
-	 *
-	 * @return \Latitude\QueryBuilder\Query
-	 */
     private static function generateSql(WP_Term $menuObject): Query {
         global $wpdb;
 
@@ -152,13 +148,11 @@ class MenuItems {
             ->compile();
     }
 
-	/**
-	 * @param  \stdClass  $menuItem
-	 *
-	 * @return \stdClass
-	 */
-    private static function setupNavMenuItem(stdClass $menuItem): stdClass {
-        if ( ! empty( $menuItem->post_type ) ) {
+    /**
+     * @param MenuItem|stdClass $menuItem
+     */
+    private static function setupNavMenuItem($menuItem): stdClass {
+        if ( isset( $menuItem->post_type ) ) {
             if ( 'nav_menu_item' === $menuItem->post_type ) {
                 $menuItem->db_id = (int) $menuItem->ID;
                 $menuItem->menu_item_parent = (int) $menuItem->menu_item_parent;
@@ -166,13 +160,13 @@ class MenuItems {
 
                 $menuItem = self::setupNavMenuItemByType( $menuItem );
 
-                $menuItem->attr_title = ! empty( $menuItem->attr_title ) ? $menuItem->attr_title : apply_filters( 'nav_menu_attr_title', $menuItem->post_excerpt );
+                $menuItem->attr_title = $menuItem->attr_title ?: apply_filters( 'nav_menu_attr_title', $menuItem->post_excerpt );
 
                 if ( ! isset( $menuItem->description ) ) {
                     $menuItem->description = apply_filters( 'nav_menu_description', wp_trim_words( $menuItem->post_content, 200 ) );
                 }
 
-                $menuItem->classes = (array) maybe_unserialize( $menuItem->classes );
+                $menuItem->classes = (array) maybe_unserialize( (string)$menuItem->classes );
 
                 return $menuItem;
             }
@@ -220,7 +214,11 @@ class MenuItems {
             $menuItem->url = app_get_term_link( (int) $menuItem->term_id, (string) $menuItem->taxonomy );
             $menuItem->target = '';
             $menuItem->attr_title = '';
-            $menuItem->description = get_term_field( 'description', $menuItem->term_id, $menuItem->taxonomy );
+
+            $termDescription = get_term_field( 'description', $menuItem->term_id, $menuItem->taxonomy );
+
+	        $menuItem->description = !is_wp_error($termDescription)? (string)$termDescription: '';
+
             $menuItem->classes = [];
             $menuItem->xfn = '';
         }
@@ -228,12 +226,12 @@ class MenuItems {
         return $menuItem;
     }
 
-	/**
-	 * @param  \stdClass  $menuItem
-	 *
-	 * @return \stdClass
-	 */
-    private static function setupNavMenuItemByType(stdClass $menuItem): stdClass {
+    /**
+     * @param MenuItem|stdClass $menuItem
+     *
+     * @return MenuItem|stdClass
+     */
+    private static function setupNavMenuItemByType($menuItem) {
         switch ( $menuItem->type ) {
             case 'post_type':
                 $postTypeObject = get_post_type_object( $menuItem->object );
@@ -242,7 +240,7 @@ class MenuItems {
                 $isPost = $originalTerm instanceof WP_Post;
 
                 $isPostType = $postTypeObject instanceof WP_Post_Type;
-                $isInTrash = 'trash' === get_post_status( $menuItem->object_id );
+                $isInTrash = 'trash' === get_post_status( (int) $menuItem->object_id );
 
                 $menuItem->type_label = $isPostType ? $postTypeObject->labels->singular_name : $menuItem->object;
 
@@ -294,7 +292,7 @@ class MenuItems {
 
                 $menuItem->type_label = $isTaxonomy ? $taxonomyObject->labels->singular_name : $menuItem->object;
 
-                $menuItem->url = $isTerm ? app_get_term_link( $menuItem->object_id, $menuItem->object ) : '';
+                $menuItem->url = $isTerm ? (string)app_get_term_link( $menuItem->object_id, $menuItem->object ) : '';
 
                 $originalTitle = $isTerm ? $originalTerm->name : sprintf( __( '#%d (no title)' ), $menuItem->object_id );
 

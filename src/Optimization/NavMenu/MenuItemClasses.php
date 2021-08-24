@@ -2,6 +2,7 @@
 
 namespace JazzMan\Performance\Optimization\NavMenu;
 
+use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
 use stdClass;
 use WP_Error;
 use WP_Post;
@@ -12,13 +13,13 @@ use WP_User;
 
 class MenuItemClasses {
     /**
-     * @param array<int,stdClass> $menuItems
+     * @param array<array-key,MenuItem|stdClass> $menuItems
      */
     public static function setMenuItemClassesByContext(array &$menuItems): void {
         global $wp_query, $wp_rewrite;
 
         $object = $wp_query->get_queried_object();
-        $queriedObjectId = (int) $wp_query->queried_object_id;
+        $queriedObjectId = $wp_query->queried_object_id;
 
         $activeObject = '';
         $ancestorItemIds = [];
@@ -30,7 +31,7 @@ class MenuItemClasses {
         $homePageId = (int) get_option('page_for_posts');
 
         if ($wp_query->is_singular && $object instanceof WP_Post && ! is_post_type_hierarchical($object->post_type)) {
-            /** @var WP_Taxonomy[] $taxonomies */
+            /** @var array<string,WP_Taxonomy> $taxonomies */
             $taxonomies = get_object_taxonomies($object->post_type, 'objects');
 
             foreach ($taxonomies as $taxonomy => $taxonomyObject) {
@@ -38,7 +39,7 @@ class MenuItemClasses {
                     /** @var array<int,int> $termHierarchy */
                     $termHierarchy = _get_term_hierarchy($taxonomy);
                     /** @var int[]|WP_Error $terms */
-                    $terms = wp_get_object_terms($queriedObjectId, $taxonomy, ['fields' => 'ids']);
+                    $terms = wp_get_object_terms($queriedObjectId, $taxonomy, [ 'fields' => 'ids']);
 
                     if (is_array($terms)) {
                         $objectParents = array_merge($objectParents, $terms);
@@ -252,34 +253,7 @@ class MenuItemClasses {
     }
 
     /**
-     * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $object
-     * @param array<int,mixed>                          $ancestors
-     *
-     **/
-    private static function isCurrentMenuItemtAncestor(stdClass $parent, $object, array $ancestors): bool {
-        if (empty($parent->type)) {
-            return false;
-        }
-
-        switch ($parent->type) {
-            case 'post_type':
-
-                $isHierarchical = ! empty($object->post_type) && is_post_type_hierarchical($object->post_type);
-
-                return $isHierarchical && in_array((int) $parent->object_id, $object->ancestors, true) && $parent->object !== $object->ID;
-
-            case 'taxonomy':
-
-                return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! isset($object->term_id) || $parent->object_id !== $object->term_id);
-
-        }
-
-        return false;
-    }
-
-    /**
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $queriedObject
-     *
      */
     private static function isCurrentMenuItemt(stdClass $menuItem, int $queriedObjectId, $queriedObject, ?int $homePageId = null): bool {
         global $wp_query;
@@ -303,6 +277,32 @@ class MenuItemClasses {
                 $isCategory = $wp_query->is_category || $wp_query->is_tag || $wp_query->is_tax;
 
                 return  $isCategory && $queriedObject->taxonomy === $menuItem->object;
+
+        }
+
+        return false;
+    }
+
+    /**
+     * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $object
+     * @param array<string,array<int,int>>              $ancestors
+     *
+     **/
+    private static function isCurrentMenuItemtAncestor(stdClass $parent, $object, array $ancestors): bool {
+        if (empty($parent->type)) {
+            return false;
+        }
+
+        switch ($parent->type) {
+            case 'post_type':
+
+                $isHierarchical = ! empty($object->post_type) && is_post_type_hierarchical($object->post_type);
+
+                return $isHierarchical && in_array((int) $parent->object_id, $object->ancestors, true) && $parent->object !== $object->ID;
+
+            case 'taxonomy':
+
+                return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! isset($object->term_id) || $parent->object_id !== $object->term_id);
 
         }
 

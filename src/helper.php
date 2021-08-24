@@ -10,7 +10,7 @@ if ( ! function_exists('app_get_image_data_array')) {
     /**
      * @param int[]|string $size
      *
-     * @return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt: null|string, id?: int, srcset?: string, sizes?: string}|false
+     * @return array|false
      *
      * @psalm-return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt?: null|string, id?: int, srcset?: string, sizes?: string}|false
      */
@@ -43,7 +43,7 @@ if ( ! function_exists('app_get_image_data_array')) {
         try {
             $attachment = new AttachmentData($attachmentId);
 
-            $image = $attachment->getUrl($size);
+            $image = $attachment->getUrl((string)$size);
 
             $imageData['id'] = $attachmentId;
             $imageData['url'] = $image['src'];
@@ -242,7 +242,7 @@ if ( ! function_exists('app_term_link_filter')) {
 if ( ! function_exists('app_get_taxonomy_ancestors')) {
     /**
      * @param int $mode
-     * @param int ...$args PDO fetch options
+     * @param array<array-key, mixed>|null ...$args PDO fetch options
      *
      * @return array<string,string|int>|false
      */
@@ -390,9 +390,11 @@ if ( ! function_exists('app_get_wp_block')) {
 }
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
-    /**
-     * @return scalar|null
-     */
+	/**
+	 * @param  string  $url
+	 *
+	 * @return false|mixed
+	 */
     function app_attachment_url_to_postid(string $url) {
         if ( ! filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
@@ -405,11 +407,11 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
         $siteUrl = parse_url($uploadDir['url']);
         $imagePath = parse_url($url);
 
-        if ($siteUrl['host'] !== $imagePath['host']) {
+        if ((!empty($siteUrl['host']) && !empty($imagePath['host'])) && ($siteUrl['host'] !== $imagePath['host'])) {
             return false;
         }
 
-        if ($imagePath['scheme'] !== $siteUrl['scheme']) {
+        if ((!empty($imagePath['scheme']) && !empty($siteUrl['scheme'])) && ($imagePath['scheme'] !== $siteUrl['scheme'])) {
             $url = str_replace($imagePath['scheme'], $siteUrl['scheme'], $url);
         }
 

@@ -39,15 +39,22 @@ class Http implements AutoloadInterface
         if (!empty($this->preloadLinks)) {
             $provider = new GenericLinkProvider($this->preloadLinks);
 
-            foreach ($provider->getLinks() as $link) {
+            /** @var Link[] $links */
+	        $links = $provider->getLinks();
+
+            foreach ($links as $link) {
                 if (!$link->isTemplated()) {
-                    $attributes = [
+                    /** @var array<string,string|string[]> $attributes */
+                	$attributes = [
                         'rel' => $link->getRels(),
                         'href' => $link->getHref(),
                     ];
 
-                    if (!empty($link->getAttributes())) {
-                        foreach ($link->getAttributes() as $key => $value) {
+                	/** @var array<string,string|string[]> $linkAttributes */
+                	$linkAttributes = $link->getAttributes();
+
+                    if (!empty($linkAttributes)) {
+                        foreach ($linkAttributes as $key => $value) {
                             $attributes[$key] = $value;
                         }
                     }
@@ -64,7 +71,7 @@ class Http implements AutoloadInterface
             return;
         }
 
-        $this->preloadLinks = (array) apply_filters('app_preload_links', $this->preloadLinks);
+        $this->preloadLinks = apply_filters('app_preload_links', $this->preloadLinks);
 
         if (!empty($this->preloadLinks)) {
             /** @var LinkInterface[]|\Traversable $links */
@@ -81,29 +88,33 @@ class Http implements AutoloadInterface
         header('X-DNS-Prefetch-Control: on');
     }
 
-    public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
+	public static function preloadLink(string $href, string $asAttribute, string $relAttribute = Link::REL_PRELOAD): Link
     {
-        return (new Link($relAttribute, app_make_link_relative($href)))
-            ->withAttribute('as', $asAttribute)
-            ->withAttribute('importance', 'high')
-        ;
+    	$link = new Link($relAttribute, app_make_link_relative($href));
+	    $link->withAttribute('as', $asAttribute)
+	         ->withAttribute('importance', 'high');
+
+        return $link;
     }
 
     public static function prefetchLink(string $href): Link
     {
-        return (new Link(Link::REL_PREFETCH, app_make_link_relative($href)))
-            ->withAttribute('as', 'fetch')
-        ;
+	    $link = new Link(Link::REL_PREFETCH, app_make_link_relative($href));
+	    $link->withAttribute('as', 'fetch');
+
+        return $link;
     }
 
     public static function preloadFont(string $href, string $type): Link
     {
-        return (new Link(Link::REL_PRELOAD, app_make_link_relative($href)))
-            ->withAttribute('as', 'font')
-            ->withAttribute('type', $type)
-            ->withAttribute('importance', 'high')
-            ->withAttribute('crossorigin', true)
-        ;
+    	$link = new Link(Link::REL_PRELOAD, app_make_link_relative($href));
+
+    	$link->withAttribute('as', 'font')
+	         ->withAttribute('type', $type)
+	         ->withAttribute('importance', 'high')
+	         ->withAttribute('crossorigin', true);
+
+    	return $link;
     }
 
     public static function dnsPrefetchLink(string $href): Link

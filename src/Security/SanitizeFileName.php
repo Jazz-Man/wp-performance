@@ -107,7 +107,7 @@ class SanitizeFileName implements AutoloadInterface
     /**
      * This is a list of usual encoding errors.
      *
-     * @return array<string, string>
+     * @return string[]
      *
      * @psalm-return array<string, string>
      */
