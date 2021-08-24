@@ -251,8 +251,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $singleRemoveActionList) {
-            unset($actions[$singleRemoveActionList]);
+        foreach ($removeActionList as $action) {
+            unset($actions[$action]);
         }
 
         // Return the remaining.
@@ -281,8 +281,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $singleRemoveActionList) {
-            unset($tabs[$singleRemoveActionList]);
+        foreach ($removeActionList as $action) {
+            unset($tabs[$action]);
         }
 
         // Return the tabs.
