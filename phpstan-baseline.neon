@@ -51,11 +51,6 @@ parameters:
 			path: src/Optimization/Http.php
 
 		-
-			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
-			count: 2
-			path: src/Optimization/LastPostModified.php
-
-		-
 			message: "#^Cannot access offset 0 on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
