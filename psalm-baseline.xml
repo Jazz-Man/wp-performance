@@ -87,6 +87,10 @@
       <code>$ancestorItemIds[]</code>
       <code>$rawItemUrl</code>
     </MixedAssignment>
+    <MixedPropertyTypeCoercion occurrences="2">
+      <code>array_unique($classes)</code>
+      <code>array_unique($classes)</code>
+    </MixedPropertyTypeCoercion>
     <PossiblyNullArgument occurrences="2">
       <code>$activeObject</code>
       <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
@@ -201,17 +205,28 @@
     </UndefinedPropertyFetch>
   </file>
   <file src="src/Optimization/NavMenu/NavMenuCache.php">
-    <MixedArgument occurrences="1">
-      <code>$allowedTags</code>
+    <MixedArgument occurrences="3">
+      <code>$args-&gt;depth</code>
+      <code>$args-&gt;items_wrap</code>
+      <code>$args-&gt;menu</code>
     </MixedArgument>
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$attributes</code>
     </MixedArgumentTypeCoercion>
+    <MixedArrayAssignment occurrences="1">
+      <code>$menuItem-&gt;classes[]</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="1">
+      <code>$menuWithChildren[$menuItem-&gt;ID]</code>
+    </MixedArrayOffset>
     <MixedAssignment occurrences="3">
-      <code>$allowedTags</code>
       <code>$attributes['aria-label']</code>
       <code>$attributes['id']</code>
+      <code>$menuItem-&gt;classes</code>
     </MixedAssignment>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$menuItems</code>
+    </PossiblyFalseArgument>
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>
     </StringIncrement>
@@ -235,6 +250,27 @@
       <code>$type_label</code>
       <code>$url</code>
       <code>$xfn</code>
+    </MissingConstructor>
+  </file>
+  <file src="src/Optimization/NavMenu/Placeholder/NavMenuArgs.php">
+    <MissingConstructor occurrences="17">
+      <code>$after</code>
+      <code>$before</code>
+      <code>$container</code>
+      <code>$container_aria_label</code>
+      <code>$container_class</code>
+      <code>$container_id</code>
+      <code>$depth</code>
+      <code>$echo</code>
+      <code>$fallback_cb</code>
+      <code>$item_spacing</code>
+      <code>$items_wrap</code>
+      <code>$link_after</code>
+      <code>$link_before</code>
+      <code>$menu</code>
+      <code>$menu_class</code>
+      <code>$menu_id</code>
+      <code>$theme_location</code>
     </MissingConstructor>
   </file>
   <file src="src/Optimization/TermCount.php">
