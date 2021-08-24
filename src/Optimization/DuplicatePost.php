@@ -29,15 +29,15 @@ class DuplicatePost implements AutoloadInterface {
      *
      * @return array<string,string>
      */
-    public function duplicatePostLink(array $actions, WP_Post $post): array {
-        if ( 'publish' === $post->post_status && current_user_can( 'edit_posts' ) ) {
+    public function duplicatePostLink(array $actions, WP_Post $wpPost): array {
+        if ( 'publish' === $wpPost->post_status && current_user_can( 'edit_posts' ) ) {
             $actions['duplicate'] = sprintf(
                 '<a href="%s" title="%s" rel="permalink">%s</a>',
                 wp_nonce_url(
                     add_query_arg(
                         [
                             'action' => $this->action,
-                            'post' => $post->ID,
+                            'post' => $wpPost->ID,
                         ],
                         'admin.php'
                     ),
@@ -55,11 +55,11 @@ class DuplicatePost implements AutoloadInterface {
     public function duplicatePostAsDraft(): void {
         check_ajax_referer( basename( __FILE__ ), $this->nonce );
 
-        $request = app_get_request_data();
+        $parameterBag = app_get_request_data();
 
-        $postId = (int) $request->getDigits( 'post' );
+        $postId = (int) $parameterBag->getDigits( 'post' );
         /** @var string|null $action */
-        $action = $request->get( 'action' );
+        $action = $parameterBag->get( 'action' );
 
         if ( !$postId && $this->action !== $action ) {
             wp_die( 'No post to duplicate has been supplied!' );
@@ -79,17 +79,17 @@ class DuplicatePost implements AutoloadInterface {
         wp_die( sprintf( '<span>%s</span>> could not find original post: %d', $title, $postId ), $title );
     }
 
-    private function createNewDraftPost(WP_Post $post, int $oldPostId): void {
+    private function createNewDraftPost(WP_Post $wpPost, int $oldPostId): void {
         /**
          * if you don't want current user to be the new post author,
          * then change next couple of lines to this: $new_post_author = $post->post_author;.
          */
         $currentUser = wp_get_current_user();
 
-        $newPostAuthor = (int) $post->post_author === $currentUser->ID ? $post->post_author : $currentUser->ID;
+        $newPostAuthor = (int) $wpPost->post_author === $currentUser->ID ? $wpPost->post_author : $currentUser->ID;
 
         // new post data array
-        $postData = $post->to_array();
+        $postData = $wpPost->to_array();
         unset(
             $postData['post_date'],
             $postData['post_date_gmt'],
@@ -114,7 +114,7 @@ class DuplicatePost implements AutoloadInterface {
             wp_die( $newPostId->get_error_message() );
         }
 
-        $this->addTerms( $post, (int) $newPostId, $oldPostId );
+        $this->addTerms( $wpPost, (int) $newPostId, $oldPostId );
         $this->addMetaData( (int) $newPostId, $oldPostId );
 
         $editPostLink = get_edit_post_link( (int) $newPostId, 'edit' );
@@ -125,9 +125,9 @@ class DuplicatePost implements AutoloadInterface {
         }
     }
 
-    private function addTerms(WP_Post $post, int $newPostId, int $oldPostId): void {
+    private function addTerms(WP_Post $wpPost, int $newPostId, int $oldPostId): void {
         /** @var string[] $taxonomies */
-        $taxonomies = get_object_taxonomies( $post->post_type );
+        $taxonomies = get_object_taxonomies( $wpPost->post_type );
 
         foreach ( $taxonomies as $taxonomy ) {
             /** @var string[] $postTerms */
@@ -151,8 +151,8 @@ class DuplicatePost implements AutoloadInterface {
             if ( ! empty( $metaValues ) ) {
                 /** @var string[]|string $metaValues */
                 if ( is_array( $metaValues ) ) {
-                    foreach ( $metaValues as $value ) {
-                        add_post_meta( $newPostId, $metaKey, $value );
+                    foreach ( $metaValues as $metumValue ) {
+                        add_post_meta( $newPostId, $metaKey, $metumValue );
                     }
                 } else {
                     add_post_meta( $newPostId, $metaKey, $metaValues );

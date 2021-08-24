@@ -21,8 +21,8 @@ class MenuItems {
     /**
      * @return MenuItem[]|stdClass[]
      */
-    public static function getItems(WP_Term $menuObject): array {
-        $cacheKey = Cache::getMenuItemCacheKey( $menuObject );
+    public static function getItems(WP_Term $wpTerm): array {
+        $cacheKey = Cache::getMenuItemCacheKey( $wpTerm );
 
         /** @var MenuItem[]|stdClass[]|false $menuItems */
         $menuItems = wp_cache_get( $cacheKey, 'menu_items' );
@@ -31,16 +31,16 @@ class MenuItems {
             try {
                 $pdo = app_db_pdo();
 
-                $sql = self::generateSql( $menuObject );
+                $query = self::generateSql( $wpTerm );
 
-                $navStatement = $pdo->prepare( $sql->sql() );
+                $pdoStatement = $pdo->prepare( $query->sql() );
 
-                $navStatement->execute( $sql->params() );
+                $pdoStatement->execute( $query->params() );
 
-                $menuItems = $navStatement->fetchAll( PDO::FETCH_OBJ );
+                $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
 
                 /** @var MenuItem[]|stdClass[] $menuItems */
-                $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $menuObject );
+                $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $wpTerm );
 
                 foreach ( $menuItems as $key => $item ) {
                     $menuItems[ $key ] = self::setupNavMenuItem( $item );
@@ -61,7 +61,7 @@ class MenuItems {
         return $menuItems;
     }
 
-    private static function generateSql(WP_Term $menuObject): Query {
+    private static function generateSql(WP_Term $wpTerm): Query {
         global $wpdb;
 
         return ( new QueryFactory() )
@@ -139,7 +139,7 @@ class MenuItems {
             )
             ->where(
                 field( 'tr.term_taxonomy_id' )
-                    ->eq( $menuObject->term_taxonomy_id )
+                    ->eq( $wpTerm->term_taxonomy_id )
                     ->and( field( 'm.post_type' )->eq( 'nav_menu_item' ) )
                     ->and( field( 'm.post_status' )->eq( 'publish' ) )
             )

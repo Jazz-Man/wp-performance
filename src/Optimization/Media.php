@@ -165,7 +165,7 @@ class Media implements AutoloadInterface {
         if (false === $months) {
             $pdo = app_db_pdo();
 
-            $statement = $pdo->prepare(
+            $pdoStatement = $pdo->prepare(
                 <<<SQL
                     select 
                       distinct year( post_date ) as year, 
@@ -176,9 +176,9 @@ class Media implements AutoloadInterface {
 SQL
             );
 
-            $statement->execute();
+            $pdoStatement->execute();
 
-            $months = $statement->fetchAll(PDO::FETCH_OBJ);
+            $months = $pdoStatement->fetchAll(PDO::FETCH_OBJ);
 
             wp_cache_set('wpcom_media_months_array', $months, Cache::CACHE_GROUP);
         }

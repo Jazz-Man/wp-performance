@@ -88,7 +88,7 @@ class AttachmentData {
         if (empty($attachment)) {
             $pdo = app_db_pdo();
 
-            $sql = (new QueryFactory())
+            $query = (new QueryFactory())
                 ->select(
                     alias('i.ID', 'attachmentId'),
                     alias('file.meta_value', 'fullUrl'),
@@ -114,11 +114,11 @@ class AttachmentData {
                 ->compile()
             ;
 
-            $statement = $pdo->prepare($sql->sql());
+            $pdoStatement = $pdo->prepare($query->sql());
 
-            $statement->execute($sql->params());
+            $pdoStatement->execute($query->params());
 
-            $attachment = $statement->fetchObject();
+            $attachment = $pdoStatement->fetchObject();
 
             if ( ! empty($attachment)) {
                 wp_cache_set("attachment_image_$attachmentId", $attachment, Cache::CACHE_GROUP);
@@ -246,7 +246,7 @@ class AttachmentData {
     /**
      * @param array<string,mixed> $sizeData
      *
-     * @return array<string,mixed>|false
+     * @return bool|mixed
      */
     private function calculateImageSecretSources(string $sizesKey, array $sizeData) {
         $sizesKey = self::SIZES_JPEG === $sizesKey ? 'sizes' : 'sizes_webp';

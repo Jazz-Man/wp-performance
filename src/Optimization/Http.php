@@ -37,10 +37,10 @@ class Http implements AutoloadInterface {
 
     public function preloadLinksInHeader(): void {
         if (!empty($this->preloadLinks)) {
-            $provider = new GenericLinkProvider($this->preloadLinks);
+            $genericLinkProvider = new GenericLinkProvider($this->preloadLinks);
 
             /** @var Link[] $links */
-            $links = $provider->getLinks();
+            $links = $genericLinkProvider->getLinks();
 
             foreach ($links as $link) {
                 if (!$link->isTemplated()) {

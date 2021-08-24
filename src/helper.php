@@ -253,7 +253,7 @@ if ( ! function_exists('app_get_taxonomy_ancestors')) {
         try {
             $pdo = app_db_pdo();
 
-            $sql = $pdo->prepare(
+            $pdoStatement = $pdo->prepare(
                 <<<SQL
 with recursive ancestors as (
   select
@@ -284,9 +284,9 @@ from ancestors a
 SQL
             );
 
-            $sql->execute(['termId' => $termId, 'taxonomy' => $taxonomy]);
+            $pdoStatement->execute(['termId' => $termId, 'taxonomy' => $taxonomy]);
 
-            return $sql->fetchAll($mode, ...$args);
+            return $pdoStatement->fetchAll($mode, ...$args);
         } catch (Exception $exception) {
             app_error_log($exception, 'app_get_taxonomy_ancestors');
 
@@ -308,7 +308,7 @@ if ( ! function_exists('app_term_get_all_children')) {
             try {
                 $pdo = app_db_pdo();
 
-                $sql = $pdo->prepare(
+                $pdoStatement = $pdo->prepare(
                     <<<SQL
 with recursive children as (
   select
@@ -330,9 +330,9 @@ from children c
 SQL
                 );
 
-                $sql->execute(['termId' => $termId]);
+                $pdoStatement->execute(['termId' => $termId]);
 
-                $children = $sql->fetchAll(PDO::FETCH_COLUMN);
+                $children = $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
 
                 if ( ! empty($children)) {
                     sort($children);
@@ -362,7 +362,7 @@ if ( ! function_exists('app_get_wp_block')) {
             try {
                 $pdo = app_db_pdo();
 
-                $sql = (new QueryFactory())
+                $query = (new QueryFactory())
                     ->select('p.*')
                     ->from(alias($wpdb->posts, 'p'))
                     ->where(
@@ -373,10 +373,10 @@ if ( ! function_exists('app_get_wp_block')) {
                     ->limit(1)
                     ->compile();
 
-                $statement = $pdo->prepare($sql->sql());
-                $statement->execute($sql->params());
+                $pdoStatement = $pdo->prepare($query->sql());
+                $pdoStatement->execute($query->params());
 
-                $result = $statement->fetchObject();
+                $result = $pdoStatement->fetchObject();
 
                 if ( ! empty($result)) {
                     wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
@@ -417,7 +417,7 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
         try {
             $pdo = app_db_pdo();
 
-            $statement = $pdo->prepare(
+            $pdoStatement = $pdo->prepare(
                 <<<SQL
 select
   i.ID
@@ -428,11 +428,11 @@ where
 SQL
             );
 
-            $statement->execute([
+            $pdoStatement->execute([
                 'guid' => esc_url_raw($url),
             ]);
 
-            return $statement->fetchColumn();
+            return $pdoStatement->fetchColumn();
         } catch (Exception $exception) {
             return false;
         }

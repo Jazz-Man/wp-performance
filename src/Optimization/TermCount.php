@@ -112,13 +112,13 @@ class TermCount implements AutoloadInterface {
      * @param string $newStatus new post status
      * @param string $oldStatus old post status
      */
-    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void {
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $wpPost): void {
         /** @var string[] $taxonomies */
-        $taxonomies = get_object_taxonomies($post->post_type);
+        $taxonomies = get_object_taxonomies($wpPost->post_type);
 
         foreach ($taxonomies as $taxonomy) {
             /** @var int[]|WP_Error $termIds */
-            $termIds = wp_get_object_terms($post->ID, $taxonomy, [
+            $termIds = wp_get_object_terms($wpPost->ID, $taxonomy, [
                 'fields' => 'tt_ids',
             ]);
 
@@ -129,16 +129,16 @@ class TermCount implements AutoloadInterface {
             if ($termIds instanceof WP_Error) {
                 continue;
             }
-            $this->quickUpdateTermsCount( $post->ID, (array) $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
+            $this->quickUpdateTermsCount( $wpPost->ID, (array) $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
         }
         // For non-attachments, let's check if there are any attachment children
         // with inherited post status -- if so those will need to be re-counted.
-        if ('attachment' !== $post->post_type) {
+        if ('attachment' !== $wpPost->post_type) {
 
             /** @var WP_Post[] $attachments */
             $attachments = get_posts([
                 'post_type' => 'attachment',
-                'post_parent' => $post->ID,
+                'post_parent' => $wpPost->ID,
                 'post_status' => 'inherit',
                 'ignore_sticky_posts' => true,
                 'no_found_rows' => true,
@@ -214,16 +214,16 @@ class TermCount implements AutoloadInterface {
 
         $sql = "UPDATE $wpdb->term_taxonomy AS tt SET tt.count = tt.count $operand 1 WHERE tt.term_taxonomy_id IN $termIdsString $ttCount";
 
-        foreach ($termTaxIds as $termId) {
+        foreach ($termTaxIds as $termTaxId) {
             // This action is documented in wp-includes/taxonomy.php
-            do_action('edit_term_taxonomy', $termId, $taxonomy);
+            do_action('edit_term_taxonomy', $termTaxId, $taxonomy);
         }
 
         $wpdb->query($sql); // WPCS: unprepared SQL ok.
 
-        foreach ($termTaxIds as $termId) {
+        foreach ($termTaxIds as $termTaxId) {
             // This action is documented in wp-includes/taxonomy.php
-            do_action('edited_term_taxonomy', $termId, $taxonomy);
+            do_action('edited_term_taxonomy', $termTaxId, $taxonomy);
         }
         clean_term_cache($termTaxIds, $taxonomy, false);
     }

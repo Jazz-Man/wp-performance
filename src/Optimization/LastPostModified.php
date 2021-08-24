@@ -23,7 +23,7 @@ class LastPostModified implements AutoloadInterface {
         }, 10, 3);
     }
 
-    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $post): void {
+    public function transitionPostStatus(string $newStatus, string $oldStatus, WP_Post $wpPost): void {
         if ( ! in_array('publish', [$oldStatus, $newStatus], true)) {
             return;
         }
@@ -31,14 +31,14 @@ class LastPostModified implements AutoloadInterface {
         /** @var string[] $publicPostTypes */
         $publicPostTypes = get_post_types(['public' => true]);
 
-        if ( ! in_array($post->post_type, $publicPostTypes, true)) {
+        if ( ! in_array($wpPost->post_type, $publicPostTypes, true)) {
             return;
         }
 
-        if ($this->isLocked($post->post_type)) {
+        if ($this->isLocked($wpPost->post_type)) {
             return;
         }
-        $this->bumpLastPostModified($post);
+        $this->bumpLastPostModified($wpPost);
     }
 
     private function isLocked(string $postType): bool {
@@ -52,15 +52,15 @@ class LastPostModified implements AutoloadInterface {
         return sprintf('%s_%s_lock', self::OPTION_PREFIX, $postType);
     }
 
-    private function bumpLastPostModified(WP_Post $post): void {
+    private function bumpLastPostModified(WP_Post $wpPost): void {
         // Update default of `any`
-        $this->updateLastPostModified($post->post_modified_gmt, 'gmt');
-        $this->updateLastPostModified($post->post_modified_gmt, 'server');
-        $this->updateLastPostModified($post->post_modified, 'blog');
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'gmt');
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'server');
+        $this->updateLastPostModified($wpPost->post_modified, 'blog');
         // Update value for post_type
-        $this->updateLastPostModified($post->post_modified_gmt, 'gmt', $post->post_type);
-        $this->updateLastPostModified($post->post_modified_gmt, 'server', $post->post_type);
-        $this->updateLastPostModified($post->post_modified, 'blog', $post->post_type);
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'gmt', $wpPost->post_type);
+        $this->updateLastPostModified($wpPost->post_modified_gmt, 'server', $wpPost->post_type);
+        $this->updateLastPostModified($wpPost->post_modified, 'blog', $wpPost->post_type);
     }
 
     public function updateLastPostModified(string $time, string $timezone, string $postType = 'any'): bool {

@@ -69,11 +69,11 @@ class Cache implements AutoloadInterface {
         }
     }
 
-    private static function deleteMenuItemCache(WP_Term $item): void {
-        wp_cache_delete(self::getMenuItemCacheKey($item), 'menu_items');
+    private static function deleteMenuItemCache(WP_Term $wpTerm): void {
+        wp_cache_delete(self::getMenuItemCacheKey($wpTerm), 'menu_items');
     }
 
-    public static function getMenuItemCacheKey(WP_Term $item): string {
-        return "{$item->taxonomy}_$item->slug";
+    public static function getMenuItemCacheKey(WP_Term $wpTerm): string {
+        return "{$wpTerm->taxonomy}_$wpTerm->slug";
     }
 }

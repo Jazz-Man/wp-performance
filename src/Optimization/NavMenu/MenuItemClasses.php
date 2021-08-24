@@ -52,18 +52,18 @@ class MenuItemClasses {
                             }
                         }
 
-                        foreach ($terms as $desc) {
+                        foreach ($terms as $term) {
                             do {
-                                $taxonomyAncestors[$taxonomy][] = $desc;
+                                $taxonomyAncestors[$taxonomy][] = $term;
 
-                                if (isset($termToAncestor[$desc])) {
-                                    $_desc = $termToAncestor[$desc];
-                                    unset($termToAncestor[$desc]);
-                                    $desc = $_desc;
+                                if (isset($termToAncestor[$term])) {
+                                    $_desc = $termToAncestor[$term];
+                                    unset($termToAncestor[$term]);
+                                    $term = $_desc;
                                 } else {
-                                    $desc = 0;
+                                    $term = 0;
                                 }
-                            } while ( ! empty($desc));
+                            } while ( ! empty($term));
                         }
                     }
                 }

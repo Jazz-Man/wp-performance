@@ -40,14 +40,14 @@ class WPQuery implements AutoloadInterface {
      *
      * @return array<string,string>
      */
-    public function postsClausesRequest(array $clauses, WP_Query $query): array {
+    public function postsClausesRequest(array $clauses, WP_Query $wpQuery): array {
         global $wpdb;
 
-        if ($query->is_main_query()) {
+        if ($wpQuery->is_main_query()) {
             return $clauses;
         }
 
-        $limit = (int) $query->get('posts_per_page');
+        $limit = (int) $wpQuery->get('posts_per_page');
 
         $this->invalidateFoundPostsCache();
         $postIds = $this->getFoundPostsCache();
@@ -60,14 +60,14 @@ class WPQuery implements AutoloadInterface {
                 $join = $clauses['join'] ?? '';
 
                 /** @noinspection SqlConstantCondition */
-                $idsStatement = $pdo->prepare(
+                $pdoStatement = $pdo->prepare(
                     "SELECT $wpdb->posts.ID FROM $wpdb->posts $join WHERE 1=1 $where GROUP BY $wpdb->posts.ID ORDER BY $wpdb->posts.post_date"
                 );
 
-                $idsStatement->execute();
+                $pdoStatement->execute();
 
                 /** @var int[] $postIds */
-                $postIds = $idsStatement->fetchAll(PDO::FETCH_COLUMN);
+                $postIds = $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
 
                 $this->setFoundPostsCache($postIds);
             } catch (Exception $exception) {
@@ -76,10 +76,10 @@ class WPQuery implements AutoloadInterface {
         }
 
         if ( ! empty($postIds)) {
-            $query->found_posts = count((array) $postIds);
+            $wpQuery->found_posts = count((array) $postIds);
 
             if ( ! empty($clauses['limits'])) {
-                $query->max_num_pages = (int) ceil($query->found_posts / $limit);
+                $wpQuery->max_num_pages = (int) ceil($wpQuery->found_posts / $limit);
             }
         }
 
@@ -88,9 +88,9 @@ class WPQuery implements AutoloadInterface {
 
     private function invalidateFoundPostsCache(): void {
         $globalInvalidateTime = $this->getInvalidateTime();
-        $localInvalidateTime = $this->getTimeFoundPosts();
+        $timeFoundPosts = $this->getTimeFoundPosts();
 
-        if ($localInvalidateTime < $globalInvalidateTime) {
+        if ($timeFoundPosts < $globalInvalidateTime) {
             wp_cache_delete($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
             wp_cache_delete($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
         }
@@ -123,39 +123,39 @@ class WPQuery implements AutoloadInterface {
         wp_cache_set($this->generateFoundPostCacheKey(true), time(), Cache::QUERY_CACHE_GROUP);
     }
 
-    public function setQueryParams(WP_Query $query): void {
-        if ( ! $query->is_main_query()) {
-            $limit = (int) $query->get('posts_per_page');
+    public function setQueryParams(WP_Query $wpQuery): void {
+        if ( ! $wpQuery->is_main_query()) {
+            $limit = (int) $wpQuery->get('posts_per_page');
 
-            $orderby = $query->get('orderby', false);
+            $orderby = $wpQuery->get('orderby', false);
 
-            $query->set('no_found_rows', true);
-            $query->set('showposts', null);
-            $query->set('posts_per_archive_page', null);
-            $query->set('ignore_sticky_posts', true);
+            $wpQuery->set('no_found_rows', true);
+            $wpQuery->set('showposts', null);
+            $wpQuery->set('posts_per_archive_page', null);
+            $wpQuery->set('ignore_sticky_posts', true);
 
-            $this->queryHash = md5(serialize($query->query_vars));
+            $this->queryHash = md5(serialize($wpQuery->query_vars));
 
             if ('rand' === $orderby) {
                 $postIds = $this->getFoundPostsCache();
 
                 if ( ! empty($postIds)) {
                     /* @var int[] $postIds */
-                    if (empty($query->get('post__in'))) {
+                    if (empty($wpQuery->get('post__in'))) {
                         shuffle($postIds);
 
                         if ($limit > 0) {
                             $postIds = array_slice($postIds, 0, $limit);
                         }
 
-                        $query->set('post__in', $postIds);
+                        $wpQuery->set('post__in', $postIds);
                     }
 
-                    if ( ! empty($query->query_vars['post__in'])) {
-                        shuffle($query->query_vars['post__in']);
+                    if ( ! empty($wpQuery->query_vars['post__in'])) {
+                        shuffle($wpQuery->query_vars['post__in']);
                     }
 
-                    $query->set('orderby', 'post__in');
+                    $wpQuery->set('orderby', 'post__in');
                 }
             }
         }

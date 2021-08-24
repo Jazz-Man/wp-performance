@@ -11,15 +11,15 @@ class WPBlocks implements AutoloadInterface {
     private string $postType;
 
     public function load(): void {
-        $wpBlock = new CustomPostType('wp_block');
-        $wpBlock->registerTaxonomy('block_category', [
+        $customPostType = new CustomPostType('wp_block');
+        $customPostType->registerTaxonomy('block_category', [
             'public' => false,
             'show_ui' => true,
         ]);
 
-        $this->postType = $wpBlock->post_type;
+        $this->postType = $customPostType->post_type;
 
-        $wpBlock->setColumns([
+        $customPostType->setColumns([
             'cb' => '<input type="checkbox" />',
             'title' => __('Title'),
             'post_id' => __('Block ID'),
@@ -28,7 +28,7 @@ class WPBlocks implements AutoloadInterface {
             'date' => __('Date'),
         ]);
 
-        $wpBlock->setPopulateColumns('post_name', static function ($column, WP_Post $post): void {
+        $customPostType->setPopulateColumns('post_name', static function ($column, WP_Post $post): void {
             printf('<code>%s</code>', esc_attr($post->post_name));
         });
 
@@ -62,7 +62,7 @@ class WPBlocks implements AutoloadInterface {
         add_submenu_page($wpBlockSlug, $taxTitle, $taxTitle, $capability, $wpBlockTaxSlug);
     }
 
-    public function resetWpBlockCache(int $postId, WP_Post $post): void {
-        wp_cache_delete("{$post->post_type}_$post->post_name", Cache::CACHE_GROUP);
+    public function resetWpBlockCache(int $postId, WP_Post $wpPost): void {
+        wp_cache_delete("{$wpPost->post_type}_$wpPost->post_name", Cache::CACHE_GROUP);
     }
 }

@@ -53,9 +53,9 @@ class NavMenuCache implements AutoloadInterface {
 
         // Add the menu-item-has-children class where applicable.
         if ($menuWithChildren !== []) {
-            foreach ($sortedMenuItems as &$menuItem) {
-                if (isset($menuWithChildren[$menuItem->ID])) {
-                    $menuItem->classes[] = 'menu-item-has-children';
+            foreach ($sortedMenuItems as &$sortedMenuItem) {
+                if (isset($menuWithChildren[$sortedMenuItem->ID])) {
+                    $sortedMenuItem->classes[] = 'menu-item-has-children';
                 }
             }
         }
@@ -96,7 +96,7 @@ class NavMenuCache implements AutoloadInterface {
     /**
      * @param NavMenuArgs|stdClass $args
      */
-    private function getMenuWrapId(WP_Term $menu, stdClass $args): string {
+    private function getMenuWrapId(WP_Term $wpTerm, stdClass $args): string {
         /** @var string[] $menuIdSlugs */
         static $menuIdSlugs = [];
 
@@ -105,7 +105,7 @@ class NavMenuCache implements AutoloadInterface {
             return (string) $args->menu_id;
         }
 
-        $wrapId = "menu-$menu->slug";
+        $wrapId = "menu-$wpTerm->slug";
 
         while (in_array($wrapId, $menuIdSlugs, true)) {
             $pattern = '#-(\d+)$#';
@@ -122,14 +122,14 @@ class NavMenuCache implements AutoloadInterface {
     /**
      * @param NavMenuArgs|stdClass $args
      */
-    private function wrapToContainer(stdClass $args, WP_Term $menu, string $navMenu): string {
+    private function wrapToContainer(stdClass $args, WP_Term $wpTerm, string $navMenu): string {
         /** @var string[] $allowedTags */
         $allowedTags = (array) apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
 
         if (($args->container && is_string($args->container)) && in_array($args->container, $allowedTags, true)) {
             /** @var array<string,string|string[]> $attributes */
             $attributes = [
-                'class' => $args->container_class ?: sprintf('menu-%s-container', $menu->slug),
+                'class' => $args->container_class ?: sprintf('menu-%s-container', $wpTerm->slug),
             ];
 
             if ($args->container_id) {
