@@ -34,5 +34,6 @@
         <var name="wpdb" type="\wpdb"/>
         <var name="wp_query" type="\WP_Query"/>
         <var name="wp_rewrite" type="\WP_Rewrite"/>
+        <var name="wp_version" type="string"/>
     </globals>
 </psalm>
