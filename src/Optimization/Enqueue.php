@@ -50,7 +50,9 @@ class Enqueue implements AutoloadInterface {
             $file = self::prepareScriptFilePath($scriptSrc);
 
             if ($file) {
-                $timestamp = is_readable("$file.map") ? filemtime("$file.map") : filemtime($file);
+                $fileMap = sprintf('%s.map', $file);
+
+                $timestamp = is_readable($fileMap) ? filemtime($fileMap) : filemtime($file);
 
                 $scriptSrc = add_query_arg([
                     'ver' => $timestamp,
@@ -77,7 +79,7 @@ class Enqueue implements AutoloadInterface {
 
         $root = app_locate_root_dir();
 
-        $file = "$root/$path";
+        $file = sprintf('%s/%s', $root, $path);
 
         return is_readable($file) ? $file : false;
     }

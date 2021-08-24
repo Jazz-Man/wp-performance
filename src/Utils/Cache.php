@@ -6,8 +6,14 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Term;
 
 class Cache implements AutoloadInterface {
+    /**
+     * @var string
+     */
     public const CACHE_GROUP = 'wp-performance';
 
+    /**
+     * @var string
+     */
     public const QUERY_CACHE_GROUP = 'query';
 
     public function load(): void {
@@ -39,12 +45,12 @@ class Cache implements AutoloadInterface {
     }
 
     public function resetAttachmentCache(int $postId): void {
-        wp_cache_delete("attachment_image_$postId", self::CACHE_GROUP);
+        wp_cache_delete(sprintf('attachment_image_%d', $postId), self::CACHE_GROUP);
     }
 
     public function termsCache(int $termId, int $termTaxId, string $taxonomy): void {
-        wp_cache_delete("taxonomy_ancestors_{$termId}_$taxonomy", self::CACHE_GROUP);
-        wp_cache_delete("term_all_children_$termId", self::CACHE_GROUP);
+        wp_cache_delete(sprintf('taxonomy_ancestors_%d_%s', $termId, $taxonomy), self::CACHE_GROUP);
+        wp_cache_delete(sprintf('term_all_children_%d', $termId), self::CACHE_GROUP);
 
         app_term_get_all_children($termId);
     }
@@ -74,6 +80,6 @@ class Cache implements AutoloadInterface {
     }
 
     public static function getMenuItemCacheKey(WP_Term $wpTerm): string {
-        return "{$wpTerm->taxonomy}_$wpTerm->slug";
+        return sprintf('%s_%s', $wpTerm->taxonomy, $wpTerm->slug);
     }
 }

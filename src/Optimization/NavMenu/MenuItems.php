@@ -37,9 +37,9 @@ class MenuItems {
 
                 $pdoStatement->execute( $query->params() );
 
+                /** @var MenuItem[]|stdClass[] $menuItems */
                 $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
 
-                /** @var MenuItem[]|stdClass[] $menuItems */
                 $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $wpTerm );
 
                 foreach ( $menuItems as $key => $item ) {

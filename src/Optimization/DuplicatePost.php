@@ -18,7 +18,7 @@ class DuplicatePost implements AutoloadInterface {
         add_filter( 'post_row_actions', fn (array $actions, WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
         add_filter( 'page_row_actions', fn (array $actions, WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
 
-        add_action( "admin_action_$this->action", function (): void {
+        add_action( sprintf('admin_action_%s', $this->action), function (): void {
             $this->duplicatePostAsDraft();
         } );
     }

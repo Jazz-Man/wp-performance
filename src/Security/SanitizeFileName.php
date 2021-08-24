@@ -253,7 +253,7 @@ class SanitizeFileName implements AutoloadInterface {
         $fileName = $fileInfo['basename'];
 
         // If available remove all NFD characters before doing anything else
-        if (class_exists('Normalizer')) {
+        if (class_exists(Normalizer::class)) {
             $fileName = Normalizer::normalize($fileName);
         }
 
@@ -282,6 +282,6 @@ class SanitizeFileName implements AutoloadInterface {
      * Removes all non-ascii characters.
      */
     public static function removeNonASCIICharacters(string $string): ?string {
-        return preg_replace("/[^(\x20-\x7F)]*/", '', $string);
+        return preg_replace('#[^( -)]*#', '', $string);
     }
 }

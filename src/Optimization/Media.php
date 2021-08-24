@@ -63,7 +63,7 @@ class Media implements AutoloadInterface {
     public function setAttachmentTitle(array $data, array $postarr): array {
         if ( ! empty($postarr['file'])) {
             $url = pathinfo($postarr['file']);
-            $extension = empty($url['extension']) ? false : ".{$url['extension']}";
+            $extension = empty($url['extension']) ? false : sprintf('.%s', $url['extension']);
 
             $title = empty($extension) ? $data['post_title'] : rtrim($data['post_title'], $extension);
 
@@ -123,7 +123,7 @@ class Media implements AutoloadInterface {
 
         // Remove images.
         // Send back the list.
-        return preg_replace('|<img([^>]+)> |i', '', $avatarList);
+        return preg_replace('#<img([^>]+)> #i', '', $avatarList);
     }
 
     /**
@@ -281,7 +281,7 @@ SQL
         }
 
         $upload = wp_upload_dir();
-        $filePath = "{$upload['basedir']}/{$meta['file']}";
+        $filePath = sprintf('%s/%s', $upload['basedir'], $meta['file']);
 
         if ( ! file_exists($filePath)) {
             return $image;
@@ -289,7 +289,7 @@ SQL
 
         $imageDirname = pathinfo($filePath, PATHINFO_DIRNAME);
 
-        $imageBaseUrl = "{$upload['baseurl']}/$imageDirname";
+        $imageBaseUrl = sprintf('%s/%s', $upload['baseurl'], $imageDirname);
 
         list($width, $height) = $size;
 
@@ -305,7 +305,7 @@ SQL
             $meta['sizes'][$metaSizeKey] = $resized;
             wp_update_attachment_metadata($attachmentId, $meta);
 
-            $image[0] = "$imageBaseUrl/{$resized['file']}";
+            $image[0] = sprintf('%s/%s', $imageBaseUrl, $resized['file']);
             $image[1] = $resized['width'];
             $image[2] = $resized['height'];
         }

@@ -163,17 +163,17 @@ if ( ! function_exists('app_get_term_link')) {
         if (empty($termlink)) {
             switch (true) {
                 case 'category' === $term->taxonomy:
-                    $termlink = "?cat=$term->term_id";
+                    $termlink = sprintf('?cat=%s', $term->term_id);
 
                     break;
 
                 case ! empty($taxonomy->query_var):
-                    $termlink = "?$taxonomy->query_var=$term->slug";
+                    $termlink = sprintf('?%s=%s', $taxonomy->query_var, $term->slug);
 
                     break;
 
                 default:
-                    $termlink = "?taxonomy=$term->taxonomy&term=$term->slug";
+                    $termlink = sprintf('?taxonomy=%s&term=%s', $term->taxonomy, $term->slug);
 
                     break;
             }
@@ -185,7 +185,7 @@ if ( ! function_exists('app_get_term_link')) {
             $hierarchicalSlugs = [];
 
             if ($term->parent) {
-                $ancestorsKey = "taxonomy_ancestors_{$term->term_id}_$term->taxonomy";
+                $ancestorsKey = sprintf('taxonomy_ancestors_%s_%s', $term->term_id, $term->taxonomy);
                 $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
                 if (empty($hierarchicalSlugs)) {
@@ -212,7 +212,7 @@ if ( ! function_exists('app_get_term_link')) {
             $termlinkSlug = implode('/', $hierarchicalSlugs);
         }
 
-        $termlink = str_replace("%$term->taxonomy%", $termlinkSlug, $termlink);
+        $termlink = str_replace(sprintf('%%%s%%', $term->taxonomy), $termlinkSlug, $termlink);
 
         $termlink = home_url(user_trailingslashit($termlink, 'category'));
 
@@ -225,16 +225,10 @@ if ( ! function_exists('app_term_link_filter')) {
      * @param \WP_Term $term
      */
     function app_term_link_filter(WP_Term $term, string $termlink): string {
-        switch ($term->taxonomy) {
-            case 'post_tag':
-                $termlink = apply_filters('tag_link', $termlink, $term->term_id);
-
-                break;
-
-            case 'category':
-                $termlink = apply_filters('category_link', $termlink, $term->term_id);
-
-                break;
+        if ($term->taxonomy == 'post_tag') {
+            $termlink = apply_filters('tag_link', $termlink, $term->term_id);
+        } elseif ($term->taxonomy == 'category') {
+            $termlink = apply_filters('category_link', $termlink, $term->term_id);
         }
 
         return apply_filters('term_link', $termlink, $term, $term->taxonomy);
@@ -302,7 +296,7 @@ if ( ! function_exists('app_term_get_all_children')) {
     function app_term_get_all_children(int $termId): array {
         global $wpdb;
 
-        $children = wp_cache_get("term_all_children_$termId", Cache::CACHE_GROUP);
+        $children = wp_cache_get(sprintf('term_all_children_%d', $termId), Cache::CACHE_GROUP);
 
         if (empty($children)) {
             try {
@@ -337,7 +331,7 @@ SQL
                 if ( ! empty($children)) {
                     sort($children);
 
-                    wp_cache_set("term_all_children_$termId", $children, Cache::CACHE_GROUP);
+                    wp_cache_set(sprintf('term_all_children_%d', $termId), $children, Cache::CACHE_GROUP);
                 }
             } catch (Exception $exception) {
                 app_error_log($exception, __FUNCTION__);
@@ -355,7 +349,7 @@ if ( ! function_exists('app_get_wp_block')) {
     function app_get_wp_block(string $postName) {
         global $wpdb;
 
-        $cacheKey = "wp_block_$postName";
+        $cacheKey = sprintf('wp_block_%s', $postName);
         $result = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
 
         if (false === $result) {

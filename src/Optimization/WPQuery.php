@@ -61,7 +61,7 @@ class WPQuery implements AutoloadInterface {
 
                 /** @noinspection SqlConstantCondition */
                 $pdoStatement = $pdo->prepare(
-                    "SELECT $wpdb->posts.ID FROM $wpdb->posts $join WHERE 1=1 $where GROUP BY $wpdb->posts.ID ORDER BY $wpdb->posts.post_date"
+                    sprintf('SELECT %s.ID FROM %s %s WHERE 1=1 %s GROUP BY %s.ID ORDER BY %s.post_date', $wpdb->posts, $wpdb->posts, $join, $where, $wpdb->posts, $wpdb->posts)
                 );
 
                 $pdoStatement->execute();

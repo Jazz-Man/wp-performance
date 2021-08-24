@@ -34,7 +34,7 @@ class WPBlocks implements AutoloadInterface {
         add_action('admin_menu', function (): void {
             $this->reusableBlocks();
         });
-        add_action("save_post_$this->postType", function (int $postId, WP_Post $post): void {
+        add_action(sprintf('save_post_%s', $this->postType), function (int $postId, WP_Post $post): void {
             $this->resetWpBlockCache($postId, $post);
         }, 10, 2);
     }
@@ -62,6 +62,6 @@ class WPBlocks implements AutoloadInterface {
     }
 
     public function resetWpBlockCache(int $postId, WP_Post $wpPost): void {
-        wp_cache_delete("{$wpPost->post_type}_$wpPost->post_name", Cache::CACHE_GROUP);
+        wp_cache_delete(sprintf('%s_%s', $wpPost->post_type, $wpPost->post_name), Cache::CACHE_GROUP);
     }
 }

@@ -74,7 +74,7 @@ class NavMenuCache implements AutoloadInterface {
 
         $items = (string) apply_filters('wp_nav_menu_items', $items, $args);
 
-        $items = (string) apply_filters("wp_nav_menu_{$menu->slug}_items", $items, $args);
+        $items = (string) apply_filters(sprintf('wp_nav_menu_%s_items', $menu->slug), $items, $args);
 
         if (empty($items)) {
             return false;
@@ -105,7 +105,7 @@ class NavMenuCache implements AutoloadInterface {
             return (string) $args->menu_id;
         }
 
-        $wrapId = "menu-$wpTerm->slug";
+        $wrapId = sprintf('menu-%s', $wpTerm->slug);
 
         while (in_array($wrapId, $menuIdSlugs, true)) {
             $pattern = '#-(\d+)$#';

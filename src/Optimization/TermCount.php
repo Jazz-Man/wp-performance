@@ -212,7 +212,7 @@ class TermCount implements AutoloadInterface {
         $operand = $isIncrement ? '+' : '-';
         $ttCount = $isIncrement ? '' : 'AND tt.count > 0';
 
-        $sql = "UPDATE $wpdb->term_taxonomy AS tt SET tt.count = tt.count $operand 1 WHERE tt.term_taxonomy_id IN $termIdsString $ttCount";
+        $sql = sprintf('UPDATE %s AS tt SET tt.count = tt.count %s 1 WHERE tt.term_taxonomy_id IN %s %s', $wpdb->term_taxonomy, $operand, $termIdsString, $ttCount);
 
         foreach ($termTaxIds as $termTaxId) {
             // This action is documented in wp-includes/taxonomy.php
@@ -270,7 +270,7 @@ class TermCount implements AutoloadInterface {
             return false;
         }
 
-        if ("edit-$taxonomy" === $screen->id) {
+        if (sprintf('edit-%s', $taxonomy) === $screen->id) {
             wp_update_term_count_now([$termTaxId], $taxonomy);
         }
 

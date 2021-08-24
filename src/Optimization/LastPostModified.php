@@ -12,8 +12,14 @@ use WP_Post;
  * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/lastpostmodified.php
  */
 class LastPostModified implements AutoloadInterface {
+    /**
+     * @var int
+     */
     public const LOCK_TIME_IN_SECONDS = 30;
 
+    /**
+     * @var string
+     */
     public const OPTION_PREFIX = 'lastpostmodified';
 
     public function load(): void {

@@ -10,18 +10,39 @@ use function Latitude\QueryBuilder\on;
 use Latitude\QueryBuilder\QueryFactory;
 
 class AttachmentData {
+    /**
+     * @var string
+     */
     public const SIZE_FULL = 'full';
 
+    /**
+     * @var string
+     */
     public const SIZE_THUMBNAIL = 'thumbnail';
 
+    /**
+     * @var string
+     */
     public const SIZE_MEDIUM = 'medium';
 
+    /**
+     * @var string
+     */
     public const SIZE_MEDIUM_LARGE = 'medium_large';
 
+    /**
+     * @var string
+     */
     public const SIZE_LARGE = 'large';
 
+    /**
+     * @var string
+     */
     public const SIZES_JPEG = 'sizes';
 
+    /**
+     * @var string
+     */
     public const SIZES_WEBP = 'sizes_webp';
 
     /**
@@ -32,15 +53,9 @@ class AttachmentData {
         self::SIZES_WEBP,
     ];
 
-    /**
-     * @var string|null
-     */
-    private $fullJpegUrl;
+    private string $fullJpegUrl;
 
-    /**
-     * @var string|null
-     */
-    private $fullWebpUrl;
+    private ?string $fullWebpUrl = null;
 
     /**
      * @var array<string,string>|null
@@ -55,7 +70,7 @@ class AttachmentData {
     /**
      * @var array<string,string>
      */
-    private $uploadDir;
+    private $uploadDir = [];
 
     /**
      * @throws Exception
@@ -68,10 +83,10 @@ class AttachmentData {
         $this->metadata = maybe_unserialize($attachment->metadata);
 
         if ( ! empty($this->metadata['file_webp'])) {
-            $this->fullWebpUrl = "{$this->uploadDir['baseurl']}/{$this->metadata['file_webp']}";
+            $this->fullWebpUrl = sprintf('%s/%s', $this->uploadDir['baseurl'], $this->metadata['file_webp']);
         }
 
-        $this->fullJpegUrl = "{$this->uploadDir['baseurl']}/$attachment->fullUrl";
+        $this->fullJpegUrl = sprintf('%s/%s', $this->uploadDir['baseurl'], $attachment->fullUrl);
         $this->imageAlt = $attachment->imageAlt;
     }
 
@@ -83,7 +98,7 @@ class AttachmentData {
     private function getAttachmentFromDb(int $attachmentId = 0) {
         global $wpdb;
 
-        $attachment = wp_cache_get("attachment_image_$attachmentId", Cache::CACHE_GROUP);
+        $attachment = wp_cache_get(sprintf('attachment_image_%d', $attachmentId), Cache::CACHE_GROUP);
 
         if (empty($attachment)) {
             $pdo = app_db_pdo();
@@ -121,7 +136,7 @@ class AttachmentData {
             $attachment = $pdoStatement->fetchObject();
 
             if ( ! empty($attachment)) {
-                wp_cache_set("attachment_image_$attachmentId", $attachment, Cache::CACHE_GROUP);
+                wp_cache_set(sprintf('attachment_image_%d', $attachmentId), $attachment, Cache::CACHE_GROUP);
             }
         }
 
@@ -258,7 +273,7 @@ class AttachmentData {
         // Retrieve the uploads sub-directory from the full size image.
         $dirname = $sizeData['dirname'];
 
-        $isImageEdited = preg_match('/-e\d{13}/', wp_basename($sizeData['src']), $imageEditHash);
+        $isImageEdited = preg_match('#-e\d{13}#', wp_basename($sizeData['src']), $imageEditHash);
 
         $maxSrcsetImageWidth = apply_filters('max_srcset_image_width', 2048, [
             $imageWidth,
