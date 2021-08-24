@@ -191,7 +191,7 @@ if ( ! function_exists('app_get_term_link')) {
                 if (empty($hierarchicalSlugs)) {
                     $result = [];
 
-                    /** @var \stdClass[] $ancestors */
+                    /** @var \stdClass[]|false $ancestors */
                     $ancestors = app_get_taxonomy_ancestors($term->term_id, $term->taxonomy, PDO::FETCH_CLASS);
 
                     if ( ! empty($ancestors)) {
