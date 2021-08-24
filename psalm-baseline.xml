@@ -1,9 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.9.3@4c262932602b9bbab5020863d1eb22d49de0dbf4">
+  <file src="src/Optimization/CleanUp.php">
+    <MixedArgumentTypeCoercion occurrences="3">
+      <code>$headers</code>
+      <code>$methods</code>
+      <code>$rules</code>
+    </MixedArgumentTypeCoercion>
+  </file>
   <file src="src/Optimization/DuplicatePost.php">
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>$actions</code>
+      <code>$actions</code>
+    </MixedArgumentTypeCoercion>
     <MixedAssignment occurrences="1">
       <code>$metaValues</code>
     </MixedAssignment>
+  </file>
+  <file src="src/Optimization/Enqueue.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>$file</code>
+      <code>$file</code>
+    </InvalidScalarArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$links</code>
+    </MixedArgumentTypeCoercion>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$root</code>
+    </PossiblyFalseArgument>
   </file>
   <file src="src/Optimization/Http.php">
     <MixedArgument occurrences="1">
@@ -14,15 +37,31 @@
     </MixedAssignment>
   </file>
   <file src="src/Optimization/Media.php">
-    <MixedArgument occurrences="6">
+    <MissingClosureParamType occurrences="5">
+      <code>$idOrEmail</code>
+      <code>$image</code>
+      <code>$image</code>
+      <code>$size</code>
+      <code>$size</code>
+    </MissingClosureParamType>
+    <MixedArgument occurrences="14">
       <code>$data['post_title']</code>
+      <code>$image</code>
+      <code>$image</code>
       <code>$imageUrl</code>
+      <code>$meta['file']</code>
       <code>$postarr['file']</code>
+      <code>$resized['file']</code>
       <code>$resized['height']</code>
       <code>$resized['width']</code>
+      <code>$size</code>
+      <code>$size</code>
       <code>$title</code>
+      <code>$upload['basedir']</code>
+      <code>$upload['baseurl']</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="1">
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>$data</code>
       <code>$meta</code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess occurrences="4">
@@ -65,9 +104,11 @@
     </UnusedVariable>
   </file>
   <file src="src/Optimization/NavMenu/MenuItemClasses.php">
-    <MixedArgument occurrences="8">
+    <MixedArgument occurrences="10">
       <code>$activeObject</code>
+      <code>$menuItem-&gt;object</code>
       <code>$menuItem-&gt;object_id</code>
+      <code>$menuItem-&gt;type</code>
       <code>$menuItem-&gt;url</code>
       <code>$menuItem-&gt;url</code>
       <code>$object-&gt;ancestors</code>
@@ -91,35 +132,40 @@
       <code>array_unique($classes)</code>
       <code>array_unique($classes)</code>
     </MixedPropertyTypeCoercion>
-    <PossiblyNullArgument occurrences="2">
+    <PossiblyNullArgument occurrences="3">
       <code>$activeObject</code>
+      <code>$object</code>
       <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
     </PossiblyNullArgument>
-    <PossiblyNullPropertyFetch occurrences="4">
+    <PossiblyNullPropertyFetch occurrences="5">
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;taxonomy</code>
+      <code>$object-&gt;term_id</code>
       <code>$queriedObject-&gt;taxonomy</code>
     </PossiblyNullPropertyFetch>
-    <UndefinedMagicPropertyFetch occurrences="6">
+    <UndefinedMagicPropertyFetch occurrences="7">
       <code>$object-&gt;ID</code>
       <code>$object-&gt;ancestors</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;taxonomy</code>
+      <code>$object-&gt;term_id</code>
       <code>$queriedObject-&gt;taxonomy</code>
     </UndefinedMagicPropertyFetch>
-    <UndefinedPropertyFetch occurrences="6">
+    <UndefinedPropertyFetch occurrences="7">
       <code>$object-&gt;ID</code>
       <code>$object-&gt;ancestors</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;taxonomy</code>
+      <code>$object-&gt;term_id</code>
       <code>$queriedObject-&gt;taxonomy</code>
     </UndefinedPropertyFetch>
   </file>
   <file src="src/Optimization/NavMenu/MenuItems.php">
-    <MixedArgument occurrences="19">
+    <MixedArgument occurrences="20">
+      <code>$item</code>
       <code>$menuItem-&gt;ID</code>
       <code>$menuItem-&gt;ID</code>
       <code>$menuItem-&gt;object</code>
@@ -140,7 +186,8 @@
       <code>$menuItem-&gt;taxonomy</code>
       <code>$menuItem-&gt;term_id</code>
     </MixedArgument>
-    <MixedAssignment occurrences="18">
+    <MixedAssignment occurrences="19">
+      <code>$item</code>
       <code>$menuItem-&gt;ID</code>
       <code>$menuItem-&gt;attr_title</code>
       <code>$menuItem-&gt;attr_title</code>
@@ -161,7 +208,7 @@
       <code>$originalTitle</code>
     </MixedAssignment>
     <MixedPropertyTypeCoercion occurrences="1">
-      <code>(array) maybe_unserialize( (string)$menuItem-&gt;classes )</code>
+      <code>(array) maybe_unserialize( (string) $menuItem-&gt;classes )</code>
     </MixedPropertyTypeCoercion>
     <PossiblyFalsePropertyAssignmentValue occurrences="4">
       <code>$isPost ? get_permalink( $originalTerm-&gt;ID ) : ''</code>
@@ -210,67 +257,51 @@
       <code>$args-&gt;items_wrap</code>
       <code>$args-&gt;menu</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="1">
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>$args</code>
       <code>$attributes</code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAssignment occurrences="1">
-      <code>$menuItem-&gt;classes[]</code>
+      <code>$sortedMenuItem-&gt;classes[]</code>
     </MixedArrayAssignment>
     <MixedArrayOffset occurrences="1">
-      <code>$menuWithChildren[$menuItem-&gt;ID]</code>
+      <code>$menuWithChildren[$sortedMenuItem-&gt;ID]</code>
     </MixedArrayOffset>
     <MixedAssignment occurrences="3">
       <code>$attributes['aria-label']</code>
       <code>$attributes['id']</code>
-      <code>$menuItem-&gt;classes</code>
+      <code>$sortedMenuItem-&gt;classes</code>
     </MixedAssignment>
-    <PossiblyFalseArgument occurrences="1">
-      <code>$menuItems</code>
-    </PossiblyFalseArgument>
+    <RedundantCondition occurrences="1">
+      <code>is_array($menuItems)</code>
+    </RedundantCondition>
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>
     </StringIncrement>
   </file>
   <file src="src/Optimization/NavMenu/Placeholder/MenuItem.php">
-    <MissingConstructor occurrences="17">
+    <MissingConstructor occurrences="9">
       <code>$ID</code>
-      <code>$attr_title</code>
       <code>$classes</code>
       <code>$db_id</code>
-      <code>$description</code>
       <code>$filter</code>
       <code>$menu_item_parent</code>
       <code>$object</code>
       <code>$object_id</code>
       <code>$post_parent</code>
       <code>$post_title</code>
-      <code>$target</code>
-      <code>$title</code>
-      <code>$type</code>
-      <code>$type_label</code>
-      <code>$url</code>
-      <code>$xfn</code>
     </MissingConstructor>
   </file>
   <file src="src/Optimization/NavMenu/Placeholder/NavMenuArgs.php">
-    <MissingConstructor occurrences="17">
-      <code>$after</code>
-      <code>$before</code>
+    <MissingConstructor occurrences="8">
       <code>$container</code>
-      <code>$container_aria_label</code>
-      <code>$container_class</code>
-      <code>$container_id</code>
       <code>$depth</code>
       <code>$echo</code>
       <code>$fallback_cb</code>
       <code>$item_spacing</code>
       <code>$items_wrap</code>
-      <code>$link_after</code>
-      <code>$link_before</code>
       <code>$menu</code>
       <code>$menu_class</code>
-      <code>$menu_id</code>
-      <code>$theme_location</code>
     </MissingConstructor>
   </file>
   <file src="src/Optimization/TermCount.php">
@@ -295,39 +326,45 @@
       <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
     </PossiblyInvalidArrayOffset>
     <RedundantCastGivenDocblockType occurrences="1">
-      <code>(array)$termIds</code>
+      <code>(array) $termIds</code>
     </RedundantCastGivenDocblockType>
   </file>
   <file src="src/Optimization/Update.php">
     <LessSpecificReturnStatement occurrences="1">
-      <code>$available</code>
+      <code>$availableLanguages</code>
     </LessSpecificReturnStatement>
-    <MissingClosureParamType occurrences="1">
+    <MissingClosureParamType occurrences="5">
       <code>$args</code>
+      <code>$current</code>
+      <code>$transient</code>
+      <code>$transient</code>
+      <code>$transient</code>
     </MissingClosureParamType>
     <MixedArgument occurrences="1">
-      <code>$wp_version</code>
+      <code>$current</code>
     </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="6">
+      <code>$actions</code>
+      <code>$actions</code>
+      <code>$actions</code>
+      <code>$actions</code>
+      <code>$caps</code>
+      <code>$tabs</code>
+    </MixedArgumentTypeCoercion>
     <MixedArrayAssignment occurrences="1">
       <code>$current-&gt;checked[$file]</code>
     </MixedArrayAssignment>
     <MixedArrayOffset occurrences="2">
-      <code>$actions[$key]</code>
-      <code>$tabs[$key]</code>
+      <code>$actions[$singleRemoveActionList]</code>
+      <code>$tabs[$singleRemoveActionList]</code>
     </MixedArrayOffset>
     <MixedAssignment occurrences="5">
       <code>$data[$file]</code>
-      <code>$key</code>
-      <code>$key</code>
       <code>$removeActionList</code>
       <code>$removeActionList</code>
+      <code>$singleRemoveActionList</code>
+      <code>$singleRemoveActionList</code>
     </MixedAssignment>
-    <MixedInferredReturnType occurrences="1">
-      <code>false|object</code>
-    </MixedInferredReturnType>
-    <MixedReturnStatement occurrences="1">
-      <code>$transient</code>
-    </MixedReturnStatement>
     <MoreSpecificReturnType occurrences="1">
       <code>array&lt;string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}&gt;</code>
     </MoreSpecificReturnType>
@@ -335,16 +372,16 @@
       <code>ABSPATH</code>
     </UndefinedConstant>
     <UnresolvableInclude occurrences="1">
-      <code>require_once ABSPATH.'wp-admin/includes/plugin.php'</code>
+      <code>require_once ABSPATH . 'wp-admin/includes/plugin.php'</code>
     </UnresolvableInclude>
   </file>
   <file src="src/Optimization/WPQuery.php">
-    <MissingConstructor occurrences="1">
-      <code>$queryHash</code>
-    </MissingConstructor>
     <MixedArgument occurrences="1">
-      <code>$query-&gt;query_vars['post__in']</code>
+      <code>$wpQuery-&gt;query_vars['post__in']</code>
     </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$clauses</code>
+    </MixedArgumentTypeCoercion>
     <MixedAssignment occurrences="1">
       <code>$orderby</code>
     </MixedAssignment>
@@ -354,6 +391,12 @@
     <MixedReturnStatement occurrences="1">
       <code>wp_cache_get($this-&gt;generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP)</code>
     </MixedReturnStatement>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$postIds</code>
+    </PossiblyInvalidArgument>
+    <PossiblyNullArgument occurrences="1">
+      <code>$this-&gt;queryHash</code>
+    </PossiblyNullArgument>
   </file>
   <file src="src/Security/ContactFormSpamTester.php">
     <MixedAssignment occurrences="2">
@@ -370,6 +413,12 @@
       <code>'Ã' =&gt; 'à'</code>
       <code>'â€' =&gt; '”'</code>
     </DuplicateArrayKey>
+    <PossiblyNullArgument occurrences="1">
+      <code>self::removeAccents($filename, false)</code>
+    </PossiblyNullArgument>
+    <PossiblyNullOperand occurrences="1">
+      <code>$fileName</code>
+    </PossiblyNullOperand>
   </file>
   <file src="src/Utils/AttachmentData.php">
     <InvalidArrayOffset occurrences="4">
@@ -381,7 +430,11 @@
     <InvalidIterator occurrences="1">
       <code>$this-&gt;metadata[$sizesKey]</code>
     </InvalidIterator>
-    <MixedArgument occurrences="10">
+    <LessSpecificReturnStatement occurrences="1">
+      <code>$sizeArray</code>
+    </LessSpecificReturnStatement>
+    <MixedArgument occurrences="14">
+      <code>$attachment-&gt;fullUrl</code>
       <code>$attachment-&gt;metadata</code>
       <code>$image['file']</code>
       <code>$image['height']</code>
@@ -392,6 +445,9 @@
       <code>$source['descriptor']</code>
       <code>$source['url']</code>
       <code>$source['value']</code>
+      <code>$this-&gt;metadata['file_webp']</code>
+      <code>$this-&gt;uploadDir['baseurl']</code>
+      <code>$this-&gt;uploadDir['baseurl']</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="4">
       <code>$source['descriptor']</code>
@@ -403,13 +459,14 @@
       <code>$sources[$image['width']]</code>
       <code>[$image['width'] =&gt; $source]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="8">
+    <MixedAssignment occurrences="9">
       <code>$attachment</code>
       <code>$attachment</code>
       <code>$attachmentSize</code>
       <code>$dirname</code>
       <code>$maxSrcsetImageWidth</code>
       <code>$source</code>
+      <code>$sources</code>
       <code>$this-&gt;imageAlt</code>
       <code>$this-&gt;metadata</code>
     </MixedAssignment>
@@ -425,13 +482,14 @@
     <MixedPropertyTypeCoercion occurrences="1">
       <code>wp_upload_dir()</code>
     </MixedPropertyTypeCoercion>
-    <MixedReturnTypeCoercion occurrences="2">
+    <MoreSpecificReturnType occurrences="1">
+      <code>array{src: string, width: int, height: int, sizes: false|string, dirname?: string, image_baseurl?: string, srcset: false|string}</code>
+    </MoreSpecificReturnType>
+    <PossiblyInvalidIterator occurrences="1">
       <code>$sources</code>
-      <code>array&lt;string,mixed&gt;|false</code>
-    </MixedReturnTypeCoercion>
-    <TypeDoesNotContainType occurrences="2">
-      <code>! $srcMatched || ! is_array($sources)</code>
-      <code>! is_array($sources)</code>
+    </PossiblyInvalidIterator>
+    <TypeDoesNotContainType occurrences="1">
+      <code>is_array($sources)</code>
     </TypeDoesNotContainType>
     <UnusedVariable occurrences="1">
       <code>$attachmentSize</code>
@@ -501,7 +559,7 @@
       <code>apply_filters('term_link', $termlink, $term, $term-&gt;taxonomy)</code>
     </MixedReturnStatement>
     <MixedReturnTypeCoercion occurrences="2">
-      <code>$sql-&gt;fetchAll($mode, ...$args)</code>
+      <code>$pdoStatement-&gt;fetchAll($mode, ...$args)</code>
       <code>array&lt;string,string|int&gt;|false</code>
     </MixedReturnTypeCoercion>
     <MoreSpecificReturnType occurrences="1">

@@ -1,22 +1,17 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Parameter \\#1 \\$filename of function filemtime expects string, string\\|true given\\.$#"
+			count: 1
+			path: src/Optimization/Enqueue.php
+
+		-
 			message: "#^Cannot access offset 0 on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
 		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:allowSvg\\(\\) has parameter \\$mimes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:allowSvg\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:defaultAvatar\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
@@ -31,17 +26,22 @@ parameters:
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:setAttachmentTitle\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
 			message: "#^Access to an undefined property WP_Post\\|WP_User\\:\\:\\$ancestors\\.$#"
 			count: 1
 			path: src/Optimization/NavMenu/MenuItemClasses.php
 
 		-
 			message: "#^Cannot access property \\$taxonomy on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
+			count: 1
+			path: src/Optimization/NavMenu/MenuItemClasses.php
+
+		-
+			message: "#^Cannot access property \\$term_id on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
+			count: 2
+			path: src/Optimization/NavMenu/MenuItemClasses.php
+
+		-
+			message: "#^Parameter \\#1 \\$object_or_class of function property_exists expects object\\|string, WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null given\\.$#"
 			count: 1
 			path: src/Optimization/NavMenu/MenuItemClasses.php
 
@@ -66,17 +66,22 @@ parameters:
 			path: src/Optimization/Update.php
 
 		-
+			message: "#^Parameter \\#1 \\$array_arg of function shuffle expects array, array\\<int\\>\\|true given\\.$#"
+			count: 1
+			path: src/Optimization/WPQuery.php
+
+		-
+			message: "#^Parameter \\#1 \\$input of function array_slice expects array, array\\<int\\>\\|true given\\.$#"
+			count: 1
+			path: src/Optimization/WPQuery.php
+
+		-
 			message: "#^Array has 2 duplicate keys with value 'â€' \\('â€', 'â€'\\)\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
 
 		-
 			message: "#^Array has 6 duplicate keys with value 'Ã' \\('Ã', 'Ã', 'Ã', 'Ã', 'Ã', 'Ã'\\)\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Security\\\\SanitizeFileName\\:\\:removeNonASCIICharacters\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
 
@@ -96,6 +101,11 @@ parameters:
 			path: src/Security/SanitizeFileName.php
 
 		-
+			message: "#^Parameter \\#1 \\$str of function strtolower expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Security/SanitizeFileName.php
+
+		-
 			message: "#^Parameter \\#1 \\$string of function remove_accents expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
@@ -106,23 +116,13 @@ parameters:
 			path: src/Utils/AttachmentData.php
 
 		-
-			message: "#^Comparison operation \"\\<\" between 0 and 2 is always true\\.$#"
-			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:calculateImageSecretSources\\(\\) never returns array\\<string, mixed\\> so it can be removed from the return typehint\\.$#"
+			message: "#^Method JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:getUrl\\(\\) should return array\\('src' \\=\\> string, 'width' \\=\\> int, 'height' \\=\\> int, 'sizes' \\=\\> string\\|false, \\?'dirname' \\=\\> string, \\?'image_baseurl' \\=\\> string, 'srcset' \\=\\> string\\|false\\) but returns array\\('src' \\=\\> string, 'width' \\=\\> int, 'height' \\=\\> int, 'sizes' \\=\\> string\\|false, \\?'dirname' \\=\\> string, \\?'image_baseurl' \\=\\> string, 'srcset' \\=\\> bool\\|string\\)\\.$#"
 			count: 1
 			path: src/Utils/AttachmentData.php
 
 		-
 			message: "#^Negated boolean expression is always true\\.$#"
 			count: 1
-			path: src/Utils/AttachmentData.php
-
-		-
-			message: "#^Result of \\|\\| is always true\\.$#"
-			count: 2
 			path: src/Utils/AttachmentData.php
 
 		-
