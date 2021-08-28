@@ -295,7 +295,7 @@ SQL
 
         list($width, $height) = $size;
 
-        if ( ! empty($meta['sizes']) && $this->isImageSizesExist($meta, (int) $width, (int) $height)) {
+        if ( ! empty($meta['sizes']) && $this->isImageSizesExist($meta, $width, $height )) {
             return $image;
         }
 
