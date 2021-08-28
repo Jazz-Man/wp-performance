@@ -75,7 +75,7 @@
             "@phpstan-baseline",
             "@phpmd --update-baseline"
         ],
-        "check": [
+        "cs-check": [
             "@php-cs-fixer --dry-run"
         ],
         "cs-fix": [
