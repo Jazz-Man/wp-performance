@@ -35,7 +35,7 @@ class NavMenuArgs extends stdClass {
     /**
      * Whether to wrap the ul, and what to wrap it with. Default 'div'.
      */
-    public string $container;
+    public string $container = 'div';
 
     /**
      * Class that is applied to the container. Default 'menu-{menu slug}-container'.
@@ -83,20 +83,20 @@ class NavMenuArgs extends stdClass {
     /**
      * Whether to echo the menu or return it. Default true.
      */
-    public bool $echo;
+    public bool $echo = true;
 
     /**
      * How many levels of the hierarchy are to be included. 0 means all.
      * Default 0.
      */
-    public int $depth;
+    public int $depth = 0;
 
     /**
      * Instance of a custom walker class. Default empty.
      *
      * @var Walker_Nav_Menu|null
      */
-    public $walker;
+    public ?Walker_Nav_Menu $walker = null;
 
     /**
      * Theme location to be used. Must be registered with register_nav_menu()
@@ -108,11 +108,11 @@ class NavMenuArgs extends stdClass {
      * How the list items should be wrapped. Default is a ul with an id and class.
      * Uses printf() format with numbered placeholders.
      */
-    public string $items_wrap;
+    public ?string $items_wrap = null;
 
     /**
      * Whether to preserve whitespace within the menu's HTML. Accepts 'preserve' or 'discard'.
      * Default 'preserve'.
      */
-    public string $item_spacing;
+    public string $item_spacing = 'preserve';
 }

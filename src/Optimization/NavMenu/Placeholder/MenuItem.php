@@ -17,7 +17,7 @@ class MenuItem extends stdClass {
      *
      * @var int
      */
-    public $ID;
+    public int $ID = 0;
 
     /**
      * The title attribute of the link element for this menu item.
@@ -36,7 +36,7 @@ class MenuItem extends stdClass {
      *
      * @var int|string
      */
-    public $db_id;
+    public $db_id = 0;
 
     /**
      * The description of this menu item.
@@ -46,14 +46,21 @@ class MenuItem extends stdClass {
     /**
      * The DB ID of the nav_menu_item that is this item's menu parent, if any. 0 otherwise.
      */
-    public int $menu_item_parent;
+    public int $menu_item_parent = 0;
 
     /**
      * The type of object originally represented, such as "category," "post", or "attachment.".
      *
-     * @var string|string
+     * @var string
      */
-    public $object;
+    public string $object;
+
+    public ?string $taxonomy = null;
+
+    /**
+     * @var string|int
+     */
+    public $parent;
 
     /**
      * The DB ID of the original object this menu item represents,
@@ -61,21 +68,21 @@ class MenuItem extends stdClass {
      *
      * @var int|string
      */
-    public $object_id;
+    public $object_id = 0;
 
     /**
      * The DB ID of the original object's parent object, if any (0 otherwise).
      *
      * @overrides WP_Post
      */
-    public int $post_parent;
+    public int $post_parent = 0;
 
     /**
      * A "no title" label if menu item represents a post that lacks a title.
      *
      * @overrides WP_Post
      */
-    public string $post_title;
+    public ?string $post_title = null;
 
     /**
      * The target attribute of the link element for this menu item.
@@ -218,7 +225,7 @@ class MenuItem extends stdClass {
      *
      * @var int|null
      */
-    public $menu_order = 0;
+    public ?int $menu_order = 0;
 
     /**
      * The post's type, like post or page.
@@ -235,14 +242,14 @@ class MenuItem extends stdClass {
      *
      * A numeric string, for compatibility reasons.
      *
-     * @var string|int
+     * @var int|null
      */
-    public $comment_count = 0;
+    public ?int $comment_count = null;
 
     /**
      * Stores the post object's sanitization level.
      *
      * Does not correspond to a DB field.
      */
-    public string $filter;
+    public ?string $filter = null;
 }
