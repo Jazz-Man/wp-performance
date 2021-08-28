@@ -76,7 +76,7 @@ class WPQuery implements AutoloadInterface {
         }
 
         if ( ! empty($postIds)) {
-            $wpQuery->found_posts = count((array) $postIds);
+            $wpQuery->found_posts = count($postIds);
 
             if ( ! empty($clauses['limits'])) {
                 $wpQuery->max_num_pages = (int) ceil($wpQuery->found_posts / $limit);
@@ -109,7 +109,7 @@ class WPQuery implements AutoloadInterface {
     }
 
     /**
-     * @return array<array-key,int>
+     * @return int[]
      */
     private function getFoundPostsCache(): array {
         return (array) wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
