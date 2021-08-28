@@ -132,7 +132,7 @@ return $config
         // There MUST NOT be a space after the opening parenthesis. There MUST NOT be a space before the closing parenthesis.
         'no_spaces_inside_parenthesis' => false,
         // Removes `@param`, `@return` and `@var` tags that don't provide any useful information.
-        'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, 'allow_unused_params' => true],
+//        'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, 'allow_unused_params' => true],
         // Remove trailing commas in list function calls.
         'no_trailing_comma_in_list_call' => true,
         // PHP single-line arrays should not have trailing comma.
