@@ -12,9 +12,6 @@
       <code>$actions</code>
       <code>$actions</code>
     </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="1">
-      <code>$metaValues</code>
-    </MixedAssignment>
   </file>
   <file src="src/Optimization/Enqueue.php">
     <InvalidScalarArgument occurrences="2">
@@ -27,6 +24,9 @@
     <PossiblyFalseArgument occurrences="1">
       <code>$root</code>
     </PossiblyFalseArgument>
+    <RedundantCast occurrences="1">
+      <code>(string) $file</code>
+    </RedundantCast>
   </file>
   <file src="src/Optimization/Http.php">
     <MixedArgument occurrences="1">
@@ -44,8 +44,9 @@
       <code>$size</code>
       <code>$size</code>
     </MissingClosureParamType>
-    <MixedArgument occurrences="14">
+    <MixedArgument occurrences="15">
       <code>$data['post_title']</code>
+      <code>$idOrEmail</code>
       <code>$image</code>
       <code>$image</code>
       <code>$imageUrl</code>
@@ -93,10 +94,6 @@
       <code>$image[1]</code>
       <code>$image[2]</code>
     </PossiblyInvalidArrayAssignment>
-    <RedundantCastGivenDocblockType occurrences="2">
-      <code>(int) $height</code>
-      <code>(int) $width</code>
-    </RedundantCastGivenDocblockType>
     <UnusedVariable occurrences="3">
       <code>$height</code>
       <code>$key</code>
@@ -104,162 +101,46 @@
     </UnusedVariable>
   </file>
   <file src="src/Optimization/NavMenu/MenuItemClasses.php">
-    <MixedArgument occurrences="10">
-      <code>$activeObject</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;type</code>
-      <code>$menuItem-&gt;url</code>
-      <code>$menuItem-&gt;url</code>
-      <code>$object-&gt;ancestors</code>
-      <code>$object-&gt;post_type</code>
+    <MixedArgument occurrences="1">
       <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
-      <code>$rawItemUrl</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>[$menuItem-&gt;object]</code>
-    </MixedArgumentTypeCoercion>
-    <MixedArrayOffset occurrences="1">
-      <code>$ancestors[$parent-&gt;object]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="4">
-      <code>$activeObject</code>
-      <code>$activeObject</code>
-      <code>$ancestorItemIds[]</code>
-      <code>$rawItemUrl</code>
-    </MixedAssignment>
-    <MixedPropertyTypeCoercion occurrences="2">
+    <MixedPropertyTypeCoercion occurrences="1">
       <code>array_unique($classes)</code>
       <code>array_unique($classes)</code>
     </MixedPropertyTypeCoercion>
-    <PossiblyNullArgument occurrences="3">
-      <code>$activeObject</code>
-      <code>$object</code>
+    <PossiblyNullArgument occurrences="1">
       <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
     </PossiblyNullArgument>
-    <PossiblyNullPropertyFetch occurrences="5">
+    <PossiblyNullPropertyFetch occurrences="3">
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;taxonomy</code>
-      <code>$object-&gt;term_id</code>
-      <code>$queriedObject-&gt;taxonomy</code>
     </PossiblyNullPropertyFetch>
-    <UndefinedMagicPropertyFetch occurrences="7">
-      <code>$object-&gt;ID</code>
-      <code>$object-&gt;ancestors</code>
+    <UndefinedMagicPropertyFetch occurrences="3">
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;taxonomy</code>
-      <code>$object-&gt;term_id</code>
-      <code>$queriedObject-&gt;taxonomy</code>
     </UndefinedMagicPropertyFetch>
-    <UndefinedPropertyFetch occurrences="7">
-      <code>$object-&gt;ID</code>
-      <code>$object-&gt;ancestors</code>
+    <UndefinedPropertyFetch occurrences="3">
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;post_type</code>
       <code>$object-&gt;taxonomy</code>
-      <code>$object-&gt;term_id</code>
-      <code>$queriedObject-&gt;taxonomy</code>
     </UndefinedPropertyFetch>
   </file>
   <file src="src/Optimization/NavMenu/MenuItems.php">
-    <MixedArgument occurrences="20">
-      <code>$item</code>
+    <MixedAssignment occurrences="1">
       <code>$menuItem-&gt;ID</code>
-      <code>$menuItem-&gt;ID</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;object_id</code>
-      <code>$menuItem-&gt;post_content</code>
-      <code>$menuItem-&gt;post_type</code>
-      <code>$menuItem-&gt;taxonomy</code>
-      <code>$menuItem-&gt;taxonomy</code>
-      <code>$menuItem-&gt;term_id</code>
-    </MixedArgument>
-    <MixedAssignment occurrences="19">
-      <code>$item</code>
-      <code>$menuItem-&gt;ID</code>
-      <code>$menuItem-&gt;attr_title</code>
-      <code>$menuItem-&gt;attr_title</code>
-      <code>$menuItem-&gt;description</code>
-      <code>$menuItem-&gt;description</code>
-      <code>$menuItem-&gt;post_title</code>
-      <code>$menuItem-&gt;title</code>
-      <code>$menuItem-&gt;title</code>
-      <code>$menuItem-&gt;title</code>
-      <code>$menuItem-&gt;title</code>
-      <code>$menuItem-&gt;title</code>
-      <code>$menuItem-&gt;title</code>
-      <code>$menuItem-&gt;type_label</code>
-      <code>$menuItem-&gt;type_label</code>
-      <code>$menuItem-&gt;type_label</code>
-      <code>$menuItem-&gt;type_label</code>
-      <code>$originalTitle</code>
-      <code>$originalTitle</code>
     </MixedAssignment>
     <MixedPropertyTypeCoercion occurrences="1">
       <code>(array) maybe_unserialize( (string) $menuItem-&gt;classes )</code>
     </MixedPropertyTypeCoercion>
-    <PossiblyFalsePropertyAssignmentValue occurrences="4">
-      <code>$isPost ? get_permalink( $originalTerm-&gt;ID ) : ''</code>
-      <code>app_get_term_link( (int) $menuItem-&gt;term_id, (string) $menuItem-&gt;taxonomy )</code>
-      <code>get_permalink( $menuItem-&gt;ID )</code>
-      <code>get_post_type_archive_link( $menuItem-&gt;object )</code>
-    </PossiblyFalsePropertyAssignmentValue>
-    <PossiblyInvalidCast occurrences="1">
-      <code>$termDescription</code>
-    </PossiblyInvalidCast>
-    <PossiblyInvalidPropertyFetch occurrences="7">
-      <code>$object-&gt;labels</code>
-      <code>$object-&gt;name</code>
-      <code>$originalTerm-&gt;ID</code>
-      <code>$originalTerm-&gt;ID</code>
-      <code>$originalTerm-&gt;name</code>
-      <code>$originalTerm-&gt;post_title</code>
-      <code>$taxonomyObject-&gt;labels</code>
-    </PossiblyInvalidPropertyFetch>
-    <PossiblyNullArgument occurrences="1">
-      <code>$originalTerm-&gt;ID</code>
-    </PossiblyNullArgument>
-    <PossiblyNullPropertyAssignmentValue occurrences="1">
-      <code>$isPostType ? $object-&gt;name : ''</code>
-    </PossiblyNullPropertyAssignmentValue>
-    <PossiblyNullPropertyFetch occurrences="8">
-      <code>$object-&gt;labels</code>
-      <code>$object-&gt;name</code>
-      <code>$originalTerm-&gt;ID</code>
-      <code>$originalTerm-&gt;ID</code>
-      <code>$originalTerm-&gt;name</code>
-      <code>$originalTerm-&gt;post_title</code>
-      <code>$postTypeObject-&gt;labels</code>
-      <code>$postTypeObject-&gt;labels</code>
-    </PossiblyNullPropertyFetch>
-    <UndefinedPropertyFetch occurrences="4">
-      <code>$menuItem-&gt;name</code>
-      <code>$menuItem-&gt;parent</code>
-      <code>$menuItem-&gt;term_id</code>
-      <code>$originalTerm-&gt;name</code>
-    </UndefinedPropertyFetch>
   </file>
   <file src="src/Optimization/NavMenu/NavMenuCache.php">
-    <MixedArgument occurrences="3">
-      <code>$args-&gt;depth</code>
-      <code>$args-&gt;items_wrap</code>
+    <MixedArgument occurrences="1">
       <code>$args-&gt;menu</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="2">
+    <MixedArgumentTypeCoercion occurrences="1">
       <code>$args</code>
-      <code>$attributes</code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAssignment occurrences="1">
       <code>$sortedMenuItem-&gt;classes[]</code>
@@ -267,42 +148,17 @@
     <MixedArrayOffset occurrences="1">
       <code>$menuWithChildren[$sortedMenuItem-&gt;ID]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="3">
-      <code>$attributes['aria-label']</code>
-      <code>$attributes['id']</code>
+    <MixedAssignment occurrences="1">
       <code>$sortedMenuItem-&gt;classes</code>
     </MixedAssignment>
-    <RedundantCondition occurrences="1">
-      <code>is_array($menuItems)</code>
-    </RedundantCondition>
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>
     </StringIncrement>
   </file>
-  <file src="src/Optimization/NavMenu/Placeholder/MenuItem.php">
-    <MissingConstructor occurrences="9">
-      <code>$ID</code>
-      <code>$classes</code>
-      <code>$db_id</code>
-      <code>$filter</code>
-      <code>$menu_item_parent</code>
-      <code>$object</code>
-      <code>$object_id</code>
-      <code>$post_parent</code>
-      <code>$post_title</code>
-    </MissingConstructor>
-  </file>
   <file src="src/Optimization/NavMenu/Placeholder/NavMenuArgs.php">
-    <MissingConstructor occurrences="8">
-      <code>$container</code>
-      <code>$depth</code>
-      <code>$echo</code>
-      <code>$fallback_cb</code>
-      <code>$item_spacing</code>
-      <code>$items_wrap</code>
-      <code>$menu</code>
-      <code>$menu_class</code>
-    </MissingConstructor>
+    <PossiblyNullPropertyAssignmentValue occurrences="1">
+      <code>null</code>
+    </PossiblyNullPropertyAssignmentValue>
   </file>
   <file src="src/Optimization/TermCount.php">
     <DocblockTypeContradiction occurrences="1">
@@ -333,13 +189,6 @@
     <LessSpecificReturnStatement occurrences="1">
       <code>$availableLanguages</code>
     </LessSpecificReturnStatement>
-    <MissingClosureParamType occurrences="5">
-      <code>$args</code>
-      <code>$current</code>
-      <code>$transient</code>
-      <code>$transient</code>
-      <code>$transient</code>
-    </MissingClosureParamType>
     <MixedArgument occurrences="1">
       <code>$current</code>
     </MixedArgument>
@@ -354,16 +203,8 @@
     <MixedArrayAssignment occurrences="1">
       <code>$current-&gt;checked[$file]</code>
     </MixedArrayAssignment>
-    <MixedArrayOffset occurrences="2">
-      <code>$actions[$singleRemoveActionList]</code>
-      <code>$tabs[$singleRemoveActionList]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="5">
+    <MixedAssignment occurrences="1">
       <code>$data[$file]</code>
-      <code>$removeActionList</code>
-      <code>$removeActionList</code>
-      <code>$singleRemoveActionList</code>
-      <code>$singleRemoveActionList</code>
     </MixedAssignment>
     <MoreSpecificReturnType occurrences="1">
       <code>array&lt;string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}&gt;</code>
@@ -382,18 +223,10 @@
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$clauses</code>
     </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="1">
-      <code>$orderby</code>
-    </MixedAssignment>
-    <MixedInferredReturnType occurrences="1">
-      <code>bool|int[]</code>
-    </MixedInferredReturnType>
-    <MixedReturnStatement occurrences="1">
-      <code>wp_cache_get($this-&gt;generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP)</code>
-    </MixedReturnStatement>
-    <PossiblyInvalidArgument occurrences="1">
-      <code>$postIds</code>
-    </PossiblyInvalidArgument>
+    <MixedReturnTypeCoercion occurrences="2">
+      <code>(array) wp_cache_get($this-&gt;generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP)</code>
+      <code>int[]</code>
+    </MixedReturnTypeCoercion>
     <PossiblyNullArgument occurrences="1">
       <code>$this-&gt;queryHash</code>
     </PossiblyNullArgument>
