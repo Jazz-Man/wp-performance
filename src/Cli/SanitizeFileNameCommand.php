@@ -12,7 +12,6 @@ use wpdb;
  * Class Sanitize_Command.
  */
 class SanitizeFileNameCommand extends Command {
-
     private bool $isDryRun = false;
 
     private bool $isSanitize = false;

@@ -43,8 +43,8 @@ class MenuItems {
                 /** @var MenuItem[]|stdClass[] $menuItems */
                 $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
 
-	            /** @var MenuItem[]|stdClass[] $menuItems */
-	            $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $wpTerm );
+                /** @var MenuItem[]|stdClass[] $menuItems */
+                $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $wpTerm );
 
                 foreach ( $menuItems as $key => $item ) {
                     $menuItems[ $key ] = self::setupNavMenuItem( $item );
@@ -376,8 +376,7 @@ class MenuItems {
 
         if ($postTypeObject instanceof WP_Post_Type) {
             if ($originalPost instanceof WP_Post) {
-
-            	$label = wp_strip_all_tags( implode( ', ', get_post_states( $originalPost ) ) );
+                $label = wp_strip_all_tags( implode( ', ', get_post_states( $originalPost ) ) );
             } else {
                 $label = (string) $postTypeObject->labels->singular_name;
             }

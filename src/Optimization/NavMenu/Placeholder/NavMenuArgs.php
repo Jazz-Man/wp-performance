@@ -58,7 +58,7 @@ class NavMenuArgs extends stdClass {
      *
      * @var callable|bool
      */
-    public $fallback_cb = null;
+    public $fallback_cb = '__return_empty_string';
 
     /**
      * Text before the link markup. Default empty.

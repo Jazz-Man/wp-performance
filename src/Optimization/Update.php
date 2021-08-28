@@ -67,7 +67,7 @@ class Update implements AutoloadInterface {
         add_filter('pre_site_transient_update_plugins', fn (bool $transient = false) => $this->lastCheckedCore($transient));
         add_filter('pre_site_transient_update_core', fn (bool $transient = false) => $this->lastCheckedCore($transient));
 
-        /** @psalm-suppress MissingClosureParamType */
+        /* @psalm-suppress MissingClosureParamType */
         add_filter('site_transient_update_plugins', fn ($current) => $this->removePluginUpdates($current));
 
         // Removes update check wp-cron

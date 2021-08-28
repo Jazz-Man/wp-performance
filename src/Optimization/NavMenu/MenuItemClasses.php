@@ -107,7 +107,7 @@ class MenuItemClasses {
             /** @var string[] $classes */
             $classes = (array) $menuItem->classes;
             $classes[] = 'menu-item';
-            $classes[] = sprintf('menu-item-type-%s', (string)$menuItem->type);
+            $classes[] = sprintf('menu-item-type-%s', (string) $menuItem->type);
             $classes[] = sprintf('menu-item-object-%s', (string) $menuItem->object);
 
             if ('post_type' === $menuItem->type) {
