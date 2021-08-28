@@ -50,7 +50,7 @@ class Update implements AutoloadInterface {
         // Theme update API for different calls.
 
         // Hijack the themes api setup to bypass the API call.
-        add_filter('themes_api_args', static function ($args, string $action) {
+        add_filter('themes_api_args', static function (object $args, string $action) {
             // Bail if disabled.
             if ( ! app_is_enabled_wp_performance()) {
                 return $args;
@@ -63,10 +63,11 @@ class Update implements AutoloadInterface {
         add_filter('themes_api', '__return_false');
 
         // Time based transient checks.
-        add_filter('pre_site_transient_update_themes', fn ($transient) => $this->lastCheckedCore($transient));
-        add_filter('pre_site_transient_update_plugins', fn ($transient) => $this->lastCheckedCore($transient));
-        add_filter('pre_site_transient_update_core', fn ($transient) => $this->lastCheckedCore($transient));
+        add_filter('pre_site_transient_update_themes', fn (bool $transient = false) => $this->lastCheckedCore($transient));
+        add_filter('pre_site_transient_update_plugins', fn (bool $transient = false) => $this->lastCheckedCore($transient));
+        add_filter('pre_site_transient_update_core', fn (bool $transient = false) => $this->lastCheckedCore($transient));
 
+        /** @psalm-suppress MissingClosureParamType */
         add_filter('site_transient_update_plugins', fn ($current) => $this->removePluginUpdates($current));
 
         // Removes update check wp-cron
@@ -244,6 +245,7 @@ class Update implements AutoloadInterface {
         }
 
         // Set an array of items to be removed with optional filter.
+        /** @var string[]|false $removeActionList */
         $removeActionList = apply_filters('core_blocker_bulk_items', ['update-selected', 'update', 'upgrade']);
 
         if (false === $removeActionList) {
@@ -251,8 +253,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $action) {
-            unset($actions[$action]);
+        foreach ($removeActionList as $removeAction) {
+            unset($actions[$removeAction]);
         }
 
         // Return the remaining.
@@ -274,6 +276,7 @@ class Update implements AutoloadInterface {
         }
 
         // Set an array of tabs to be removed with optional filter.
+        /** @var string[]|false $removeActionList */
         $removeActionList = apply_filters('core_blocker_bulk_items', ['featured', 'popular', 'recommended', 'favorites', 'beta']);
 
         if (false === $removeActionList) {
@@ -281,8 +284,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $action) {
-            unset($tabs[$action]);
+        foreach ($removeActionList as $removeAction) {
+            unset($tabs[$removeAction]);
         }
 
         // Return the tabs.
@@ -292,11 +295,11 @@ class Update implements AutoloadInterface {
     /**
      * Always send back that the latest version of WordPress/Plugins/Theme is the one we're running.
      *
-     * @param mixed $transient
+     * @param bool $transient
      *
-     * @return bool|stdClass|mixed the modified output with our information
+     * @return bool|stdClass the modified output with our information
      */
-    public function lastCheckedCore($transient) {
+    public function lastCheckedCore(bool $transient = false) {
         // Bail if disabled.
         if ( ! app_is_enabled_wp_performance()) {
             return false;
