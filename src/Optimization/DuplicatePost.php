@@ -139,7 +139,7 @@ class DuplicatePost implements AutoloadInterface {
     }
 
     private function addMetaData(int $newPostId, int $oldPostId): void {
-        /** @var array<string,array|mixed>|null $data */
+        /** @var array<string,string>|null $data */
         $data = get_post_custom( $oldPostId );
 
         if ( empty( $data ) ) {
@@ -147,16 +147,7 @@ class DuplicatePost implements AutoloadInterface {
         }
 
         foreach ( $data as $metaKey => $metaValues ) {
-            if ( ! empty( $metaValues ) ) {
-                /** @var string[]|string $metaValues */
-                if ( is_array( $metaValues ) ) {
-                    foreach ( $metaValues as $metumValue ) {
-                        add_post_meta( $newPostId, $metaKey, $metumValue );
-                    }
-                } else {
-                    add_post_meta( $newPostId, $metaKey, $metaValues );
-                }
-            }
+            add_post_meta( $newPostId, $metaKey, $metaValues );
         }
     }
 }
