@@ -17,14 +17,14 @@ class NavMenuArgs extends stdClass {
      *
      * @var int|string|WP_Term
      */
-    public $menu;
+    public $menu = 0;
 
     /**
      * CSS class to use for the ul element which forms the menu. Default 'menu'.
      *
      * @var string
      */
-    public $menu_class;
+    public string $menu_class = 'menu';
 
     /**
      * The ID that is applied to the ul element which forms the menu.
@@ -58,7 +58,7 @@ class NavMenuArgs extends stdClass {
      *
      * @var callable|bool
      */
-    public $fallback_cb;
+    public $fallback_cb = null;
 
     /**
      * Text before the link markup. Default empty.

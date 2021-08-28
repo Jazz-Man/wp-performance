@@ -29,7 +29,7 @@ class MenuItem extends stdClass {
      *
      * @var string|string[]
      */
-    public $classes;
+    public $classes = [];
 
     /**
      * The DB ID of this item as a nav_menu_item object, if it exists (0 if it doesn't exist).
@@ -51,16 +51,16 @@ class MenuItem extends stdClass {
     /**
      * The type of object originally represented, such as "category," "post", or "attachment.".
      *
-     * @var string
+     * @var string|null
      */
-    public string $object;
+    public ?string $object = null;
 
     public ?string $taxonomy = null;
 
     /**
-     * @var string|int
+     * @var int|null
      */
-    public $parent;
+    public ?int $parent = null;
 
     /**
      * The DB ID of the original object this menu item represents,
