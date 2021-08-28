@@ -39,6 +39,11 @@ class MenuItem extends stdClass {
     public $db_id = 0;
 
     /**
+     * @var int
+     */
+    public int $term_id = 0;
+
+    /**
      * The description of this menu item.
      */
     public ?string $description = null;
@@ -93,6 +98,8 @@ class MenuItem extends stdClass {
      * The title of this menu item.
      */
     public ?string $title = null;
+
+    public ?string $name = null;
 
     /**
      * The family of objects originally represented, such as "post_type" or "taxonomy.".

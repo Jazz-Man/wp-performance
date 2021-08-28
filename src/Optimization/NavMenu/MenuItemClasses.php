@@ -13,11 +13,12 @@ use WP_User;
 
 class MenuItemClasses {
     /**
-     * @param array<array-key,MenuItem|stdClass> $menuItems
+     * @param MenuItem[]|stdClass[] $menuItems
      */
     public static function setMenuItemClassesByContext(array &$menuItems): void {
         global $wp_query, $wp_rewrite;
 
+        /** @var WP_Term|WP_Post_Type|WP_Post|WP_User|null $object */
         $object = $wp_query->get_queried_object();
         $queriedObjectId = $wp_query->queried_object_id;
 
@@ -103,10 +104,11 @@ class MenuItemClasses {
         foreach ($menuItems as $key => $menuItem) {
             $menuItems[$key]->current = false;
 
+            /** @var string[] $classes */
             $classes = (array) $menuItem->classes;
             $classes[] = 'menu-item';
-            $classes[] = sprintf('menu-item-type-%s', $menuItem->type);
-            $classes[] = sprintf('menu-item-object-%s', $menuItem->object);
+            $classes[] = sprintf('menu-item-type-%s', (string)$menuItem->type);
+            $classes[] = sprintf('menu-item-object-%s', (string) $menuItem->object);
 
             if ('post_type' === $menuItem->type) {
                 if ($frontPageId === (int) $menuItem->object_id) {
@@ -118,28 +120,28 @@ class MenuItemClasses {
                 }
             }
 
-            if ($wp_query->is_singular && 'taxonomy' === $menuItem->type && in_array((int) $menuItem->object_id, $objectParents, true)) {
+            if ($wp_query->is_singular && 'taxonomy' === (string) $menuItem->type && in_array((int) $menuItem->object_id, $objectParents, true)) {
                 $parentObjectIds[] = (int) $menuItem->object_id;
                 $activeParentItemIds[] = (int) $menuItem->db_id;
-                $activeObject = $object->post_type;
+                $activeObject = (string) $object->post_type;
             } elseif (self::isCurrentMenuItemt($menuItem, $queriedObjectId, $object, $homePageId)) {
                 $classes[] = 'current-menu-item';
                 $menuItems[$key]->current = true;
 
-                if ( ! in_array($menuItem->db_id, $ancestorItemIds, true)) {
-                    $ancestorItemIds[] = $menuItem->db_id;
+                if ( ! in_array((int) $menuItem->db_id, $ancestorItemIds, true)) {
+                    $ancestorItemIds[] = (int) $menuItem->db_id;
                 }
 
-                if ('post_type' === $menuItem->type && 'page' === $menuItem->object) {
+                if ('post_type' === (string) $menuItem->type && 'page' === (string) $menuItem->object) {
                     $classes[] = 'page_item';
-                    $classes[] = sprintf('page-item-%d', $menuItem->object_id);
+                    $classes[] = sprintf('page-item-%d', (int) $menuItem->object_id);
                     $classes[] = 'current_page_item';
                 }
 
                 $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
                 $parentObjectIds[] = (int) $menuItem->post_parent;
-                $activeObject = $menuItem->object;
-            } elseif ('post_type_archive' === $menuItem->type && is_post_type_archive([$menuItem->object])) {
+                $activeObject = (string) $menuItem->object;
+            } elseif ('post_type_archive' === (string) $menuItem->type && is_post_type_archive([(string) $menuItem->object])) {
                 $classes[] = 'current-menu-item';
                 $menuItems[$key]->current = true;
 
@@ -147,14 +149,14 @@ class MenuItemClasses {
                     $ancestorItemIds[] = (int) $menuItem->db_id;
                 }
                 $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
-            } elseif ('custom' === $menuItem->object && filter_input(INPUT_SERVER, 'HTTP_HOST')) {
+            } elseif ('custom' === (string) $menuItem->object && filter_input(INPUT_SERVER, 'HTTP_HOST')) {
                 $rootRelativeCurrent = app_get_current_relative_url();
 
                 $currentUrl = app_get_current_url();
 
-                $isUrlHash = strpos($menuItem->url, '#');
+                $isUrlHash = strpos((string) $menuItem->url, '#');
 
-                $rawItemUrl = $isUrlHash ? substr( $menuItem->url, 0, $isUrlHash ) : $menuItem->url;
+                $rawItemUrl = $isUrlHash ? (string) substr( (string) $menuItem->url, 0, $isUrlHash ) : (string) $menuItem->url;
                 unset($isUrlHash);
 
                 $itemUrl = set_url_scheme(untrailingslashit($rawItemUrl));
@@ -185,7 +187,7 @@ class MenuItemClasses {
                     }
                     $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
                     $parentObjectIds[] = (int) $menuItem->post_parent;
-                    $activeObject = $menuItem->object;
+                    $activeObject = (string) $menuItem->object;
                 } elseif ($itemUrl === $frontPageUrl && is_front_page()) {
                     $classes[] = 'current-menu-item';
                 }
@@ -196,7 +198,7 @@ class MenuItemClasses {
             }
 
             // Back-compat with wp_page_menu(): add "current_page_parent" to static home page link for any non-page query.
-            if ( ! empty($homePageId) && 'post_type' === $menuItem->type
+            if ( ! empty($homePageId) && 'post_type' === (string) $menuItem->type
                  && empty($wp_query->is_page) && $homePageId === (int) $menuItem->object_id
             ) {
                 $classes[] = 'current_page_parent';
@@ -215,10 +217,7 @@ class MenuItemClasses {
             $menuItems[$key]->current_item_parent = false;
 
             if (self::isCurrentMenuItemtAncestor($parentItem, $object, $taxonomyAncestors)) {
-                $classes[] = sprintf(
-                    'current-%s-ancestor',
-                    $object->taxonomy ?: $object->post_type
-                );
+                $classes[] = sprintf( 'current-%s-ancestor', $object->taxonomy ?: $object->post_type );
             }
 
             if (in_array((int) $parentItem->db_id, $ancestorItemIds, true)) {
@@ -253,7 +252,12 @@ class MenuItemClasses {
     }
 
     /**
+     * @param MenuItem|stdClass                         $menuItem
+     * @param int                                       $queriedObjectId
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $queriedObject
+     * @param int|null                                  $homePageId
+     *
+     * @return bool
      */
     private static function isCurrentMenuItemt(stdClass $menuItem, int $queriedObjectId, $queriedObject, ?int $homePageId = null): bool {
         global $wp_query;
@@ -262,7 +266,7 @@ class MenuItemClasses {
             return true;
         }
 
-        if ($menuItem->type == 'post_type') {
+        if ((string) $menuItem->type == 'post_type') {
             if ( ! empty($homePageId) && $wp_query->is_home && $homePageId === (int) $menuItem->object_id) {
                 return true;
             }
@@ -270,33 +274,35 @@ class MenuItemClasses {
             if ($wp_query->is_singular) {
                 return true;
             }
-        } elseif ($menuItem->type == 'taxonomy') {
+        } elseif ((string) $menuItem->type == 'taxonomy' && $queriedObject instanceof WP_Term) {
             $isCategory = $wp_query->is_category || $wp_query->is_tag || $wp_query->is_tax;
 
-            return  $isCategory && $queriedObject->taxonomy === $menuItem->object;
+            return  $isCategory && $queriedObject->taxonomy === (string) $menuItem->object;
         }
 
         return false;
     }
 
     /**
+     * @param MenuItem|stdClass                         $parent
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $object
      * @param array<string,array<int,int>>              $ancestors
      *
-     **/
+     * @return bool
+     */
     private static function isCurrentMenuItemtAncestor(stdClass $parent, $object, array $ancestors): bool {
         if (empty($parent->type)) {
             return false;
         }
 
-        if ($parent->type == 'post_type') {
+        if ((string) $parent->type == 'post_type' && $object instanceof WP_Post) {
             $isHierarchical = ! empty($object->post_type) && is_post_type_hierarchical($object->post_type);
 
             return $isHierarchical && in_array((int) $parent->object_id, $object->ancestors, true) && $parent->object !== $object->ID;
         }
 
-        if ($parent->type == 'taxonomy') {
-            return isset($ancestors[$parent->object]) && in_array((int) $parent->object_id, $ancestors[$parent->object], true) && ( ! (property_exists($object, 'term_id') && $object->term_id !== null) || $parent->object_id !== $object->term_id);
+        if ((string) $parent->type == 'taxonomy' && $object instanceof WP_Term) {
+            return isset($ancestors[(string) $parent->object]) && in_array((int) $parent->object_id, $ancestors[(string) $parent->object], true) && $parent->object_id !== $object->term_id;
         }
 
         return false;

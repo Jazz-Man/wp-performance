@@ -28,7 +28,7 @@ class NavMenuCache implements AutoloadInterface {
 
         $menuItems = MenuItems::getItems($menu);
 
-        if (is_array($menuItems) && ! is_admin()) {
+        if (!empty($menuItems) && ! is_admin()) {
             $menuItems = array_filter($menuItems, '_is_valid_nav_menu_item');
         }
 
@@ -65,7 +65,7 @@ class NavMenuCache implements AutoloadInterface {
         /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = apply_filters('wp_nav_menu_objects', $sortedMenuItems, $args);
 
-        $items = walk_nav_menu_tree($sortedMenuItems, $args->depth, $args);
+        $items = walk_nav_menu_tree($sortedMenuItems, (int) $args->depth, $args);
         unset($sortedMenuItems);
 
         $wrapId = $this->getMenuWrapId($menu, $args);
@@ -81,7 +81,7 @@ class NavMenuCache implements AutoloadInterface {
         }
 
         $navMenu = sprintf(
-            $args->items_wrap,
+            (string) $args->items_wrap,
             esc_attr($wrapId),
             esc_attr($wrapClass),
             $items
@@ -121,6 +121,10 @@ class NavMenuCache implements AutoloadInterface {
 
     /**
      * @param NavMenuArgs|stdClass $args
+     * @param WP_Term              $wpTerm
+     * @param string               $navMenu
+     *
+     * @return string
      */
     private function wrapToContainer(stdClass $args, WP_Term $wpTerm, string $navMenu): string {
         /** @var string[] $allowedTags */
@@ -133,11 +137,11 @@ class NavMenuCache implements AutoloadInterface {
             ];
 
             if ($args->container_id) {
-                $attributes['id'] = $args->container_id;
+                $attributes['id'] = (string) $args->container_id;
             }
 
             if ('nav' === $args->container && ! empty($args->container_aria_label)) {
-                $attributes['aria-label'] = $args->container_aria_label;
+                $attributes['aria-label'] = (string) $args->container_aria_label;
             }
 
             return sprintf(
