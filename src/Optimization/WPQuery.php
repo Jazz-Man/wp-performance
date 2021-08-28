@@ -52,7 +52,7 @@ class WPQuery implements AutoloadInterface {
         $this->invalidateFoundPostsCache();
         $postIds = $this->getFoundPostsCache();
 
-        if (false === $postIds) {
+        if (!empty($postIds)) {
             try {
                 $pdo = app_db_pdo();
 
@@ -109,10 +109,10 @@ class WPQuery implements AutoloadInterface {
     }
 
     /**
-     * @return bool|int[]
+     * @return array<array-key,int>
      */
-    private function getFoundPostsCache() {
-        return wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
+    private function getFoundPostsCache(): array {
+        return (array) wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
     }
 
     /**
@@ -127,6 +127,7 @@ class WPQuery implements AutoloadInterface {
         if ( ! $wpQuery->is_main_query()) {
             $limit = (int) $wpQuery->get('posts_per_page');
 
+            /** @var string|false $orderby */
             $orderby = $wpQuery->get('orderby', false);
 
             $wpQuery->set('no_found_rows', true);
@@ -140,7 +141,6 @@ class WPQuery implements AutoloadInterface {
                 $postIds = $this->getFoundPostsCache();
 
                 if ( ! empty($postIds)) {
-                    /* @var int[] $postIds */
                     if (empty($wpQuery->get('post__in'))) {
                         shuffle($postIds);
 
