@@ -25,7 +25,7 @@ class TermCount implements AutoloadInterface {
      * Store the terms that have been incremented or decremented to avoid
      * duplicated efforts.
      *
-     * @var array<int,array<string,mixed>>
+     * @var array<int,array<string,array<string,int[]>>>
      */
     public array $countedTerms = [];
 
@@ -129,7 +129,7 @@ class TermCount implements AutoloadInterface {
             if ($termIds instanceof WP_Error) {
                 continue;
             }
-            $this->quickUpdateTermsCount( $wpPost->ID, (array) $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
+            $this->quickUpdateTermsCount( $wpPost->ID, $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
         }
         // For non-attachments, let's check if there are any attachment children
         // with inherited post status -- if so those will need to be re-counted.

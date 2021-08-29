@@ -114,26 +114,13 @@
     </StringIncrement>
   </file>
   <file src="src/Optimization/TermCount.php">
-    <MixedArgument occurrences="2">
-      <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
-      <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
-    </MixedArgument>
+    <InvalidPropertyAssignmentValue occurrences="2">
+      <code>$this-&gt;countedTerms</code>
+      <code>$this-&gt;countedTerms</code>
+    </InvalidPropertyAssignmentValue>
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$termTaxIds</code>
     </MixedArgumentTypeCoercion>
-    <MixedArrayAccess occurrences="1">
-      <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
-    </MixedArrayAccess>
-    <MixedArrayAssignment occurrences="2">
-      <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
-      <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
-    </MixedArrayAssignment>
-    <PossiblyInvalidArrayOffset occurrences="1">
-      <code>$this-&gt;countedTerms[$objectId][$taxonomy][$transitionType]</code>
-    </PossiblyInvalidArrayOffset>
-    <RedundantCastGivenDocblockType occurrences="1">
-      <code>(array) $termIds</code>
-    </RedundantCastGivenDocblockType>
   </file>
   <file src="src/Optimization/Update.php">
     <MixedArgument occurrences="1">
