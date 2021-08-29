@@ -45,10 +45,18 @@ class Cache implements AutoloadInterface {
         }, 10, 3);
     }
 
+    /**
+     * @param int $postId
+     */
     public function resetAttachmentCache(int $postId): void {
         wp_cache_delete(sprintf('attachment_image_%d', $postId), self::CACHE_GROUP);
     }
 
+    /**
+     * @param int    $termId
+     * @param int    $termTaxId
+     * @param string $taxonomy
+     */
     public function termsCache(int $termId, int $termTaxId, string $taxonomy): void {
         wp_cache_delete(sprintf('taxonomy_ancestors_%d_%s', $termId, $taxonomy), self::CACHE_GROUP);
         wp_cache_delete(sprintf('term_all_children_%d', $termId), self::CACHE_GROUP);
@@ -56,7 +64,11 @@ class Cache implements AutoloadInterface {
         app_term_get_all_children($termId);
     }
 
+    /**
+     * @param int $termId
+     */
     public function resetMenuCacheByTermId(int $termId): void {
+        /** @var WP_Term|WP_Error $term */
         $term = get_term($termId, 'nav_menu');
 
         if ( $term instanceof WP_Term) {
@@ -64,20 +76,32 @@ class Cache implements AutoloadInterface {
         }
     }
 
+    /**
+     * @param int $menuId
+     */
     public function resetMenuCacheByMenuId(int $menuId): void {
+        /** @var WP_Term[]|WP_Error $terms */
         $terms = wp_get_post_terms($menuId, 'nav_menu');
 
-        if ( ! ($terms instanceof WP_Error)) {
+        if ( !($terms instanceof WP_Error)) {
             foreach ($terms as $term) {
                 self::deleteMenuItemCache($term);
             }
         }
     }
 
+    /**
+     * @param WP_Term $wpTerm
+     */
     private static function deleteMenuItemCache(WP_Term $wpTerm): void {
         wp_cache_delete(self::getMenuItemCacheKey($wpTerm), 'menu_items');
     }
 
+    /**
+     * @param WP_Term $wpTerm
+     *
+     * @return string
+     */
     public static function getMenuItemCacheKey(WP_Term $wpTerm): string {
         return sprintf('%s_%s', $wpTerm->taxonomy, $wpTerm->slug);
     }
