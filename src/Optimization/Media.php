@@ -54,7 +54,7 @@ class Media implements AutoloadInterface {
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
             add_filter('media_library_show_audio_playlist', '__return_true');
-            add_filter('media_library_months_with_files', fn () => $this->mediaLibraryMonthsWithFiles());
+            add_filter('media_library_months_with_files', fn (): array => $this->mediaLibraryMonthsWithFiles());
         }
     }
 
@@ -272,7 +272,7 @@ SQL
      * @param array<string,mixed>|false $image
      * @param int[]|string              $size
      *
-     * @return array|false
+     * @return array<string, mixed>|bool|array<int|string, mixed>
      *
      * @psalm-return array<int|string, mixed>|false
      */
