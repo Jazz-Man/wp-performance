@@ -5,6 +5,7 @@ namespace JazzMan\Performance\Optimization;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
 use PDO;
+use stdClass;
 use WP_Comment;
 
 /**
@@ -22,9 +23,11 @@ class Media implements AutoloadInterface {
         add_action('add_attachment', function (int $postId): void {
             $this->setMediaMonthsCache($postId);
         });
+
         add_action('add_attachment', function (int $postId): void {
             $this->setAttachmentAltTitle($postId);
         });
+
         add_filter('wp_insert_attachment_data', fn (array $data, array $postarr): array => $this->setAttachmentTitle($data, $postarr), 10, 2);
 
         // disable responsive images srcset
@@ -144,11 +147,12 @@ class Media implements AutoloadInterface {
         }
 
         // Grab the cache to see if it needs updating
+        /** @var stdClass[]|false $mediaMonths */
         $mediaMonths = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if ( ! empty($mediaMonths)) {
-            $cachedLatestYear = empty($mediaMonths[0]->year) ? '' : $mediaMonths[0]->year;
-            $cachedLatestMonth = empty($mediaMonths[0]->month) ? '' : $mediaMonths[0]->month;
+            $cachedLatestYear = empty($mediaMonths[0]->year) ? '' : (string) $mediaMonths[0]->year;
+            $cachedLatestMonth = empty($mediaMonths[0]->month) ? '' : (string) $mediaMonths[0]->month;
 
             // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
             $latestYear = get_the_time('Y', $postId) === $cachedLatestYear;
@@ -164,11 +168,12 @@ class Media implements AutoloadInterface {
     /**
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
      *
-     * @return array|mixed|object|null
+     * @return array<stdClass>
      */
-    public function mediaLibraryMonthsWithFiles() {
+    public function mediaLibraryMonthsWithFiles(): array {
         global $wpdb;
 
+        /** @var stdClass[]|false $months */
         $months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (false === $months) {
@@ -234,23 +239,10 @@ SQL
     }
 
     /**
-     * @param array| false{
+     * @param array{0:string,1:int,2:int,3:bool}|false $image
+     * @param string|int[]                             $size
      *
-     * @var string $0
-     * @var int    $1
-     * @var int    $2
-     * @var bool   $3
-     *             } $image
-     *
-     * @param string|int[] $size
-     *
-     * @return array|false {
-     *
-     * @var string $0
-     * @var int    $1
-     * @var int    $2
-     * @var bool   $3
-     *             }
+     * @return array{0:string,1:int,2:int,3:bool}|false
      */
     public function fixSvgSizeAttributes($image, int $attachmentId, $size) {
         if (is_admin()) {
@@ -261,16 +253,15 @@ SQL
             return $image;
         }
 
-        $fileExt = pathinfo((string)$image[0], PATHINFO_EXTENSION);
+        $fileExt = pathinfo($image[0], PATHINFO_EXTENSION);
 
         if ('svg' === $fileExt) {
-
-	        $image[1] = 60;
-	        $image[2] = 60;
+            $image[1] = 60;
+            $image[2] = 60;
 
             if (is_array($size) && 2 === count($size)) {
-	            $image[1] = $size[0];
-	            $image[2] = $size[1];
+                $image[1] = $size[0];
+                $image[2] = $size[1];
             }
         }
 
@@ -281,9 +272,9 @@ SQL
      * @param array<string,mixed>|false $image
      * @param int[]|string              $size
      *
-     * @return array<string, mixed>|bool
+     * @return array|false
      *
-     * @psalm-return array<0|1|2|string, mixed>|false
+     * @psalm-return array<int|string, mixed>|false
      */
     public function resizeImageOnTheFly($image, int $attachmentId, $size) {
         if (is_admin()) {
@@ -338,7 +329,7 @@ SQL
     }
 
     /**
-     * @param array<string,string> $imageMeta
+     * @param array<string,string> $imageSizes
      * @param int                  $width
      * @param int                  $height
      *
