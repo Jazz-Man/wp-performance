@@ -188,20 +188,20 @@ class TermCount implements AutoloadInterface {
             call_user_func($taxonomyObj->update_count_callback, $termTaxIds, $taxonomyObj);
         }
 
-        if ( ! isset($this->countedTerms[$objectId][$taxonomy][$transitionType])) {
-            $this->countedTerms[$objectId][$taxonomy][$transitionType] = [];
+        if ( ! isset($this->countedTerms[$objectId][$taxonomy][(string)$transitionType])) {
+            $this->countedTerms[$objectId][$taxonomy][(string)$transitionType] = [];
         }
 
         // Ensure that these terms haven't already been counted.
-        $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][$transitionType]);
+        $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][(string)$transitionType]);
 
         if (empty($termTaxIds)) {
             // No term to process. So return.
             return;
         }
 
-        $this->countedTerms[$objectId][$taxonomy][$transitionType] = array_merge(
-            $this->countedTerms[$objectId][$taxonomy][$transitionType],
+        $this->countedTerms[$objectId][$taxonomy][(string)$transitionType] = array_merge(
+            $this->countedTerms[$objectId][$taxonomy][(string)$transitionType],
             $termTaxIds
         );
 

@@ -114,10 +114,6 @@
     </StringIncrement>
   </file>
   <file src="src/Optimization/TermCount.php">
-    <InvalidPropertyAssignmentValue occurrences="2">
-      <code>$this-&gt;countedTerms</code>
-      <code>$this-&gt;countedTerms</code>
-    </InvalidPropertyAssignmentValue>
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$termTaxIds</code>
     </MixedArgumentTypeCoercion>
