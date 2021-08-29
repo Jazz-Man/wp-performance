@@ -23,7 +23,23 @@
                 <referencedFunction name="apply_filters"/>
             </errorLevel>
         </TooManyArguments>
+        <MissingClosureParamType>
+            <errorLevel type="suppress">
+                <directory name="src"/>
+            </errorLevel>
+        </MissingClosureParamType>
+        <MixedReturnStatement>
+            <errorLevel type="suppress">
+                <file name="src/helper.php"/>
+            </errorLevel>
+        </MixedReturnStatement>
+        <MixedArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <file name="src/Optimization/Update.php"/>
+            </errorLevel>
+        </MixedArgumentTypeCoercion>
     </issueHandlers>
+
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
         <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php"/>
