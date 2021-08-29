@@ -87,7 +87,7 @@ class TermCount implements AutoloadInterface {
      * @param string $transitionType transition type (increment or decrement)
      */
     protected function handleTermRelationshipChange(int $objectId, array $termTaxIds, string $taxonomy, string $transitionType): void {
-        /** @var WP_Post $post */
+        /** @var WP_Post|null $post */
         $post = get_post($objectId);
 
         if ( ! $post || ! is_object_in_taxonomy($post->post_type, $taxonomy)) {
