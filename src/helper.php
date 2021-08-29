@@ -223,15 +223,18 @@ if ( ! function_exists('app_get_term_link')) {
 if ( ! function_exists('app_term_link_filter')) {
     /**
      * @param \WP_Term $term
+     * @param string   $termlink
+     *
+     * @return string
      */
     function app_term_link_filter(WP_Term $term, string $termlink): string {
         if ($term->taxonomy == 'post_tag') {
-            $termlink = apply_filters('tag_link', $termlink, $term->term_id);
+            $termlink = (string) apply_filters('tag_link', $termlink, $term->term_id);
         } elseif ($term->taxonomy == 'category') {
-            $termlink = apply_filters('category_link', $termlink, $term->term_id);
+            $termlink = (string) apply_filters('category_link', $termlink, $term->term_id);
         }
 
-        return apply_filters('term_link', $termlink, $term, $term->taxonomy);
+        return (string) apply_filters('term_link', $termlink, $term, $term->taxonomy);
     }
 }
 
@@ -344,6 +347,8 @@ SQL
 
 if ( ! function_exists('app_get_wp_block')) {
     /**
+     * @param string $postName
+     *
      * @return false|WP_Post
      */
     function app_get_wp_block(string $postName) {
@@ -386,10 +391,12 @@ if ( ! function_exists('app_get_wp_block')) {
 
 if ( ! function_exists('app_attachment_url_to_postid')) {
     /**
-     * @return false|mixed
+     * @param string $url
+     *
+     * @return false|int
      */
     function app_attachment_url_to_postid(string $url) {
-        if ( ! filter_var($url, FILTER_VALIDATE_URL)) {
+        if ( ! app_is_current_host($url)) {
             return false;
         }
 
@@ -397,15 +404,11 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
 
         $uploadDir = wp_upload_dir();
 
-        $siteUrl = parse_url($uploadDir['url']);
-        $imagePath = parse_url($url);
+        $siteUrl = (object) parse_url((string) $uploadDir['url']);
+        $imagePath = (object) parse_url($url);
 
-        if ((!empty($siteUrl['host']) && !empty($imagePath['host'])) && ($siteUrl['host'] !== $imagePath['host'])) {
-            return false;
-        }
-
-        if ((!empty($imagePath['scheme']) && !empty($siteUrl['scheme'])) && ($imagePath['scheme'] !== $siteUrl['scheme'])) {
-            $url = str_replace($imagePath['scheme'], $siteUrl['scheme'], $url);
+        if ((string) $imagePath->scheme !== (string) $siteUrl->scheme) {
+            $url = str_replace((string) $imagePath->scheme, (string) $siteUrl->scheme, $url);
         }
 
         try {
@@ -426,7 +429,7 @@ SQL
                 'guid' => esc_url_raw($url),
             ]);
 
-            return $pdoStatement->fetchColumn();
+            return (int) $pdoStatement->fetchColumn();
         } catch (Exception $exception) {
             return false;
         }
@@ -466,6 +469,6 @@ if ( ! function_exists('app_is_enabled_wp_performance')) {
             $enabled = ! wp_doing_cron() && ! app_is_wp_cli() && ! app_is_wp_importing();
         }
 
-        return $enabled;
+        return (bool) $enabled;
     }
 }
