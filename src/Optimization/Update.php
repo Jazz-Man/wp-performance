@@ -68,7 +68,7 @@ class Update implements AutoloadInterface {
 	    $siteTransients = ['themes','plugins','core'];
 
 	    foreach ($siteTransients as $siteTransient){
-		    add_filter("pre_site_transient_update_{$siteTransient}", fn (bool $transient = false) => $this->lastCheckedCore($transient));
+		    add_filter(sprintf('pre_site_transient_update_%s', $siteTransient), fn (bool $transient = false) => $this->lastCheckedCore($transient));
 	    }
 
         /* @psalm-suppress MissingClosureParamType */
