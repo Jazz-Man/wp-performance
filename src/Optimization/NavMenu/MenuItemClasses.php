@@ -212,6 +212,7 @@ class MenuItemClasses {
 
         // Set parent's class.
         foreach ($menuItems as $key => $parentItem) {
+            /** @var string[] $classes */
             $classes = (array) $parentItem->classes;
             $menuItems[$key]->current_item_ancestor = false;
             $menuItems[$key]->current_item_parent = false;
@@ -301,10 +302,14 @@ class MenuItemClasses {
             return $isHierarchical && in_array((int) $parent->object_id, $object->ancestors, true) && $parent->object !== $object->ID;
         }
 
-        if ((string) $parent->type == 'taxonomy' && $object instanceof WP_Term) {
-            return isset($ancestors[(string) $parent->object]) && in_array((int) $parent->object_id, $ancestors[(string) $parent->object], true) && $parent->object_id !== $object->term_id;
+        if ((string) $parent->type != 'taxonomy') {
+            return false;
         }
 
-        return false;
+        if (!$object instanceof WP_Term) {
+            return false;
+        }
+
+        return isset($ancestors[(string) $parent->object]) && in_array((int) $parent->object_id, $ancestors[(string) $parent->object], true) && $parent->object_id !== $object->term_id;
     }
 }

@@ -195,7 +195,7 @@ class MenuItems {
 
             $permalink = get_permalink( (int) $menuItem->ID );
 
-            $menuItem->url = !empty($permalink) ? $permalink : '';
+            $menuItem->url = empty($permalink) ? '' : $permalink;
             $menuItem->target = '';
             $menuItem->attr_title = (string) apply_filters( 'nav_menu_attr_title', '' );
             $menuItem->description = (string) apply_filters( 'nav_menu_description', '' );
@@ -229,7 +229,7 @@ class MenuItems {
 
             $termLink = app_get_term_link( (int) $menuItem->term_id, (string) $menuItem->taxonomy );
 
-            $menuItem->url = !empty($termLink) ? $termLink : '';
+            $menuItem->url = empty($termLink) ? '' : $termLink;
 
             unset($termLink);
 
@@ -302,7 +302,7 @@ class MenuItems {
 
                 $archiveLink = get_post_type_archive_link( (string) $menuItem->object );
 
-                $menuItem->url = !empty($archiveLink) ? $archiveLink : '';
+                $menuItem->url = empty($archiveLink) ? '' : $archiveLink;
 
                 break;
 
@@ -356,7 +356,7 @@ class MenuItems {
         if ($taxonomyObject instanceof WP_Taxonomy) {
             $taxonomyLabels = get_taxonomy_labels($taxonomyObject);
 
-            return !empty($taxonomyLabels->singular_name) ? (string) $taxonomyLabels->singular_name : (string) $menuItem->object;
+            return empty($taxonomyLabels->singular_name) ? (string) $menuItem->object : (string) $taxonomyLabels->singular_name;
         }
 
         return (string) $menuItem->object;
