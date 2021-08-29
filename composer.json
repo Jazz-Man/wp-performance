@@ -28,6 +28,7 @@
     "require-dev": {
         "edgedesign/phpqa": "^1.25",
         "friendsofphp/php-cs-fixer": "@stable",
+        "humanmade/psalm-plugin-wordpress": "^2.0",
         "nette/neon": "@stable",
         "php-stubs/wp-cli-stubs": "^2.5",
         "phpmd/phpmd": "@stable",
