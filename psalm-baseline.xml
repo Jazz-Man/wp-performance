@@ -146,12 +146,6 @@
       <code>$this-&gt;queryHash</code>
     </PossiblyNullArgument>
   </file>
-  <file src="src/Security/ContactFormSpamTester.php">
-    <MixedAssignment occurrences="2">
-      <code>$recaptchaSecretKey</code>
-      <code>$recaptchaSiteKey</code>
-    </MixedAssignment>
-  </file>
   <file src="src/Security/SanitizeFileName.php">
     <DuplicateArrayKey occurrences="6">
       <code>'Ã' =&gt; 'Í'</code>
