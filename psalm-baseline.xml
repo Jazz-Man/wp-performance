@@ -113,11 +113,6 @@
       <code>$matches[1]</code>
     </StringIncrement>
   </file>
-  <file src="src/Optimization/TermCount.php">
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$termTaxIds</code>
-    </MixedArgumentTypeCoercion>
-  </file>
   <file src="src/Optimization/Update.php">
     <MixedArgument occurrences="1">
       <code>$current</code>

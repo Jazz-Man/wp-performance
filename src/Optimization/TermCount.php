@@ -49,6 +49,8 @@ class TermCount implements AutoloadInterface {
         add_action('added_term_relationship', function (int $objectId, int $termTaxId, string $taxonomy): void {
             $this->addedTermRelationship($objectId, $termTaxId, $taxonomy);
         }, 10, 3);
+
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         add_action('deleted_term_relationships', function (int $objectId, array $termTaxIds, string $taxonomy): void {
             $this->deletedTermRelationships($objectId, $termTaxIds, $taxonomy);
         }, 10, 3);
@@ -71,7 +73,7 @@ class TermCount implements AutoloadInterface {
      * When a term relationship is deleted, decrement the term count.
      *
      * @param int    $objectId   object ID
-     * @param array  $termTaxIds array of term taxonomy IDs
+     * @param int[]  $termTaxIds array of term taxonomy IDs
      * @param string $taxonomy   taxonomy slug
      */
     public function deletedTermRelationships(int $objectId, array $termTaxIds, string $taxonomy): void {
@@ -159,10 +161,10 @@ class TermCount implements AutoloadInterface {
     /**
      * Update term counts using a very light SQL query.
      *
-     * @param int         $objectId       object ID with the term relationship
-     * @param int[]       $termTaxIds     term taxonomy IDs
-     * @param string      $taxonomy       taxonomy slug
-     * @param string|bool $transitionType 'increment' or 'decrement'
+     * @param int            $objectId       object ID with the term relationship
+     * @param int[]|string[] $termTaxIds     term taxonomy IDs
+     * @param string         $taxonomy       taxonomy slug
+     * @param string|bool    $transitionType 'increment' or 'decrement'
      */
     private function quickUpdateTermsCount(int $objectId, array $termTaxIds, string $taxonomy, $transitionType): void {
         global $wpdb;
@@ -171,6 +173,7 @@ class TermCount implements AutoloadInterface {
             return;
         }
 
+        /** @var int[] $termTaxIds */
         $termTaxIds = array_filter(array_map('intval', $termTaxIds));
 
         if (empty($termTaxIds)) {
@@ -188,20 +191,21 @@ class TermCount implements AutoloadInterface {
             call_user_func($taxonomyObj->update_count_callback, $termTaxIds, $taxonomyObj);
         }
 
-        if ( ! isset($this->countedTerms[$objectId][$taxonomy][(string)$transitionType])) {
-            $this->countedTerms[$objectId][$taxonomy][(string)$transitionType] = [];
+        if ( ! isset($this->countedTerms[$objectId][$taxonomy][(string) $transitionType])) {
+            $this->countedTerms[$objectId][$taxonomy][(string) $transitionType] = [];
         }
 
         // Ensure that these terms haven't already been counted.
-        $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][(string)$transitionType]);
+	    /** @var int[] $termTaxIds */
+        $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][(string) $transitionType]);
 
         if (empty($termTaxIds)) {
             // No term to process. So return.
             return;
         }
 
-        $this->countedTerms[$objectId][$taxonomy][(string)$transitionType] = array_merge(
-            $this->countedTerms[$objectId][$taxonomy][(string)$transitionType],
+        $this->countedTerms[$objectId][$taxonomy][(string) $transitionType] = array_merge(
+            $this->countedTerms[$objectId][$taxonomy][(string) $transitionType],
             $termTaxIds
         );
 
