@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Utils;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use WP_Error;
 use WP_Term;
 
 class Cache implements AutoloadInterface {
@@ -56,7 +57,6 @@ class Cache implements AutoloadInterface {
     }
 
     public function resetMenuCacheByTermId(int $termId): void {
-        /** @var WP_Term $term */
         $term = get_term($termId, 'nav_menu');
 
         if ( $term instanceof WP_Term) {
@@ -65,10 +65,9 @@ class Cache implements AutoloadInterface {
     }
 
     public function resetMenuCacheByMenuId(int $menuId): void {
-        /** @var WP_Term[] $terms */
         $terms = wp_get_post_terms($menuId, 'nav_menu');
 
-        if ( ! is_wp_error($terms)) {
+        if ( ! ($terms instanceof WP_Error)) {
             foreach ($terms as $term) {
                 self::deleteMenuItemCache($term);
             }
