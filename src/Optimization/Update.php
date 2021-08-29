@@ -19,10 +19,12 @@ class Update implements AutoloadInterface {
         add_filter('map_meta_cap', fn (array $caps, string $cap): array => $this->preventAutoUpdates($caps, $cap), 10, 2);
 
         // Remove bulk action for updating themes/plugins.
-        add_filter('bulk_actions-plugins', fn (array $actions): array => $this->removeBulkActions($actions));
-        add_filter('bulk_actions-themes', fn (array $actions): array => $this->removeBulkActions($actions));
-        add_filter('bulk_actions-plugins-network', fn (array $actions): array => $this->removeBulkActions($actions));
-        add_filter('bulk_actions-themes-network', fn (array $actions): array => $this->removeBulkActions($actions));
+        $bulkActions = ['plugins', 'themes', 'plugins-network', 'themes-network'];
+
+        foreach ($bulkActions as $bulkAction) {
+            /* @psalm-suppress MixedArgumentTypeCoercion */
+            add_filter(sprintf('bulk_actions-%s', $bulkAction), fn (array $actions): array => $this->removeBulkActions($actions));
+        }
 
         // Admin UI items.
         // Remove menu items for updates from a standard WP install.
@@ -63,11 +65,14 @@ class Update implements AutoloadInterface {
         add_filter('themes_api', '__return_false');
 
         // Time based transient checks.
-        add_filter('pre_site_transient_update_themes', fn (bool $transient = false) => $this->lastCheckedCore($transient));
-        add_filter('pre_site_transient_update_plugins', fn (bool $transient = false) => $this->lastCheckedCore($transient));
-        add_filter('pre_site_transient_update_core', fn (bool $transient = false) => $this->lastCheckedCore($transient));
+	    $siteTransients = ['themes','plugins','core'];
+
+	    foreach ($siteTransients as $siteTransient){
+		    add_filter("pre_site_transient_update_{$siteTransient}", fn (bool $transient = false) => $this->lastCheckedCore($transient));
+	    }
 
         /* @psalm-suppress MissingClosureParamType */
+        /* @psalm-suppress MixedArgument */
         add_filter('site_transient_update_plugins', fn ($current) => $this->removePluginUpdates($current));
 
         // Removes update check wp-cron
@@ -253,8 +258,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $removeAction) {
-            unset($actions[$removeAction]);
+        foreach ($removeActionList as $singleRemoveActionList) {
+            unset($actions[$singleRemoveActionList]);
         }
 
         // Return the remaining.
@@ -284,8 +289,8 @@ class Update implements AutoloadInterface {
         }
 
         // Loop the item array and unset each.
-        foreach ($removeActionList as $removeAction) {
-            unset($tabs[$removeAction]);
+        foreach ($removeActionList as $singleRemoveActionList) {
+            unset($tabs[$singleRemoveActionList]);
         }
 
         // Return the tabs.
@@ -297,7 +302,7 @@ class Update implements AutoloadInterface {
      *
      * @param bool $transient
      *
-     * @return bool|stdClass the modified output with our information
+     * @return bool|object the modified output with our information
      */
     public function lastCheckedCore(bool $transient = false) {
         // Bail if disabled.
@@ -313,6 +318,7 @@ class Update implements AutoloadInterface {
         switch ($curentAction) {
             case 'pre_site_transient_update_themes':
                 // Set a blank data array.
+                /** @var array<string,string> $data */
                 $data = [];
 
                 $themes = wp_get_themes();
@@ -338,6 +344,7 @@ class Update implements AutoloadInterface {
 
             case 'pre_site_transient_update_plugins':
                 // Set a blank data array.
+                /** @var array<string,string> $data */
                 $data = [];
 
                 // Add our plugin file if we don't have it.
@@ -347,7 +354,7 @@ class Update implements AutoloadInterface {
 
                 // Build my plugin data array.
                 foreach (get_plugins() as $file => $pl) {
-                    $data[$file] = $pl['Version'];
+                    $data[$file] = (string) $pl['Version'];
                 }
 
                 return (object) [
@@ -372,6 +379,8 @@ class Update implements AutoloadInterface {
      */
     public function removePluginUpdates($current) {
         if ( ! $current) {
+            /** @psalm-suppress LessSpecificReturnStatement */
+            /** @psalm-suppress MixedArrayAssignment */
             $current = new stdClass();
             $current->last_checked = time();
             $current->translations = [];
@@ -388,7 +397,7 @@ class Update implements AutoloadInterface {
     }
 
     /**
-     * 	 * Returns installed languages instead of all possibly available languages.
+     * 	Returns installed languages instead of all possibly available languages.
      *
      * @return array<string,array<string,mixed>>
      *
@@ -404,6 +413,7 @@ class Update implements AutoloadInterface {
         // shared settings
         $date = date_i18n('Y-m-d H:is', time()); // eg. 2016-06-26 10:08:23
 
+        /** @var array<string,array<string|array<string,string>>> $availableLanguages */
         $availableLanguages = [];
 
         foreach ($languages as $language) {
