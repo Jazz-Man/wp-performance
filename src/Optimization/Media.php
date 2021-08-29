@@ -60,14 +60,17 @@ class Media implements AutoloadInterface {
     }
 
     /**
-     * @return mixed[]
+     * @param array<string,string> $data
+     * @param array<string,string> $postarr
+     *
+     * @return array<string,string>
      */
     public function setAttachmentTitle(array $data, array $postarr): array {
         if ( ! empty($postarr['file'])) {
             $url = pathinfo($postarr['file']);
-            $extension = empty($url['extension']) ? false : sprintf('.%s', $url['extension']);
+            $extension = empty($url['extension']) ? '' : sprintf('.%s', $url['extension']);
 
-            $title = empty($extension) ? $data['post_title'] : rtrim($data['post_title'], $extension);
+            $title = rtrim($data['post_title'], $extension);
 
             $data['post_title'] = app_trim_string(app_get_human_friendly($title));
         }
@@ -76,6 +79,8 @@ class Media implements AutoloadInterface {
     }
 
     public function setAttachmentAltTitle(int $postId): void {
+
+        /** @var string|null $imageAlt */
         $imageAlt = get_post_meta($postId, '_wp_attachment_image_alt', true);
 
         if (empty($imageAlt)) {
@@ -94,6 +99,8 @@ class Media implements AutoloadInterface {
      * @param string                $alt       alternative text to use in the avatar image tag
      *
      * @return string `<img>` tag for the user's avatar
+     *
+     * @psalm-suppress MixedArgument
      */
     public function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string {
         // Bail if disabled.
@@ -189,7 +196,9 @@ SQL
     }
 
     /**
-     * @return mixed[]
+     * @param array<string,string> $mimes
+     *
+     * @return array<string,string>
      */
     public function allowSvg(array $mimes): array {
         $mimes['svg'] = 'image/svg+xml';
@@ -199,11 +208,11 @@ SQL
     }
 
     /**
-     * @param array<string,string|false> $data
+     * @param array<string,string> $data
+     * @param string               $file
+     * @param string               $filename
      *
-     * @return array<string, false|string>
-     *
-     * @psalm-return array<string, false|string>
+     * @return array<string, string>
      */
     public function fixMimeTypeSvg(array $data, string $file, string $filename): array {
         $ext = empty($data['ext']) ? '' : $data['ext'];
@@ -225,10 +234,23 @@ SQL
     }
 
     /**
-     * @param array<mixed>|false $image
-     * @param string|int[]       $size
+     * @param array| false{
      *
-     * @return array<mixed>|false
+     * @var string $0
+     * @var int    $1
+     * @var int    $2
+     * @var bool   $3
+     *             } $image
+     *
+     * @param string|int[] $size
+     *
+     * @return array|false {
+     *
+     * @var string $0
+     * @var int    $1
+     * @var int    $2
+     * @var bool   $3
+     *             }
      */
     public function fixSvgSizeAttributes($image, int $attachmentId, $size) {
         if (is_admin()) {
@@ -238,23 +260,18 @@ SQL
         if (empty($image)) {
             return $image;
         }
-        /** @var string $imageUrl */
-        /** @var int $width */
-        /** @var int $height */
-        /** @var bool $resized */
-        list($imageUrl, $width, $height, $resized) = $image;
 
-        $fileExt = pathinfo($imageUrl, PATHINFO_EXTENSION);
+        $fileExt = pathinfo((string)$image[0], PATHINFO_EXTENSION);
 
         if ('svg' === $fileExt) {
-            $width = 60;
-            $height = 60;
+
+	        $image[1] = 60;
+	        $image[2] = 60;
 
             if (is_array($size) && 2 === count($size)) {
-                list($width, $height) = $size;
+	            $image[1] = $size[0];
+	            $image[2] = $size[1];
             }
-
-            return [$imageUrl, $width, $height, $resized];
         }
 
         return $image;
@@ -264,7 +281,7 @@ SQL
      * @param array<string,mixed>|false $image
      * @param int[]|string              $size
      *
-     * @return array<string, mixed>|bool|array<int|string, mixed>
+     * @return array<string, mixed>|bool
      *
      * @psalm-return array<0|1|2|string, mixed>|false
      */
@@ -276,6 +293,7 @@ SQL
         if (! is_array($size)) {
             return $image;
         }
+        /** @var array{width:int,height:int,file:string,sizes:array}|false $meta */
         $meta = wp_get_attachment_metadata($attachmentId);
 
         if (empty($meta)) {
@@ -283,7 +301,7 @@ SQL
         }
 
         $upload = wp_upload_dir();
-        $filePath = sprintf('%s/%s', $upload['basedir'], $meta['file']);
+        $filePath = sprintf('%s/%s', (string) $upload['basedir'], $meta['file']);
 
         if ( ! file_exists($filePath)) {
             return $image;
@@ -291,21 +309,25 @@ SQL
 
         $imageDirname = pathinfo($filePath, PATHINFO_DIRNAME);
 
-        $imageBaseUrl = sprintf('%s/%s', $upload['baseurl'], $imageDirname);
+        $imageBaseUrl = sprintf('%s/%s', (string) $upload['baseurl'], $imageDirname);
 
         list($width, $height) = $size;
 
-        if ( ! empty($meta['sizes']) && $this->isImageSizesExist($meta, $width, $height )) {
+        if ( ! empty($meta['sizes']) && $this->isImageSizesExist($meta['sizes'], $width, $height )) {
             return $image;
         }
 
         // Generate new size
+        /** @var array{path:string, file:string, width:int, height:int, 'mime-type':string}|false $resized */
         $resized = image_make_intermediate_size($filePath, $width, $height, true);
 
         if (!empty($resized)) {
             $metaSizeKey = sprintf('resized-%dx%d', $resized['width'], $resized['height']);
             $meta['sizes'][$metaSizeKey] = $resized;
             wp_update_attachment_metadata($attachmentId, $meta);
+
+            /** @var array{0:string,1:int,2:int,3:bool} $image */
+            $image = (array) $image;
 
             $image[0] = sprintf('%s/%s', $imageBaseUrl, $resized['file']);
             $image[1] = $resized['width'];
@@ -316,15 +338,20 @@ SQL
     }
 
     /**
-     * @param array<string,array<string,mixed>> $imageMeta
+     * @param array<string,string> $imageMeta
+     * @param int                  $width
+     * @param int                  $height
+     *
+     * @return bool
      */
-    private function isImageSizesExist(array $imageMeta, int $width, int $height): bool {
-        foreach ($imageMeta['sizes'] as $key => $value) {
-            if ((int) $value['width'] !== $width) {
+    private function isImageSizesExist(array $imageSizes, int $width, int $height): bool {
+        /** @var array<string,string> $value */
+        foreach ($imageSizes as $key => $value) {
+            if (!empty($value['width']) && (int) $value['width'] !== $width) {
                 continue;
             }
 
-            if ((int) $value['height'] !== $height) {
+            if (!empty($value['height']) && (int) $value['height'] !== $height) {
                 continue;
             }
 
