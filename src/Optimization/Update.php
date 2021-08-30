@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use stdClass;
 
 /**
  * Class Update.
@@ -371,26 +370,26 @@ class Update implements AutoloadInterface {
     /**
      * Returns list of plugins which tells that there's no updates.
      *
-     * @param array<string,mixed>|stdClass $current Empty array
+     * @param array<string,mixed>|object $current Empty array
      *
-     * @return array|stdClass
-     *
-     * @psalm-return array<string, mixed>|stdClass
+     * @return array<string, mixed>|object
      */
     public function removePluginUpdates($current) {
         if ( ! $current) {
-            /** @psalm-suppress LessSpecificReturnStatement */
-            /** @psalm-suppress MixedArrayAssignment */
-            $current = new stdClass();
-            $current->last_checked = time();
-            $current->translations = [];
+            $current = [
+                'last_checked' => time(),
+                'translations' => [],
+                'response' => [],
+                'checked' => [],
+            ];
 
             $plugins = get_plugins();
 
             foreach ($plugins as $file => $p) {
-                $current->checked[$file] = (string) $p['Version'];
+                $current['checked'][$file] = (string) $p['Version'];
             }
-            $current->response = [];
+
+            $current = (object) $current;
         }
 
         return $current;
@@ -399,9 +398,7 @@ class Update implements AutoloadInterface {
     /**
      * 	Returns installed languages instead of all possibly available languages.
      *
-     * @return array<string,array<string,mixed>>
-     *
-     * @psalm-return array<string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}>
+     * @return array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}>
      */
     public function availableTranslations(): array {
         // Call the global WP version.
@@ -413,7 +410,6 @@ class Update implements AutoloadInterface {
         // shared settings
         $date = date_i18n('Y-m-d H:is', time()); // eg. 2016-06-26 10:08:23
 
-        /** @var array<string,array<string|array<string,string>>> $availableLanguages */
         $availableLanguages = [];
 
         foreach ($languages as $language) {
@@ -435,6 +431,8 @@ class Update implements AutoloadInterface {
 
             $availableLanguages[$language] = array_merge($settings, $coreLanguges[$language]);
         }
+
+        /* @var array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}> $availableLanguages */
 
         return $availableLanguages;
     }
