@@ -13,8 +13,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 7.4
+          extensions: igbinary
           coverage: none
-          tools: phpmd
+          tools: phpmd, psalm
 
       - name: Get composer cache directory
         id: composer-cache
@@ -28,7 +29,10 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-dev -o
+        run: composer install --prefer-dist --no-interaction --no-progress --no-suggest -o
 
       - name: PHPMD
         run: 'phpmd . github phpmd.ruleset.xml --exclude "build/,vendor/"'
+
+      - name: Psalm
+        run: 'psalm --config=psalm.xml --show-info=true --stats --no-progress --use-baseline=psalm-baseline.xml --output-format=github'
