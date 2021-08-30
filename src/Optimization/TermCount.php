@@ -173,7 +173,6 @@ class TermCount implements AutoloadInterface {
             return;
         }
 
-        /** @var int[] $termTaxIds */
         $termTaxIds = array_filter(array_map('intval', $termTaxIds));
 
         if (empty($termTaxIds)) {
@@ -196,7 +195,6 @@ class TermCount implements AutoloadInterface {
         }
 
         // Ensure that these terms haven't already been counted.
-	    /** @var int[] $termTaxIds */
         $termTaxIds = array_diff($termTaxIds, $this->countedTerms[$objectId][$taxonomy][(string) $transitionType]);
 
         if (empty($termTaxIds)) {
