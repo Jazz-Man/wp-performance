@@ -28,7 +28,6 @@
     "require-dev": {
         "edgedesign/phpqa": "^1.25",
         "friendsofphp/php-cs-fixer": "@stable",
-        "humanmade/psalm-plugin-wordpress": "^2.0",
         "nette/neon": "@stable",
         "php-stubs/wp-cli-stubs": "^2.5",
         "phpmd/phpmd": "@stable",
@@ -38,7 +37,7 @@
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.8",
         "szepeviktor/phpstan-wordpress": "^0.7.7",
-        "vimeo/psalm": "@stable"
+        "vimeo/psalm": "^4.9"
     },
     "replace": {
         "phpmetrics/phpmetrics": "*",
