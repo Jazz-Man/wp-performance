@@ -117,13 +117,6 @@
     <MixedArgument occurrences="1">
       <code>$current</code>
     </MixedArgument>
-    <MixedArrayAssignment occurrences="1">
-      <code>$current-&gt;checked[$file]</code>
-    </MixedArrayAssignment>
-    <MixedReturnTypeCoercion occurrences="2">
-      <code>$availableLanguages</code>
-      <code>array&lt;string, array{language: string, iso: array{0: string}, version: mixed, updated: string, strings: array{continue: string}, package: string, english_name: string, native_name: string}&gt;</code>
-    </MixedReturnTypeCoercion>
     <UndefinedConstant occurrences="1">
       <code>ABSPATH</code>
     </UndefinedConstant>
@@ -163,79 +156,9 @@
     </PossiblyNullOperand>
   </file>
   <file src="src/Utils/AttachmentData.php">
-    <InvalidArrayOffset occurrences="4">
-      <code>$sizes['file']</code>
-      <code>$sizes['height']</code>
-      <code>$sizes['width']</code>
-      <code>$this-&gt;metadata[$sizeKey][$attachmentSize]</code>
-    </InvalidArrayOffset>
-    <InvalidIterator occurrences="1">
-      <code>$this-&gt;metadata[$sizesKey]</code>
-    </InvalidIterator>
-    <LessSpecificReturnStatement occurrences="1">
-      <code>$sizeArray</code>
-    </LessSpecificReturnStatement>
-    <MixedArgument occurrences="14">
-      <code>$attachment-&gt;fullUrl</code>
-      <code>$attachment-&gt;metadata</code>
-      <code>$image['file']</code>
-      <code>$image['height']</code>
-      <code>$image['width']</code>
-      <code>$sizeData['src']</code>
-      <code>$sizeData['src']</code>
-      <code>$sizes['file']</code>
-      <code>$source['descriptor']</code>
-      <code>$source['url']</code>
-      <code>$source['value']</code>
-      <code>$this-&gt;metadata['file_webp']</code>
-      <code>$this-&gt;uploadDir['baseurl']</code>
-      <code>$this-&gt;uploadDir['baseurl']</code>
-    </MixedArgument>
-    <MixedArrayAccess occurrences="4">
-      <code>$source['descriptor']</code>
-      <code>$source['url']</code>
-      <code>$source['value']</code>
-      <code>$this-&gt;metadata['file_webp']</code>
-    </MixedArrayAccess>
-    <MixedArrayOffset occurrences="2">
-      <code>$sources[$image['width']]</code>
-      <code>[$image['width'] =&gt; $source]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="9">
-      <code>$attachment</code>
-      <code>$attachment</code>
-      <code>$attachmentSize</code>
-      <code>$dirname</code>
-      <code>$maxSrcsetImageWidth</code>
-      <code>$source</code>
-      <code>$sources</code>
-      <code>$this-&gt;imageAlt</code>
-      <code>$this-&gt;metadata</code>
-    </MixedAssignment>
-    <MixedOperand occurrences="2">
-      <code>$dirname</code>
-      <code>$sizeData['image_baseurl']</code>
-    </MixedOperand>
-    <MixedPropertyFetch occurrences="3">
-      <code>$attachment-&gt;fullUrl</code>
-      <code>$attachment-&gt;imageAlt</code>
-      <code>$attachment-&gt;metadata</code>
-    </MixedPropertyFetch>
-    <MixedPropertyTypeCoercion occurrences="1">
-      <code>wp_upload_dir()</code>
-    </MixedPropertyTypeCoercion>
-    <MoreSpecificReturnType occurrences="1">
-      <code>array{src: string, width: int, height: int, sizes: false|string, dirname?: string, image_baseurl?: string, srcset: false|string}</code>
-    </MoreSpecificReturnType>
-    <PossiblyInvalidIterator occurrences="1">
-      <code>$sources</code>
-    </PossiblyInvalidIterator>
-    <TypeDoesNotContainType occurrences="1">
-      <code>is_array($sources)</code>
-    </TypeDoesNotContainType>
-    <UnusedVariable occurrences="1">
-      <code>$attachmentSize</code>
-    </UnusedVariable>
+    <ReferenceConstraintViolation occurrences="1">
+      <code>$uploadDir</code>
+    </ReferenceConstraintViolation>
   </file>
   <file src="src/Utils/WPBlocks.php">
     <InvalidScalarArgument occurrences="1"/>

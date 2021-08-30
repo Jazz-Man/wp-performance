@@ -21,6 +21,7 @@
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="src/Optimization/Update.php"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="src/Security/SanitizeFileName.php" method="getEncodingFixList"/>
   <violation rule="PHPMD\Rule\CleanCode\DuplicatedArrayKey" file="src/Security/SanitizeFileName.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/Utils/AttachmentData.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Utils/AttachmentData.php" method="getSizeArray"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Utils/AttachmentData.php" method="getSizeArray"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Utils/AttachmentData.php" method="calculateImageSecretSources"/>
