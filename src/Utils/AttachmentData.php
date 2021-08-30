@@ -55,7 +55,7 @@ class AttachmentData {
     private ?string $fullWebpUrl = null;
 
     /**
-     * @var array<string,mixed>
+     * @var array<string|array-key,mixed>
      */
     private array $metadata;
 
@@ -70,24 +70,24 @@ class AttachmentData {
     public function __construct(int $attachmentId = 0) {
         $attachment = $this->getAttachmentFromDb($attachmentId);
 
-        $this->metadata = !empty($attachment['metadata']) ? (array) maybe_unserialize($attachment['metadata']) : [];
+        $this->metadata = !empty($attachment['metadata']) ? (array) maybe_unserialize((string) $attachment['metadata']) : [];
 
         if ( ! empty($this->metadata['file_webp'])) {
             $this->fullWebpUrl = sprintf('%s/%s', self::getBaseUploadUrl(), (string) $this->metadata['file_webp']);
         }
 
-        $this->fullJpegUrl = sprintf('%s/%s', self::getBaseUploadUrl(), $attachment['fullUrl']);
-        $this->imageAlt = !empty($attachment['imageAlt']) ? $attachment['imageAlt'] : null;
+        $this->fullJpegUrl = sprintf('%s/%s', self::getBaseUploadUrl(), (string) $attachment['fullUrl']);
+        $this->imageAlt = !empty($attachment['imageAlt']) ? (string) $attachment['imageAlt'] : null;
     }
 
     /**
      * @param int $attachmentId
      *
-     * @return array<string,string|null>
-     *
-     * @psalm-return array{attachmentId: int, fullUrl: string, imageAlt?: string, metadata?: string}
-     *
      * @throws InvalidArgumentException
+     *
+     * @return array<string, scalar|null>
+     *
+     * @psalm-return array<string, null|scalar>
      */
     private function getAttachmentFromDb(int $attachmentId = 0): array {
         global $wpdb;
