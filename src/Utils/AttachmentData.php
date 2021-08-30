@@ -55,7 +55,7 @@ class AttachmentData {
     private ?string $fullWebpUrl = null;
 
     /**
-     * @var array<string|array-key,mixed>
+     * @var array{width:int, height:int, file: string, image_meta?: mixed, sizes?: array<string, array{file:string, width:int, height:int, mime-type:string}>}
      */
     private array $metadata;
 
@@ -70,7 +70,8 @@ class AttachmentData {
     public function __construct(int $attachmentId = 0) {
         $attachment = $this->getAttachmentFromDb($attachmentId);
 
-        $this->metadata = !empty($attachment['metadata']) ? (array) maybe_unserialize((string) $attachment['metadata']) : [];
+		/** @psalm-suppress MixedPropertyTypeCoercion */
+        $this->metadata = !empty($attachment['metadata']) ? (array)maybe_unserialize((string) $attachment['metadata']) : [];
 
         if ( ! empty($this->metadata['file_webp'])) {
             $this->fullWebpUrl = sprintf('%s/%s', self::getBaseUploadUrl(), (string) $this->metadata['file_webp']);
@@ -173,8 +174,8 @@ SQL);
 
         $sizeArray = [
             'src' => $imgUrl,
-            'width' => $this->metadata ? (int) $this->metadata['width'] : 0,
-            'height' => $this->metadata ? (int) $this->metadata['height'] : 0,
+            'width' => !empty($this->metadata['width']) ? $this->metadata['width'] : 0,
+            'height' => !empty($this->metadata['height']) ? $this->metadata['height'] : 0,
         ];
 
         if ( ! empty($this->metadata[$sizeKey]) && ! empty($this->metadata[$sizeKey][$attachmentSize])) {
@@ -191,7 +192,7 @@ SQL);
         $sizeArray['sizes'] = empty($sizeArray['width']) ? false : sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']);
 
         if ($addDirData && ! empty($this->metadata['file'])) {
-            $dirname = _wp_get_attachment_relative_path((string) $this->metadata['file']);
+            $dirname = _wp_get_attachment_relative_path($this->metadata['file']);
 
             $sizeArray['dirname'] = trailingslashit($dirname);
 
