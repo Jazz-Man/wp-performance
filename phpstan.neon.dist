@@ -11,8 +11,8 @@ parameters:
 	    - php
 	excludePaths:
 	    - build
-	    - cache
+	    - src/Cli
 	paths:
-		- src
+	    - src
 	ignoreErrors:
 	    - '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
