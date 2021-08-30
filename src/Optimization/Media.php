@@ -15,6 +15,7 @@ class Media implements AutoloadInterface {
     public function load(): void {
         // Disable gravatars
 
+	    /** @psalm-suppress MixedArgument */
         add_filter('get_avatar', fn (string $avatar, $idOrEmail, int $size, string $default, string $alt): string => $this->replaceGravatar($avatar, $idOrEmail, $size, $default, $alt), 1, 5);
         add_filter('default_avatar_select', fn (string $avatarList): string => $this->defaultAvatar($avatarList));
         // Prevent BuddyPress from falling back to Gravatar avatars.
@@ -28,6 +29,7 @@ class Media implements AutoloadInterface {
             $this->setAttachmentAltTitle($postId);
         });
 
+		/** @psalm-suppress MixedArgumentTypeCoercion */
         add_filter('wp_insert_attachment_data', fn (array $data, array $postarr): array => $this->setAttachmentTitle($data, $postarr), 10, 2);
 
         // disable responsive images srcset
@@ -36,7 +38,10 @@ class Media implements AutoloadInterface {
         add_filter('upload_mimes', fn (array $mimes): array => $this->allowSvg($mimes));
         add_filter('wp_check_filetype_and_ext', fn (array $data, string $file, string $filename): array => $this->fixMimeTypeSvg($data, $file, $filename), 75, 3);
         add_filter('wp_get_attachment_image_src', fn ($image, int $attachmentId, $size) => $this->fixSvgSizeAttributes($image, $attachmentId, $size), 10, 3);
-        // resize image on the fly
+
+
+		// resize image on the fly
+	    /** @psalm-suppress MixedArgument */
         add_filter('wp_get_attachment_image_src', fn ($image, int $attachmentId, $size) => $this->resizeImageOnTheFly($image, $attachmentId, $size), 10, 3);
         add_action('pre_get_posts', function (): void {
             $this->filterQueryAttachmentFilenames();
@@ -197,6 +202,7 @@ SQL
             wp_cache_set('wpcom_media_months_array', $months, Cache::CACHE_GROUP);
         }
 
+		/** @var stdClass[] $months  */
         return $months;
     }
 
