@@ -6,11 +6,6 @@ parameters:
 			path: src/Optimization/Enqueue.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:mediaLibraryMonthsWithFiles\\(\\) should return array\\<stdClass\\> but returns array\\|false\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$meta has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
@@ -69,6 +64,11 @@ parameters:
 			message: "#^Parameter \\#1 \\$string of function remove_accents expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php
+
+		-
+			message: "#^Property JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:\\$metadata \\(array\\('width' \\=\\> int, 'height' \\=\\> int, 'file' \\=\\> string, \\?'image_meta' \\=\\> mixed, \\?'sizes' \\=\\> array\\<string, array\\('file' \\=\\> string, 'width' \\=\\> int, 'height' \\=\\> int, 'mime\\-type' \\=\\> string\\)\\>\\)\\) does not accept array\\.$#"
+			count: 1
+			path: src/Utils/AttachmentData.php
 
 		-
 			message: "#^Parameter \\#2 \\$options of method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) expects array\\<string, string\\>, array\\<string, bool\\> given\\.$#"

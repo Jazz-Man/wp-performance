@@ -37,24 +37,15 @@
     </MixedAssignment>
   </file>
   <file src="src/Optimization/Media.php">
-    <MixedArgument occurrences="5">
-      <code>$idOrEmail</code>
+    <MixedArgument occurrences="2">
       <code>$image</code>
-      <code>$image</code>
-      <code>$size</code>
       <code>$size</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="5">
-      <code>$data</code>
+    <MixedArgumentTypeCoercion occurrences="3">
       <code>$data</code>
       <code>$meta['sizes']</code>
       <code>$mimes</code>
-      <code>$postarr</code>
     </MixedArgumentTypeCoercion>
-    <MixedReturnTypeCoercion occurrences="2">
-      <code>$months</code>
-      <code>array&lt;stdClass&gt;</code>
-    </MixedReturnTypeCoercion>
     <UnusedVariable occurrences="1">
       <code>$key</code>
     </UnusedVariable>
