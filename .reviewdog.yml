@@ -10,4 +10,4 @@ runner:
     format: psalm
     name: psalm
     level: warning
-    tee: true
+#    tee: true
