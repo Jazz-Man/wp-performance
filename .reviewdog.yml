@@ -1,0 +1,13 @@
+runner:
+#  phpstan:
+#    cmd: ./vendor/bin/phpstan --error-format=raw
+#    format: phpstan
+#    name: phpstan
+#    level: warning
+
+  psalm:
+    cmd: vendor/bin/psalm --config=psalm.xml --show-info=true --use-baseline=psalm-baseline.xml --output-format=checkstyle
+    format: psalm
+    name: psalm
+    level: warning
+    tee: true
