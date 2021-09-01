@@ -39,7 +39,7 @@ jobs:
       - name: Reviewdog GitHub Check
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
-        run: reviewdog -reporter=github-check -filter-mode=nofilter -fail-on-error=true -tee
+        run: reviewdog -reporter=github-check -filter-mode=nofilter -fail-on-error=true -tee -level=warning
 
 #      - name: PHPMD
 #        run: 'phpmd . github phpmd.ruleset.xml --exclude "build/,vendor/"'
