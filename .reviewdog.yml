@@ -6,7 +6,7 @@ runner:
 #    level: warning
 
   psalm:
-    cmd: psalm --config=psalm.xml --show-info=true --use-baseline=psalm-baseline.xml --output-format=text
+    cmd: psalm --config=psalm.xml --use-baseline=psalm-baseline.xml --output-format=text
     format: psalm
     name: psalm
     level: warning
