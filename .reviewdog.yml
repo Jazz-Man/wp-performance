@@ -6,8 +6,8 @@ runner:
 #    level: warning
 
   psalm:
-    cmd: vendor/bin/psalm --config=psalm.xml --show-info=true --use-baseline=psalm-baseline.xml --output-format=checkstyle
-    format: checkstyle
+    cmd: psalm --config=psalm.xml --show-info=true --use-baseline=psalm-baseline.xml --output-format=text
+    format: psalm
     name: psalm
     level: warning
     tee: true
