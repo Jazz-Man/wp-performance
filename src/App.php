@@ -2,8 +2,6 @@
 
 namespace JazzMan\Performance;
 
-use JazzMan\Performance\Cli\FixPostGuidCommand;
-use JazzMan\Performance\Cli\SanitizeFileNameCommand;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\DuplicatePost;
 use JazzMan\Performance\Optimization\Enqueue;
@@ -44,11 +42,6 @@ class App {
             Enqueue::class,
             DuplicatePost::class,
         ];
-
-        if (app_is_wp_cli()) {
-            $classes[] = SanitizeFileNameCommand::class;
-            $classes[] = FixPostGuidCommand::class;
-        }
 
         app_autoload_classes($classes);
     }
