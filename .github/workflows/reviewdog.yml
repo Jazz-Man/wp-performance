@@ -2,7 +2,7 @@ name: PHPMD
 on: [push, pull_request]
 
 jobs:
-  phpmd:
+  reviewdog:
     name: phpmd
     runs-on: ubuntu-latest
     steps:
