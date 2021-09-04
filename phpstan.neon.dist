@@ -1,12 +1,12 @@
 includes:
     - phar://phpstan.phar/conf/bleedingEdge.neon
-    - phpstan-baseline.neon
+    - %currentWorkingDirectory%/phpstan-baseline.neon
 
 parameters:
 	level: max
 	inferPrivatePropertyTypeFromConstructor: true
 	treatPhpDocTypesAsCertain: true
-	tmpDir: build/cache/phpstan
+	tmpDir: cache/phpstan
 	fileExtensions:
 	    - php
 	excludePaths:
