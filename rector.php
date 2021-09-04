@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\PhpVersion;
-use Rector\Php74\Rector\Property\TypedPropertyRector;
 use Rector\Set\ValueObject\SetList;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -41,20 +41,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         // or fnmatch
         __DIR__ . '/build',
         __DIR__ . '/vendor',
-        __DIR__ . '/src/Cli',
     ]);
-//
-//    $parameters->set(
-//        Option::AUTOLOAD_PATHS,
-//        [
-////            __DIR__ . '/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php',
-//            __DIR__ . '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php',
-//        ]
-//    );
 
-//	$containerConfigurator->import(SetList::PHP_74);
-
-    // register single rule
-//    $services = $containerConfigurator->services();
-//    $services->set(TypedPropertyRector::class);
+    $parameters->set(
+        Option::AUTOLOAD_PATHS,
+        [
+            __DIR__ . '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php',
+        ]
+    );
 };
