@@ -26,21 +26,14 @@
         "symfony/web-link": "^5.3"
     },
     "require-dev": {
-        "edgedesign/phpqa": "^1.25",
-        "friendsofphp/php-cs-fixer": "@stable",
-        "nette/neon": "@stable",
-        "php-stubs/wp-cli-stubs": "^2.5",
-        "phpmd/phpmd": "@stable",
+        "php-stubs/wordpress-stubs": "^5.8",
         "phpstan/extension-installer": "@stable",
-        "rector/rector": "^0.11.52",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.8",
-        "szepeviktor/phpstan-wordpress": "^0.7.7",
-        "vimeo/psalm": "^4.9"
+        "szepeviktor/phpstan-wordpress": "^0.7.7"
     },
     "replace": {
-        "phpmetrics/phpmetrics": "*",
-        "sebastian/phpcpd": "*"
+        "phpstan/phpstan": "*"
     },
     "autoload": {
         "psr-4": {
@@ -60,9 +53,9 @@
     },
     "scripts": {
         "rm-cache" : [
-            "phpstan clear-result-cache",
-            "psalm --clear-cache",
-            "psalm --clear-global-cache"
+            "tools/phpstan clear-result-cache",
+            "tools/psalm --clear-cache",
+            "tools/psalm --clear-global-cache"
         ],
         "init-baseline": [
             "@psalm --set-baseline=psalm-baseline.xml",
@@ -80,13 +73,12 @@
         "cs-fix": [
             "@php-cs-fixer"
         ],
-        "phpstan": "phpstan --no-progress",
+        "phpstan": "tools/phpstan --no-progress",
         "phpstan-baseline": "@phpstan --generate-baseline=phpstan-baseline.neon",
-        "phpqa": "phpqa",
-        "phpmd": "phpmd . text phpmd.ruleset.xml --exclude \"build/,vendor/\"",
-        "psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress",
+        "phpmd": "tools/phpmd . text phpmd.ruleset.xml --exclude \"cache/,vendor/\"",
+        "psalm": "tools/psalm --config=psalm.xml --show-info=true --stats --no-progress",
         "psalm-phpstorm": "@psalm --output-format=phpstorm",
         "server": "php -S 0.0.0.0:8000 -t build",
-        "php-cs-fixer": "php-cs-fixer fix -v --diff"
+        "php-cs-fixer": "tools/php-cs-fixer fix -v --diff"
     }
 }
