@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Set\ValueObject\SetList;
@@ -13,7 +12,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // tip: use "SetList" class to autocomplete sets
 
     $containerConfigurator->import(SetList::CODE_QUALITY);
-    $containerConfigurator->import(SetList::DEFLUENT);
     $containerConfigurator->import(SetList::PHP_74);
     $containerConfigurator->import(SetList::TYPE_DECLARATION);
     $containerConfigurator->import(SetList::TYPE_DECLARATION_STRICT);
@@ -23,11 +21,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters = $containerConfigurator->parameters();
 
-    //	$parameters->set(Option::ENABLE_CACHE, false);
+	$parameters->set(Option::FILE_EXTENSIONS, ['php']);
     $parameters->set(Option::PHP_VERSION_FEATURES, PhpVersion::PHP_74);
-    $parameters->set(Option::AUTO_IMPORT_NAMES, true);
+
+	$parameters->set(Option::AUTO_IMPORT_NAMES, true);
     $parameters->set(Option::IMPORT_SHORT_CLASSES, false);
-    $parameters->set(Option::CACHE_DIR, __DIR__ . '/build/cache/rector');
+    $parameters->set(Option::CACHE_DIR, __DIR__ . '/cache/rector');
 
     // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
     //	$parameters->set(Option::PHPSTAN_FOR_RECTOR_PATH, getcwd() . '/phpstan.neon.dist');
@@ -39,8 +38,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set(Option::SKIP, [
         // or fnmatch
-        __DIR__ . '/build',
         __DIR__ . '/vendor',
+        __DIR__ . '/cache',
     ]);
 
     $parameters->set(
