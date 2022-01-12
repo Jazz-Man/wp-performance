@@ -50,7 +50,7 @@ class TermCount implements AutoloadInterface {
             $this->addedTermRelationship($objectId, $termTaxId, $taxonomy);
         }, 10, 3);
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
+        /* @psalm-suppress MixedArgumentTypeCoercion */
         add_action('deleted_term_relationships', function (int $objectId, array $termTaxIds, string $taxonomy): void {
             $this->deletedTermRelationships($objectId, $termTaxIds, $taxonomy);
         }, 10, 3);
