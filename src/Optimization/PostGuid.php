@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use WP_CLI;
 use WP_Post;
 
 class PostGuid implements AutoloadInterface {
@@ -23,17 +22,6 @@ class PostGuid implements AutoloadInterface {
             get_permalink($postId);
 
         if ( ! empty($guid)) {
-            if (app_is_wp_cli()) {
-                WP_CLI::line(
-                    sprintf(
-                        'Update guid "%s" for post_id "%d" and post_type "%s"',
-                        esc_attr($guid),
-                        esc_attr((string) $postId),
-                        esc_attr($wpPost->post_type)
-                    )
-                );
-            }
-
             $wpdb->update(
                 $wpdb->posts,
                 ['guid' => $guid],

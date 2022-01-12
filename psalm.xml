@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://getpsalm.org/schema/config"
-       xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-       cacheDirectory="build/cache/psalm"
+       xsi:schemaLocation="https://getpsalm.org/schema/config"
+       cacheDirectory="cache/psalm"
        serializer="igbinary"
-       allowPhpStormGenerics="true"
        errorBaseline="psalm-baseline.xml"
        totallyTyped="true"
        phpVersion="7.4"
@@ -13,7 +12,9 @@
         <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="build"/>
+            <directory name="cache"/>
+            <file name="rector.php"/>
+            <file name=".php-cs-fixer.php"/>
         </ignoreFiles>
     </projectFiles>
 
@@ -42,9 +43,6 @@
 
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
-        <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php"/>
-        <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php"/>
-        <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php"/>
     </stubs>
     <globals>
         <var name="wpdb" type="\wpdb"/>
