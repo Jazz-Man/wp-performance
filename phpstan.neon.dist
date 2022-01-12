@@ -6,12 +6,14 @@ parameters:
 	level: max
 	inferPrivatePropertyTypeFromConstructor: true
 	treatPhpDocTypesAsCertain: true
-	tmpDir: cache/phpstan
+	tmpDir: %currentWorkingDirectory%/cache/phpstan
 	fileExtensions:
 	    - php
 	excludePaths:
-	    - build
+	    - cache
 	    - src/Cli
+	    - .php-cs-fixer.php
+	    - rector.php
 	paths:
 	    - src
 	ignoreErrors:
