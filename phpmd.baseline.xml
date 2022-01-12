@@ -5,6 +5,7 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="setMenuItemClassesByContext"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="setMenuItemClassesByContext"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="src/Optimization/NavMenu/MenuItemClasses.php" method="setMenuItemClassesByContext"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="getTaxonomyAncestors"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/NavMenu/MenuItemClasses.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="isCurrentMenuItemt"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="isCurrentMenuItemtAncestor"/>
