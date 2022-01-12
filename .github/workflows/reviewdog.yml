@@ -44,5 +44,5 @@ jobs:
 #      - name: PHPMD
 #        run: 'phpmd . github phpmd.ruleset.xml --exclude "build/,vendor/"'
 
-      - name: Psalm
-        run: 'psalm --config=psalm.xml --show-info=true --stats --no-progress --use-baseline=psalm-baseline.xml --output-format=github'
+#      - name: Psalm
+#        run: 'psalm --config=psalm.xml --show-info=true --stats --no-progress --use-baseline=psalm-baseline.xml --output-format=github'
