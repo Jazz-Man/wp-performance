@@ -26,74 +26,10 @@ class MenuItemClasses {
         $ancestorItemIds = [];
         $activeParentItemIds = [];
         $parentObjectIds = [];
-        $taxonomyAncestors = [];
+        $taxonomyAncestors = self::getTaxonomyAncestors();
         /** @var int[] $objectParents */
         $objectParents = [];
         $homePageId = (int) get_option('page_for_posts');
-
-        if ($wp_query->is_singular && $object instanceof WP_Post && ! is_post_type_hierarchical($object->post_type)) {
-            /** @var array<string,WP_Taxonomy> $taxonomies */
-            $taxonomies = get_object_taxonomies($object->post_type, 'objects');
-
-            foreach ($taxonomies as $taxonomy => $taxonomyObject) {
-                if ($taxonomyObject->hierarchical && $taxonomyObject->public) {
-                    /** @var array<int,int> $termHierarchy */
-                    $termHierarchy = _get_term_hierarchy($taxonomy);
-                    /** @var int[]|WP_Error $terms */
-                    $terms = wp_get_object_terms($queriedObjectId, $taxonomy, [ 'fields' => 'ids']);
-
-                    if (is_array($terms)) {
-                        $objectParents = array_merge($objectParents, $terms);
-                        /** @var array<int,int> $termToAncestor */
-                        $termToAncestor = [];
-
-                        foreach ($termHierarchy as $anc => $descs) {
-                            foreach ((array) $descs as $desc) {
-                                $termToAncestor[$desc] = $anc;
-                            }
-                        }
-
-                        foreach ($terms as $term) {
-                            do {
-                                $taxonomyAncestors[$taxonomy][] = $term;
-
-                                if (isset($termToAncestor[$term])) {
-                                    $_desc = $termToAncestor[$term];
-                                    unset($termToAncestor[$term]);
-                                    $term = $_desc;
-                                } else {
-                                    $term = 0;
-                                }
-                            } while ( ! empty($term));
-                        }
-                    }
-                }
-            }
-        } elseif ( $object instanceof WP_Term && is_taxonomy_hierarchical($object->taxonomy)) {
-            /** @var array<int,int> $termHierarchy */
-            $termHierarchy = _get_term_hierarchy($object->taxonomy);
-            /** @var array<int,int> $termToAncestor */
-            $termToAncestor = [];
-
-            foreach ($termHierarchy as $anc => $descs) {
-                foreach ((array) $descs as $desc) {
-                    $termToAncestor[$desc] = $anc;
-                }
-            }
-            $desc = $object->term_id;
-
-            do {
-                $taxonomyAncestors[$object->taxonomy][] = $desc;
-
-                if (isset($termToAncestor[$desc])) {
-                    $_desc = $termToAncestor[$desc];
-                    unset($termToAncestor[$desc]);
-                    $desc = $_desc;
-                } else {
-                    $desc = 0;
-                }
-            } while ( ! empty($desc));
-        }
 
         $objectParents = array_filter($objectParents);
 
@@ -250,6 +186,85 @@ class MenuItemClasses {
 
             $menuItems[$key]->classes = array_unique($classes);
         }
+    }
+
+	/**
+	 * @return array<string,array<int,int>>
+	 */
+    private static function getTaxonomyAncestors(): array {
+	    global $wp_query;
+
+        /** @var WP_Term|WP_Post_Type|WP_Post|WP_User|null $object */
+        $object = $wp_query->get_queried_object();
+        $queriedObjectId = $wp_query->queried_object_id;
+
+        $taxonomyAncestors = [];
+
+        if ($wp_query->is_singular && $object instanceof WP_Post && ! is_post_type_hierarchical($object->post_type)) {
+            /** @var array<string,WP_Taxonomy> $taxonomies */
+            $taxonomies = get_object_taxonomies($object->post_type, 'objects');
+
+            foreach ($taxonomies as $taxonomy => $taxonomyObject) {
+                if ($taxonomyObject->hierarchical && $taxonomyObject->public) {
+                    /** @var array<int,int> $termHierarchy */
+                    $termHierarchy = _get_term_hierarchy($taxonomy);
+                    /** @var int[]|WP_Error $terms */
+                    $terms = wp_get_object_terms($queriedObjectId, $taxonomy, [ 'fields' => 'ids']);
+
+                    if (is_array($terms)) {
+                        $objectParents = array_merge($objectParents, $terms);
+                        /** @var array<int,int> $termToAncestor */
+                        $termToAncestor = [];
+
+                        foreach ($termHierarchy as $anc => $descs) {
+                            foreach ((array) $descs as $desc) {
+                                $termToAncestor[$desc] = $anc;
+                            }
+                        }
+
+                        foreach ($terms as $term) {
+                            do {
+                                $taxonomyAncestors[$taxonomy][] = $term;
+
+                                if (isset($termToAncestor[$term])) {
+                                    $_desc = $termToAncestor[$term];
+                                    unset($termToAncestor[$term]);
+                                    $term = $_desc;
+                                } else {
+                                    $term = 0;
+                                }
+                            } while ( ! empty($term));
+                        }
+                    }
+                }
+            }
+        } elseif ( $object instanceof WP_Term && is_taxonomy_hierarchical($object->taxonomy)) {
+            /** @var array<int,int> $termHierarchy */
+            $termHierarchy = _get_term_hierarchy($object->taxonomy);
+            /** @var array<int,int> $termToAncestor */
+            $termToAncestor = [];
+
+            foreach ($termHierarchy as $anc => $descs) {
+                foreach ((array) $descs as $desc) {
+                    $termToAncestor[$desc] = $anc;
+                }
+            }
+            $desc = $object->term_id;
+
+            do {
+                $taxonomyAncestors[$object->taxonomy][] = $desc;
+
+                if (isset($termToAncestor[$desc])) {
+                    $_desc = $termToAncestor[$desc];
+                    unset($termToAncestor[$desc]);
+                    $desc = $_desc;
+                } else {
+                    $desc = 0;
+                }
+            } while ( ! empty($desc));
+        }
+
+        return $taxonomyAncestors;
     }
 
     /**
