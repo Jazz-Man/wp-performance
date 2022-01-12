@@ -243,4 +243,5 @@ return $config
     ->setRiskyAllowed(true)
     ->setFinder($finder)
     ->setUsingCache(true)
+	->setCacheFile(__DIR__.'/cache/.php-cs-fixer.cache')
 ;
