@@ -96,51 +96,50 @@ class Enqueue implements AutoloadInterface {
     }
 
     public static function jqueryFromCdn(): void {
-	    $scripts = wp_scripts();
+        $scripts = wp_scripts();
 
-		/** @var _WP_Dependency $jqCore */
-	    $jqCore = $scripts->registered['jquery-core'];
+        /** @var _WP_Dependency $jqCore */
+        $jqCore = $scripts->registered['jquery-core'];
 
-	    $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
+        $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
 
-	    foreach ($scripts->registered as $handle => $data) {
-		    /* @var _WP_Dependency $data */
-		    if (strpos($handle, 'jquery-effects-') === 0) {
-			    if ($handle === 'jquery-effects-core') {
-				    $newUrl = sprintf('%s/ui/effect.min.js', $jsdelivrUrl);
-			    } else {
-				    $newUrl = sprintf(
-					    '%s/ui/effects/effect-%s.min.js',
-					    $jsdelivrUrl,
-					    str_replace('jquery-effects-', '', $handle)
-				    );
-			    }
+        foreach ($scripts->registered as $handle => $data) {
+            /* @var _WP_Dependency $data */
+            if (strpos($handle, 'jquery-effects-') === 0) {
+                if ($handle === 'jquery-effects-core') {
+                    $newUrl = sprintf('%s/ui/effect.min.js', $jsdelivrUrl);
+                } else {
+                    $newUrl = sprintf(
+                        '%s/ui/effects/effect-%s.min.js',
+                        $jsdelivrUrl,
+                        str_replace('jquery-effects-', '', $handle)
+                    );
+                }
 
-			    self::deregisterScript($handle, $newUrl);
-		    }
+                self::deregisterScript($handle, $newUrl);
+            }
 
-		    if (strpos($handle, 'jquery-ui-') === 0) {
-			    switch ($handle) {
-				    case 'jquery-ui-core':
-					    $newUrl = sprintf('%s/ui/core.min.js', $jsdelivrUrl);
-					    break;
+            if (strpos($handle, 'jquery-ui-') === 0) {
+                switch ($handle) {
+                    case 'jquery-ui-core':
+                        $newUrl = sprintf('%s/ui/core.min.js', $jsdelivrUrl);
+                        break;
 
-				    case 'jquery-ui-widget':
-					    $newUrl = sprintf('%s/ui/widget.min.js', $jsdelivrUrl);
-					    break;
-				    default:
-					    $newUrl = sprintf(
-						    '%s/ui/widgets/%s.min.js',
-						    $jsdelivrUrl,
-						    str_replace('jquery-ui-', '', $handle)
-					    );
-					    break;
+                    case 'jquery-ui-widget':
+                        $newUrl = sprintf('%s/ui/widget.min.js', $jsdelivrUrl);
+                        break;
+                    default:
+                        $newUrl = sprintf(
+                            '%s/ui/widgets/%s.min.js',
+                            $jsdelivrUrl,
+                            str_replace('jquery-ui-', '', $handle)
+                        );
+                        break;
 
-			    }
-			    self::deregisterScript($handle, $newUrl);
-		    }
-	    }
-
+                }
+                self::deregisterScript($handle, $newUrl);
+            }
+        }
 
         $jqVer = trim((string) $jqCore->ver, '-wp');
 
@@ -169,9 +168,9 @@ class Enqueue implements AutoloadInterface {
             if ( ! empty($newUrl)) {
                 wp_register_script($jsLib->handle, $newUrl, $jsLib->deps, $jsLib->ver, true);
 
-				if ($enqueue) {
-		            wp_enqueue_script($jsLib->handle);
-	            }
+                if ($enqueue) {
+                    wp_enqueue_script($jsLib->handle);
+                }
             }
         }
     }
