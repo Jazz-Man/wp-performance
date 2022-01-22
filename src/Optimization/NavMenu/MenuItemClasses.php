@@ -188,11 +188,11 @@ class MenuItemClasses {
         }
     }
 
-	/**
-	 * @return array<string,array<int,int>>
-	 */
+    /**
+     * @return array<string,array<int,int>>
+     */
     private static function getTaxonomyAncestors(): array {
-	    global $wp_query;
+        global $wp_query;
 
         /** @var WP_Term|WP_Post_Type|WP_Post|WP_User|null $object */
         $object = $wp_query->get_queried_object();
