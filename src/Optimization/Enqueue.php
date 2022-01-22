@@ -96,25 +96,22 @@ class Enqueue implements AutoloadInterface {
     }
 
     public static function jqueryFromCdn(): void {
-        $scripts = wp_scripts();
+        /** @var array<string,_WP_Dependency> $registered */
+        $registered = wp_scripts()->registered;
 
-        /** @var _WP_Dependency $jqCore */
-        $jqCore = $scripts->registered['jquery-core'];
+        $jqCore = $registered['jquery-core'];
 
         $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
 
-        foreach ($scripts->registered as $handle => $data) {
-            /* @var _WP_Dependency $data */
+        foreach ($registered as $handle => $data) {
             if (strpos($handle, 'jquery-effects-') === 0) {
-                if ($handle === 'jquery-effects-core') {
-                    $newUrl = sprintf('%s/ui/effect.min.js', $jsdelivrUrl);
-                } else {
-                    $newUrl = sprintf(
-                        '%s/ui/effects/effect-%s.min.js',
-                        $jsdelivrUrl,
-                        str_replace('jquery-effects-', '', $handle)
-                    );
-                }
+                $isCore = $handle === 'jquery-effects-core';
+
+                $newUrl = sprintf(
+                    '%s/ui/effect%s.min.js',
+                    $jsdelivrUrl,
+                    $isCore ? '' : str_replace('jquery-effects-', '-', $handle)
+                );
 
                 self::deregisterScript($handle, $newUrl);
             }
@@ -156,37 +153,41 @@ class Enqueue implements AutoloadInterface {
     }
 
     public static function deregisterScript(string $handle, ?string $newUrl = null, bool $enqueue = false): void {
+        /** @var array<string,_WP_Dependency> $registered */
         $registered = wp_scripts()->registered;
 
         if ( ! empty($registered[$handle])) {
-            /** @var _WP_Dependency $jsLib */
             $jsLib = $registered[$handle];
 
             wp_dequeue_script($jsLib->handle);
             wp_deregister_script($jsLib->handle);
 
             if ( ! empty($newUrl)) {
-                wp_register_script($jsLib->handle, $newUrl, $jsLib->deps, $jsLib->ver, true);
 
-                if ($enqueue) {
-                    wp_enqueue_script($jsLib->handle);
-                }
+                /** @var callable $function */
+                $function = $enqueue ? 'wp_enqueue_script' : 'wp_register_script';
+
+                $function($jsLib->handle, $newUrl, $jsLib->deps, $jsLib->ver, true);
             }
         }
     }
 
-    public static function deregisterStyle(string $handle, ?string $newUrl = null): void {
+    public static function deregisterStyle(string $handle, ?string $newUrl = null, bool $enqueue = false): void {
+        /** @var array<string,_WP_Dependency> $registered */
         $registered = wp_styles()->registered;
 
         if ( ! empty($registered[$handle])) {
-            /** @var _WP_Dependency $cssLib */
             $cssLib = $registered[$handle];
 
             wp_dequeue_style($cssLib->handle);
             wp_deregister_style($cssLib->handle);
 
             if ( ! empty($newUrl)) {
-                wp_register_style($cssLib->handle, $newUrl, $cssLib->deps, $cssLib->ver);
+
+                /** @var callable $function */
+                $function = $enqueue ? 'wp_enqueue_style' : 'wp_register_style';
+
+                $function($cssLib->handle, $newUrl, $cssLib->deps, $cssLib->ver);
             }
         }
     }
