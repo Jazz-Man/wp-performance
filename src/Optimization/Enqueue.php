@@ -49,13 +49,13 @@ class Enqueue implements AutoloadInterface {
         if ($addVersion && app_is_current_host($scriptSrc)) {
             $file = self::prepareScriptFilePath($scriptSrc);
 
-            if ($file !== false) {
-                $fileMap = sprintf('%s.map', $file);
+            if (!empty($file)) {
+                $fileMap = sprintf('%s.map', (string) $file);
 
-                $timestamp = is_readable($fileMap) ? (int) filemtime($fileMap) : (int) filemtime($file);
+                $timestamp = is_readable($fileMap) ? $fileMap : $file;
 
                 $scriptSrc = add_query_arg([
-                    'ver' => $timestamp,
+                    'ver' => filemtime((string) $timestamp),
                 ], $scriptSrc);
             }
         } elseif (strpos($scriptSrc, '?ver=')) {
@@ -71,22 +71,76 @@ class Enqueue implements AutoloadInterface {
     private static function prepareScriptFilePath(string $scriptSrc) {
         $path = ltrim((string) parse_url($scriptSrc, PHP_URL_PATH), '/');
 
-        if (is_multisite()) {
-            $blogDetails = get_blog_details(null, false);
+        $file = sprintf(
+            '%s/%s',
+            (string) app_locate_root_dir(),
+            self::fixMultiSitePath($path)
+        );
 
-            $path = $blogDetails instanceof WP_Site ? ltrim($path, $blogDetails->path) : $path;
+        return is_readable($file) ? $file : false;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    private static function fixMultiSitePath(string $path): string {
+        static $blogDetails;
+
+        if ($blogDetails === null) {
+            $blogDetails = get_blog_details(null, false);
         }
 
-        $root = app_locate_root_dir();
-
-        $file = sprintf('%s/%s', $root, $path);
-
-        return is_readable($file) ? (string) $file : false;
+        return is_multisite() && $blogDetails instanceof WP_Site ? ltrim($path, $blogDetails->path) : $path;
     }
 
     public static function jqueryFromCdn(): void {
-        /** @var _WP_Dependency $jqCore */
-        $jqCore = wp_scripts()->registered['jquery-core'];
+	    $scripts = wp_scripts();
+
+		/** @var _WP_Dependency $jqCore */
+	    $jqCore = $scripts->registered['jquery-core'];
+
+	    $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
+
+	    foreach ($scripts->registered as $handle => $data) {
+		    /* @var _WP_Dependency $data */
+		    if (strpos($handle, 'jquery-effects-') === 0) {
+			    if ($handle === 'jquery-effects-core') {
+				    $newUrl = sprintf('%s/ui/effect.min.js', $jsdelivrUrl);
+			    } else {
+				    $newUrl = sprintf(
+					    '%s/ui/effects/effect-%s.min.js',
+					    $jsdelivrUrl,
+					    str_replace('jquery-effects-', '', $handle)
+				    );
+			    }
+
+			    self::deregisterScript($handle, $newUrl);
+		    }
+
+		    if (strpos($handle, 'jquery-ui-') === 0) {
+			    switch ($handle) {
+				    case 'jquery-ui-core':
+					    $newUrl = sprintf('%s/ui/core.min.js', $jsdelivrUrl);
+					    break;
+
+				    case 'jquery-ui-widget':
+					    $newUrl = sprintf('%s/ui/widget.min.js', $jsdelivrUrl);
+					    break;
+				    default:
+					    $newUrl = sprintf(
+						    '%s/ui/widgets/%s.min.js',
+						    $jsdelivrUrl,
+						    str_replace('jquery-ui-', '', $handle)
+					    );
+					    break;
+
+			    }
+			    self::deregisterScript($handle, $newUrl);
+		    }
+	    }
+
 
         $jqVer = trim((string) $jqCore->ver, '-wp');
 
@@ -102,7 +156,7 @@ class Enqueue implements AutoloadInterface {
         remove_action('wp_head', 'wp_enqueue_scripts', 1);
     }
 
-    public static function deregisterScript(string $handle, ?string $newUrl = null): void {
+    public static function deregisterScript(string $handle, ?string $newUrl = null, bool $enqueue = false): void {
         $registered = wp_scripts()->registered;
 
         if ( ! empty($registered[$handle])) {
@@ -114,6 +168,10 @@ class Enqueue implements AutoloadInterface {
 
             if ( ! empty($newUrl)) {
                 wp_register_script($jsLib->handle, $newUrl, $jsLib->deps, $jsLib->ver, true);
+
+				if ($enqueue) {
+		            wp_enqueue_script($jsLib->handle);
+	            }
             }
         }
     }
