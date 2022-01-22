@@ -6,11 +6,6 @@ parameters:
 			path: src/Optimization/DuplicatePost.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function filemtime expects string, string\\|true given\\.$#"
-			count: 1
-			path: src/Optimization/Enqueue.php
-
-		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:mediaLibraryMonthsWithFiles\\(\\) should return array\\<stdClass\\> but returns array\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
@@ -33,11 +28,6 @@ parameters:
 		-
 			message: "#^Cannot cast mixed to int\\.$#"
 			count: 3
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\NavMenu\\\\MenuItemClasses\\:\\:getTaxonomyAncestors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Optimization/NavMenu/MenuItemClasses.php
 
 		-

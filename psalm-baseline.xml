@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.18.1@dda05fa913f4dc6eb3386f2f7ce5a45d37a71bcb">
+<files psalm-version="4.x-dev@">
   <file src="src/Optimization/CleanUp.php">
     <MixedArgumentTypeCoercion occurrences="3">
       <code>$headers</code>
@@ -14,19 +14,9 @@
     </MixedArgumentTypeCoercion>
   </file>
   <file src="src/Optimization/Enqueue.php">
-    <InvalidScalarArgument occurrences="2">
-      <code>$file</code>
-      <code>$file</code>
-    </InvalidScalarArgument>
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$links</code>
     </MixedArgumentTypeCoercion>
-    <PossiblyFalseArgument occurrences="1">
-      <code>$root</code>
-    </PossiblyFalseArgument>
-    <RedundantCast occurrences="1">
-      <code>(string) $file</code>
-    </RedundantCast>
   </file>
   <file src="src/Optimization/Http.php">
     <MixedArgument occurrences="1">
@@ -64,9 +54,6 @@
       <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
       <code>$objectParents</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$taxonomyAncestors</code>
-    </MixedArgumentTypeCoercion>
     <PossiblyNullArgument occurrences="1">
       <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
     </PossiblyNullArgument>
