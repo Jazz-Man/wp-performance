@@ -172,7 +172,7 @@ class Media implements AutoloadInterface {
     /**
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
      *
-     * @return array<stdClass>
+     * @return stdClass[]
      */
     public function mediaLibraryMonthsWithFiles(): array {
         global $wpdb;
