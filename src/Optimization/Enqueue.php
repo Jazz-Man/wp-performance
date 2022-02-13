@@ -13,16 +13,12 @@ use WP_Site;
 class Enqueue implements AutoloadInterface {
     public function load(): void {
         add_filter('app_preload_links', fn (array $links): array => $this->preloadLinks($links));
-        add_action('wp_enqueue_scripts', function (): void {
-            $this->jsToFooter();
-        });
-        add_action('wp_enqueue_scripts', function (): void {
-            $this::jqueryFromCdn();
-        });
+        add_action('wp_enqueue_scripts', [__CLASS__, 'jsToFooter']);
+        add_action('wp_enqueue_scripts', [__CLASS__, 'jqueryFromCdn']);
 
         if ( ! is_admin()) {
-            add_filter('script_loader_src', fn (string $scriptSrc, string $handle): string => $this->setScriptVersion($scriptSrc, $handle), 15, 2);
-            add_filter('style_loader_src', fn (string $scriptSrc, string $handle): string => $this->setScriptVersion($scriptSrc, $handle), 15, 2);
+            add_filter('script_loader_src', fn (string $scriptSrc, string $handle): string => self::setScriptVersion($scriptSrc, $handle), 15, 2);
+            add_filter('style_loader_src', fn (string $scriptSrc, string $handle): string => self::setScriptVersion($scriptSrc, $handle), 15, 2);
         }
     }
 
@@ -39,7 +35,7 @@ class Enqueue implements AutoloadInterface {
         return $links;
     }
 
-    public function setScriptVersion(string $scriptSrc, string $handle): string {
+    public static function setScriptVersion(string $scriptSrc, string $handle): string {
         if ( ! filter_var($scriptSrc, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
             return $scriptSrc;
         }
@@ -146,7 +142,7 @@ class Enqueue implements AutoloadInterface {
         wp_register_script('jquery', false, [$jqCore->handle], $jqVer, true);
     }
 
-    public function jsToFooter(): void {
+    public static function jsToFooter(): void {
         remove_action('wp_head', 'wp_print_scripts');
         remove_action('wp_head', 'wp_print_head_scripts', 9);
         remove_action('wp_head', 'wp_enqueue_scripts', 1);
