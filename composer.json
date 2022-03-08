@@ -26,6 +26,7 @@
         "symfony/web-link": "^5.3"
     },
     "require-dev": {
+        "jazzman/php-cs-fixer-rules": "^0.0.3",
         "php-stubs/wordpress-stubs": "^5.8",
         "phpstan/extension-installer": "^1.1",
         "rector/rector": "^0.12.12",
