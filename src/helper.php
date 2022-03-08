@@ -106,7 +106,7 @@ if ( ! function_exists('app_get_attachment_image')) {
             $defaultAttributes = [
                 'src' => $image['url'],
                 'class' => sprintf('attachment-%1$s size-%1$s', $size),
-                'alt' => app_trim_string(strip_tags($image['alt'])),
+                'alt' => app_trim_string(strip_tags((string) $image['alt'])),
                 'width' => empty($image['width']) ? false : (int) $image['width'],
                 'height' => empty($image['height']) ? false : (int) $image['height'],
                 'loading' => $lazyLoading ? 'lazy' : false,
@@ -156,6 +156,7 @@ if ( ! function_exists('app_get_term_link')) {
 
         $termlink = $wp_rewrite->get_extra_permastruct($term->taxonomy);
 
+        /* @var string|false $termlink */
         $termlink = apply_filters('pre_term_link', $termlink, $term);
 
         $termlinkSlug = $term->slug;
@@ -182,13 +183,15 @@ if ( ! function_exists('app_get_term_link')) {
         }
 
         if ( ! empty($taxonomy->rewrite) && $taxonomy->rewrite['hierarchical']) {
-            $hierarchicalSlugs = [];
+	        /** @var string[] $hierarchicalSlugs */
+			$hierarchicalSlugs = [];
 
             if ($term->parent) {
-                $ancestorsKey = sprintf('taxonomy_ancestors_%s_%s', $term->term_id, $term->taxonomy);
+                $ancestorsKey = sprintf('taxonomy_ancestors_%d_%s', $term->term_id, $term->taxonomy );
                 $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
                 if (empty($hierarchicalSlugs)) {
+                    /** @var string[] $result */
                     $result = [];
 
                     /** @var \stdClass[]|false $ancestors */
@@ -196,7 +199,7 @@ if ( ! function_exists('app_get_term_link')) {
 
                     if ( ! empty($ancestors)) {
                         foreach ($ancestors as $ancestor) {
-                            $result[] = $ancestor->term_slug;
+                            $result[] = (string) $ancestor->term_slug;
                         }
                     }
 
@@ -299,6 +302,7 @@ if ( ! function_exists('app_term_get_all_children')) {
     function app_term_get_all_children(int $termId): array {
         global $wpdb;
 
+		/** @var int[] $children */
         $children = wp_cache_get(sprintf('term_all_children_%d', $termId), Cache::CACHE_GROUP);
 
         if (empty($children)) {
