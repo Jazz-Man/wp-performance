@@ -20,21 +20,23 @@ class WPResourceHints implements AutoloadInterface {
             return;
         }
 
-        $unique_urls = self::getUniqueHintsUrls();
+        $uniqueUrls = self::getUniqueHintsUrls();
 
         $header = [];
 
-        foreach ($unique_urls as $attr) {
+        foreach ($uniqueUrls as $uniqueUrl) {
             $attributes = [];
 
-            foreach ($attr as $key => $value) {
+            foreach ($uniqueUrl as $key => $value) {
                 if ( ! self::isValidAttr($key, $value) ) {
                     continue;
                 }
 
-                $value = ( 'href' === $attr ) ? $value : esc_attr( $value );
+                $value = ( 'href' === $uniqueUrl ) ? $value : esc_attr( $value );
 
-                $attributes[] = $key === 'href' ? sprintf('<%s>', $value) : sprintf('%s="%s"', $key, $value);
+                $attributes[] = $key === 'href' ?
+                    sprintf('<%s>', $value) :
+                    sprintf('%s="%s"', $key, $value);
             }
 
             if (!empty($attributes)) {
@@ -48,21 +50,23 @@ class WPResourceHints implements AutoloadInterface {
     }
 
     public static function preloadLinks(): void {
-        $unique_urls = self::getUniqueHintsUrls();
+        $uniqueUrls = self::getUniqueHintsUrls();
 
-        foreach ( $unique_urls as $atts ) {
+        foreach ( $uniqueUrls as $uniqueUrl ) {
             $html = '';
 
-            foreach ( $atts as $attr => $value ) {
+            foreach ( $uniqueUrl as $attr => $value ) {
                 if ( ! self::isValidAttr($attr, $value) ) {
                     continue;
                 }
 
-                $html .= ! is_string( $attr ) ? " $value" : sprintf(
-                    ' %s="%s"',
-                    $attr,
-                    ( 'href' === $attr ) ? $value : esc_attr( $value )
-                );
+                $html .= is_string( $attr ) ?
+                    sprintf(
+                        ' %s="%s"',
+                        $attr,
+                        ( 'href' === $attr ) ? (string) $value : esc_attr( $value )
+                    ) :
+                    sprintf(' %s', $value);
             }
 
             if (!empty($html)) {
@@ -72,67 +76,64 @@ class WPResourceHints implements AutoloadInterface {
     }
 
     /**
-     * @param string $attr
-     * @param mixed  $value
+     * @param string|array-key $attr
+     * @param mixed            $value
      *
      * @return bool
      */
-    private static function isValidAttr(string $attr, $value): bool {
-        if ( ! is_scalar( $value ) || ( ! in_array( $attr, [ 'as', 'crossorigin', 'href', 'pr', 'rel', 'type' ], true ) && ! is_numeric( $attr ) ) ) {
-            return false;
-        }
-
-        return true;
+    private static function isValidAttr($attr, $value): bool {
+        return is_scalar( $value ) && !(! in_array( $attr, [ 'as', 'crossorigin', 'href', 'pr', 'rel', 'type' ], true ) && ! is_numeric( $attr ));
     }
 
     /**
-     * @return array<string,array<string,string>>
+     * @return array<string,string|array<string|array-key,string>>
      */
     private static function getUniqueHintsUrls(): array {
         $hints = self::getResourceHints();
 
-        $unique_urls = [];
+        $uniqueUrls = [];
 
-        foreach ( $hints as $relation_type => $urls ) {
-            /** @var array<string,string|array<string,string>> $urls */
-            $urls = apply_filters( 'wp_resource_hints', $urls, $relation_type );
+        foreach ( $hints as $relationType => $hintUrls ) {
+            /** @var array<array-key,string|array<string,string>> $hintUrls */
+            $hintUrls = apply_filters( 'wp_resource_hints', $hintUrls, $relationType);
 
-            foreach ( $urls as $key => $url ) {
+            foreach ( $hintUrls as $key => $hintUrl ) {
+                /** @var array<string,string> $atts */
                 $atts = [];
 
-                if ( is_array( $url ) ) {
-                    if ( isset( $url['href'] ) ) {
-                        $atts = $url;
-                        $url = $url['href'];
-                    } else {
+                if ( is_array( $hintUrl ) ) {
+                    if (!isset( $hintUrl['href'] )) {
                         continue;
                     }
+
+                    $atts = $hintUrl;
+                    $hintUrl = $hintUrl['href'];
                 }
 
-                $url = esc_url( $url, [ 'http', 'https' ] );
+                $hintUrl = esc_url( $hintUrl, [ 'http', 'https' ] );
 
-                if ( ! $url ) {
+                if (empty($hintUrl)) {
                     continue;
                 }
 
-                if ( ! filter_var($url, FILTER_VALIDATE_URL)) {
+                if (! filter_var($hintUrl, FILTER_VALIDATE_URL)) {
                     continue;
                 }
 
-                $url = app_make_link_relative($url);
+                $hintUrl = app_make_link_relative($hintUrl);
 
-                if ( isset( $unique_urls[ $url ] ) ) {
+                if ( isset( $uniqueUrls[ $hintUrl ] ) ) {
                     continue;
                 }
 
-                $atts['rel'] = $relation_type;
-                $atts['href'] = $url;
+                $atts['rel'] = $relationType;
+                $atts['href'] = $hintUrl;
 
-                $unique_urls[ $url ] = $atts;
+                $uniqueUrls[ $hintUrl ] = $atts;
             }
         }
 
-        return $unique_urls;
+        return $uniqueUrls;
     }
 
     /**
