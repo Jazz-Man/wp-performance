@@ -21,10 +21,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters = $containerConfigurator->parameters();
 
-	$parameters->set(Option::FILE_EXTENSIONS, ['php']);
+    $parameters->set(Option::FILE_EXTENSIONS, ['php']);
     $parameters->set(Option::PHP_VERSION_FEATURES, PhpVersion::PHP_74);
 
-	$parameters->set(Option::AUTO_IMPORT_NAMES, true);
+    $parameters->set(Option::AUTO_IMPORT_NAMES, true);
     $parameters->set(Option::IMPORT_SHORT_CLASSES, false);
     $parameters->set(Option::CACHE_DIR, __DIR__ . '/cache/rector');
 
