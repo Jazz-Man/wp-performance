@@ -27,22 +27,24 @@ class ResourceHints implements AutoloadInterface {
         foreach ($uniqueUrls as $uniqueUrl) {
             $attributes = [];
 
-            foreach ($uniqueUrl as $key => $value) {
-                if ( ! self::isValidAttr($key, $value) ) {
+            foreach ($uniqueUrl as $attr => $value) {
+                if ( ! self::isValidAttr($attr, $value) ) {
                     continue;
                 }
 
-                $value = ( 'href' === $uniqueUrl ) ? $value : esc_attr( $value );
-
-                $attributes[] = $key === 'href' ?
-                    sprintf('<%s>', $value) :
-                    sprintf('%s="%s"', $key, $value);
+                $attributes[] = $attr === 'href' ?
+                    sprintf('<%s>', esc_url($value)) :
+                    sprintf('%s="%s"', $attr, esc_attr($value));
             }
 
             if (!empty($attributes)) {
                 $header[] = implode('; ', $attributes);
             }
+
+            unset($attributes);
         }
+
+        unset($uniqueUrls);
 
         if (!empty($header)) {
             header(sprintf('Link: %s', implode(', ', $header)), false);
@@ -65,14 +67,18 @@ class ResourceHints implements AutoloadInterface {
                     sprintf(
                         ' %s="%s"',
                         $attr,
-                        ( 'href' === $attr ) ? (string) $value : esc_attr( $value )
+                        $attr === 'href' ? esc_url($value) : esc_attr( $value )
                     );
             }
 
             if (!empty($html)) {
                 printf("<link %s />\n", trim( $html ));
             }
+
+            unset($html);
         }
+
+        unset($uniqueUrls);
     }
 
     /**
@@ -97,7 +103,7 @@ class ResourceHints implements AutoloadInterface {
             /** @var array<array-key,string|array<string,string>> $hintUrls */
             $hintUrls = apply_filters( 'wp_resource_hints', $hintUrls, $relationType);
 
-            foreach ( $hintUrls as $key => $hintUrl ) {
+            foreach ( $hintUrls as $hintUrl ) {
                 /** @var array<string,string> $atts */
                 $atts = [];
 
@@ -140,6 +146,7 @@ class ResourceHints implements AutoloadInterface {
      * @return array<string,string[]|array<string,string>>
      */
     private static function getResourceHints(): array {
+        /** @var array<string,string[]|array<string,string>>|null $hints */
         static $hints;
 
         if ($hints === null) {
