@@ -25,14 +25,10 @@ class WPQuery implements AutoloadInterface {
     private ?string $queryHash = null;
 
     public function load(): void {
-        add_action('save_post', function (int $postId): void {
-            $this->flushFoundRowsCach($postId);
-        });
+        add_action('save_post', [$this, 'flushFoundRowsCach']);
 
-        add_filter('pre_get_posts', function (WP_Query $query): void {
-            $this->setQueryParams($query);
-        }, 10, 1);
-        add_filter('posts_clauses_request', fn (array $clauses, WP_Query $query): array => $this->postsClausesRequest($clauses, $query), 10, 2);
+        add_filter('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
+        add_filter('posts_clauses_request', [$this, 'postsClausesRequest'], 10, 2);
     }
 
     /**
@@ -56,12 +52,17 @@ class WPQuery implements AutoloadInterface {
             try {
                 $pdo = app_db_pdo();
 
-                $where = $clauses['where'] ?? '';
-                $join = $clauses['join'] ?? '';
-
                 /** @noinspection SqlConstantCondition */
                 $pdoStatement = $pdo->prepare(
-                    sprintf('SELECT %s.ID FROM %s %s WHERE 1=1 %s GROUP BY %s.ID ORDER BY %s.post_date', $wpdb->posts, $wpdb->posts, $join, $where, $wpdb->posts, $wpdb->posts)
+                    sprintf(
+                        'SELECT %s.ID FROM %s %s WHERE 1=1 %s GROUP BY %s.ID ORDER BY %s.post_date',
+                        $wpdb->posts,
+                        $wpdb->posts,
+                        $clauses['join'] ?? '',
+                        $clauses['where'] ?? '',
+                        $wpdb->posts,
+                        $wpdb->posts
+                    )
                 );
 
                 $pdoStatement->execute();
