@@ -2,9 +2,6 @@
 
 use JazzMan\Performance\Utils\AttachmentData;
 use JazzMan\Performance\Utils\Cache;
-use function Latitude\QueryBuilder\alias;
-use function Latitude\QueryBuilder\field;
-use Latitude\QueryBuilder\QueryFactory;
 
 if ( ! function_exists('app_get_image_data_array')) {
     /**
@@ -183,8 +180,8 @@ if ( ! function_exists('app_get_term_link')) {
         }
 
         if ( ! empty($taxonomy->rewrite) && $taxonomy->rewrite['hierarchical']) {
-	        /** @var string[] $hierarchicalSlugs */
-			$hierarchicalSlugs = [];
+            /** @var string[] $hierarchicalSlugs */
+            $hierarchicalSlugs = [];
 
             if ($term->parent) {
                 $ancestorsKey = sprintf('taxonomy_ancestors_%d_%s', $term->term_id, $term->taxonomy );
@@ -302,7 +299,7 @@ if ( ! function_exists('app_term_get_all_children')) {
     function app_term_get_all_children(int $termId): array {
         global $wpdb;
 
-		/** @var int[] $children */
+        /** @var int[] $children */
         $children = wp_cache_get(sprintf('term_all_children_%d', $termId), Cache::CACHE_GROUP);
 
         if (empty($children)) {
@@ -333,6 +330,7 @@ SQL
 
                 $pdoStatement->execute(['termId' => $termId]);
 
+                /** @var int[] $children */
                 $children = $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
 
                 if ( ! empty($children)) {
@@ -353,39 +351,25 @@ if ( ! function_exists('app_get_wp_block')) {
     /**
      * @param string $postName
      *
-     * @return false|WP_Post
+     * @return false|\WP_Post
      */
     function app_get_wp_block(string $postName) {
-        global $wpdb;
-
         $cacheKey = sprintf('wp_block_%s', $postName);
+
+        /** @var \WP_Post|false $result */
         $result = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
 
         if (false === $result) {
-            try {
-                $pdo = app_db_pdo();
+            /** @var \WP_Post[] $posts */
+            $posts = get_posts([
+                'post_type' => 'wp_block',
+                'numberposts' => 1,
+                'name' => $postName,
+            ]);
 
-                $query = (new QueryFactory())
-                    ->select('p.*')
-                    ->from(alias($wpdb->posts, 'p'))
-                    ->where(
-                        field('p.post_type')
-                            ->eq('wp_block')
-                            ->and(field('p.post_name')->eq($postName))
-                    )
-                    ->limit(1)
-                    ->compile();
-
-                $pdoStatement = $pdo->prepare($query->sql());
-                $pdoStatement->execute($query->params());
-
-                $result = $pdoStatement->fetchObject();
-
-                if ( ! empty($result)) {
-                    wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
-                }
-            } catch (Exception $exception) {
-                app_error_log($exception, __FUNCTION__);
+            if ( ! empty($posts)) {
+                $result = reset($posts);
+                wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
             }
         }
 
@@ -408,7 +392,7 @@ if ( ! function_exists('app_attachment_url_to_postid')) {
 
         $uploadDir = wp_upload_dir();
 
-        $siteUrl = (object) parse_url((string) $uploadDir['url']);
+        $siteUrl = (object) parse_url($uploadDir['url']);
         $imagePath = (object) parse_url($url);
 
         if ((string) $imagePath->scheme !== (string) $siteUrl->scheme) {
