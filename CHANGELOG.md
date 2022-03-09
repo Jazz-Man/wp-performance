@@ -1,4 +1,322 @@
 
+3.0.0 / 2022-03-09
+==================
+
+  * update baseline config
+  * fix code style
+  * fix problem with generating $objectParents array
+  * move NavMenuCache to new namespace
+  * update baseline
+  * refactor(used static methods)
+  * removed phpcs comments
+  * removed extra phpdoc
+  * refactor(used static methods)
+  * added phpdoc
+  * refactor CleanUp class to use static methods
+  * update attributes generation
+  * refactor to use static methods
+  * regenerate baseline
+  * ingnore MissingFile error
+  * refactor to use static methods
+  * fix phpdoc format
+  * added type for newPostArgs
+  * reduced extra type definition
+  * autoload wp constants file
+  * used get_posts function for app_get_wp_block
+  * added ResourceHints class to autoload list
+  * rename class
+  * update type casting
+  * moved to Utils namespace
+  * removed anonymous functions
+  * removed anonymous functions
+  * disable EncapsedStringsToSprintfRector rule
+  * moved to Utils namespace
+  * moved to Utils namespace
+  * reduce complexity
+  * ignore some rector rules
+  * fix code style
+  * updated require-dev section
+  * init new WPResourceHints class
+  * update phpdoc
+  * installed my own php-cs-fixer rules
+  * update phpdoc
+  * used static methods for jsToFooter and jqueryFromCdn
+  * fix code style
+  * regenerate base line
+  * used jquery-ui from jsdelivr
+  * fix code style
+  * used jquery-ui from jsdelivr
+  * Merge branch 'feature/reviewdog' into develop
+  * test Psalm run
+  * test Psalm run
+  * removed allowPhpStormGenerics option
+  * refactor setMenuItemClassesByContext method
+  * update psalm annotations style
+  * enable phpmd cmd
+  * update exclude paths config
+  * regenerate baseline files
+  * disable DEFLUENT rules
+  * ignore some files
+  * updated composer scripts
+  * update phpmd baseline
+  * ignore rector.php config file
+  * moved cache file to cache dir
+  * autoload stubs
+  * update phpstan config
+  * removed WP_CLI class
+  * rebuild baseline
+  * init phive config
+  * removed Cli commands
+  * update psalm config
+  * ignore vimeo/psalm
+  * removed edgedesign/phpqa
+  * renamed: .github/workflows/phpmd.yml -> .github/workflows/reviewdog.yml
+  * renamed: .github/workflows/phpmd.yml -> .github/workflows/reviewdog.yml
+  * update format for psalm
+  * update format for psalm
+  * update format for psalm
+  * update format for psalm
+  * set level for reviewdog
+  * init reviewdog config
+  * enable Psalm
+  * ignore src/Cli dir
+  * removed phpstan/phpstan-deprecation-rules
+  * rebuild base line
+  * removed humanmade/psalm-plugin-wordpress
+  * suppress some minor warnings
+  * update types for metadata
+  * update baseline
+  * convert array to object in removePluginUpdates method
+  * added more phpdoc and types
+  * disable Latitude query builder
+  * removed unnecessary var annotation
+  * fix MixedAssignment
+  * fix MixedArgumentTypeCoercion
+  * fix InvalidPropertyAssignmentValue
+  * upda6te type for countedTerms prop
+  * update phpdoc
+  * install humanmade/psalm-plugin-wordpress
+  * rebuild base line
+  * php-cs-fix
+  * encapsed strings to sprintf
+  * add more strict types
+  * Applied rules:  * DateTimeToDateTimeInterfaceRector  * NarrowUnionTypeDocRector  * ChangeAndIfToEarlyReturnRector  * AddArrayParamDocTypeRector  * AddArrayReturnDocTypeRector  * ReturnTypeFromStrictTypedCallRector
+  * Applied rules:  * EncapsedStringsToSprintfRector  * RenameForeachValueVariableToMatchExprVariableRector  * AddArrayReturnDocTypeRector
+  * switch negated ternary
+  * update type in Cache class
+  * removed is_wp_error function
+  * added more phpdoc
+  * added more phpdoc
+  * regenerate baseline
+  * rename check to cs-check
+  * run php-cs-fixer
+  * refactor types and phpdoc
+  * copy all post meta data to new post
+  * removed extra type cast
+  * update rector/rector
+  * update types
+  * update menu placeholder types
+  * update menu placeholder types
+  * removed RedundantCastGivenDocblockType
+  * added type for liner functions
+  * disable no_superfluous_phpdoc_tags rule
+  * refactor var names
+  * update phpmd command
+  * Merge branch 'feature/rector' into develop
+  * php-cs-fixer
+  * enable SetList::DEFLUENT
+  * rebuild baseline
+  * check if app_get_taxonomy_ancestors return an array
+  * add type to privat props
+  * Rector SetList::CODING_STYLE
+  * php-cs-fixer fix
+  * used Rector SetList::TYPE_DECLARATION_STRICT
+  * refactor var names
+  * run php-cs-fixer
+  * used Rector SetList::EARLY_RETURN
+  * php-cs-fixer fix
+  * Rector fix
+  * set type for wp_version
+  * install rector/rector
+  * install rector/rector
+  * rebuild base line
+  * moved cache dir to build
+  * Merge branch 'feature/psalm-fix' into develop
+  * added php-cs-fixer config
+  * used menu placeholder classes
+  * set string type for size param
+  * update baseline
+  * added globals vars list
+  * SuppressWarnings(PHPMD)
+  * extend by stdClass
+  * removed phpstan/phpstan-strict-rules
+  * set menu_item_parent to int type
+  * added NavMenuArgs Placeholder class
+  * added MenuItem Placeholder class
+  * set string[] types for $publicPostTypes
+  * rebuild baseline
+  * rebuild baseline
+  * set strict rules
+  * rebuild phpdoc for LastPostModified
+  * install phpstan/extension-installer
+  * install phpstan/extension-installer
+  * fix types in phpdoc
+  * fix UnusedForeachValue
+  * set max level of error detection
+  * update psalm composer scripts
+  * update phpdoc type for esc_attr params
+  * update phpdoc type for pdo params
+  * rebuild baseline
+  * update composer scripts for psalm
+  * fix InvalidReturnStatement
+  * refactor type declaration
+  * move  to top
+  * set correct scalar type
+  * suppress TooManyArguments for apply_filters
+  * check array offset
+  * update base line
+  * updated composer scripts
+  * fix return type and phpdoc
+  * update phpdoc: set specific return type
+  * set php version to 7.4
+  * fix global var scope
+  * bump jazzman/autoload-interface
+  * move global  in to right position
+  * install roots/wordpress as dev dependencies
+  * psalm --alter --issues=MissingReturnType
+  * regenerate base line
+  * fix problems in src/Optimization/DuplicatePost.php
+  * removed humanmade/psalm-plugin-wordpress
+  * replace is_wp_error => WP_Error
+  * update phpqa config
+  * update phpdoc type for ancestors
+  * enable wordpress extension
+  * rebuild baseline for phpmd
+  * added script to start php server
+  * init psalm-baseline file
+  * removed roots/wordpress as dev dependencies
+  * updated jazzman/wp-db-pdo
+  * removed "replace" config
+  * removed woocommerce_install_skip_create_files hook
+  * disable security-checker and parallel-lint
+  * generate baseline files and add to repo
+  * generate psalm baseline file
+  * refactor Cyclomatic Complexity
+  * update config for phpstan
+  * disabled UnusedLocalVariable rule
+  * removed SuppressWarnings phpdoc comments
+  * removed UnusedFormalParameter phpmd inspection
+  * removed comments
+  * added php script
+  * removed PhpUnusedParameterInspection phpdoc comment
+  * update phpdoc
+  * fix Cyclomatic Complexity
+  * update phpdoc
+  * set types for private props
+  * php.yml -> phpmd.yml
+  * removed macfja/phpqa-extensions and qossmic/deptrac-shim
+  * update php pipeline
+  * removed rskuipers/php-assumptions
+  * removed enlightn/security-checker,povils/phpmnd, symfony/var-dumper and add composer scripts
+  * ignore phpmd baseline and local phpstan config
+  * phpstan.neon -> phpstan.neon.dist
+  * disable MissingImport rule
+  * update docker image
+  * update phpqa action
+  * Create php_test.yml
+  * update phpqa action
+  * update phpqa image
+  * Merge branch 'develop'
+  * rename phpqa to php
+  * add workflows
+  * Delete codacy-analysis.yml
+  * delete workflows
+  * Create php.yml
+  * Merge branch 'develop' of github.com:Jazz-Man/wp-performance into develop
+  * delete codacy-analysis workflows
+  * Update phpqa.yml
+  * not ignore .github dir
+  * decompose AttachmentData class
+  * update phpdoc
+  * used composer script to run commands
+  * disable parallel execution
+  * init phpqa workflow
+  * update ignored Dirs for phpqa
+  * removed replace section
+  * update php version
+  * update phpdoc
+  * decompose NavMenuCache class
+  * move to JazzMan\Performance\Optimization\NavMenu namespace
+  * refactor phpdoc and types
+  * ignore php cs fixer cache
+  * decompose wrapId method
+  * decompose setupNavMenuItem method
+  * updated analisis config
+  * ignore cache dir
+  * decompose app_get_term_link function
+  * update dev
+  * removed wp-cli/wp-cli and install php-stubs/wp-cli-stubs
+  * update phpdoc and return type
+  * update phpdoc and return type
+  * removed curly braces
+  * refactor naming and phpdoc
+  * install phpstan and psalm plugin for wordpress
+  * ignore build dir
+  * move all static functions to helper.php
+  * refactor phpdoc and return types
+  * refactor try catch and phpdoc types
+  * added app_make_link_relative function
+  * refactor naming and phpdoc
+  * init psalm config
+  * enable Superglobals rule
+  * init base config for phpstan
+  * init base config for phpqa
+  * refactoring app_get_term_link function
+  * decompose setScriptVersion method
+  * decompose duplicatePostAsDraft method
+  * disabled ob_start in header
+  * moved all remove_action for wp_head to separate method
+  * disable body_class filter
+  * update phpdoc and returns type
+  * removed Options.php class (https://core.trac.wordpress.org/ticket/31245)
+  * update return type
+  * refactor naming
+  * refactor naming
+  * fix code style
+  * move props to local vars
+  * suppress inspection warnings
+  * removed extra public methods in class
+  * removed extra params
+  * fix CamelCaseVariableName rules
+  * fix phpmd rules
+  * fix CamelCaseVariableName rule
+  * fix CamelCaseVariableName rule
+  * disable UndefinedVariable rule
+  * remove global function import
+  * fix CamelCaseVariableName rule
+  * suppress phpmd warnings
+  * decompose class methods
+  * init privat props
+  * force array type
+  * fix CamelCase rule
+  * fix ElseExpression rule
+  * fix CamelCaseClassName rule
+  * disable StaticAccess rule and enable BooleanGetMethodName
+  * update phpdoc
+  * removed extra public methods
+  * fix CamelCaseParameterName errors in WPQuery::class
+  * disable error suppressing
+  * add phpqa extensions
+  * install edgedesign/phpqa
+  * install phpmd/phpmd end add rules
+  * replace wp_get_attachment_image_url to app_get_attachment_image_url
+  * added branches list
+  * Merge branch 'master' of github.com:Jazz-Man/wp-performance
+  * fix menu item url
+  * update wp-cli/wp-cli version
+  * Create codacy-analysis.yml
+  * Merge tag '2.2.7' into develop
+
 2.2.5 / 2021-04-16
 ==================
 
