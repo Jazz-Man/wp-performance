@@ -1,10 +1,10 @@
 <?php
 
-namespace JazzMan\Performance\Optimization;
+namespace JazzMan\Performance\Utils;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 
-class WPResourceHints implements AutoloadInterface {
+class ResourceHints implements AutoloadInterface {
     public function load() {
         add_action('init', [__CLASS__, 'removeWpResourceHints']);
         add_action('template_redirect', [__CLASS__, 'preloadLinksHttpHeader' ]);
@@ -60,13 +60,13 @@ class WPResourceHints implements AutoloadInterface {
                     continue;
                 }
 
-                $html .= is_string( $attr ) ?
+                $html .= is_numeric( $attr ) ?
+                    sprintf(' %s', $value) :
                     sprintf(
                         ' %s="%s"',
                         $attr,
                         ( 'href' === $attr ) ? (string) $value : esc_attr( $value )
-                    ) :
-                    sprintf(' %s', $value);
+                    );
             }
 
             if (!empty($html)) {
@@ -86,7 +86,7 @@ class WPResourceHints implements AutoloadInterface {
     }
 
     /**
-     * @return array<string,string|array<string|array-key,string>>
+     * @return array<string,array<string,string>>
      */
     private static function getUniqueHintsUrls(): array {
         $hints = self::getResourceHints();
