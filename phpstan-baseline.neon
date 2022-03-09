@@ -1,17 +1,7 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 1
-			path: src/Optimization/DuplicatePost.php
-
-		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:mediaLibraryMonthsWithFiles\\(\\) should return array\\<stdClass\\> but returns array\\|false\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$meta has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 
@@ -111,19 +101,14 @@ parameters:
 			path: src/Utils/AttachmentData.php
 
 		-
-			message: "#^Parameter \\#2 \\$options of method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) expects array\\<string, string\\>, array\\<string, bool\\> given\\.$#"
+			message: "#^Parameter \\#1 \\$postarr of function wp_insert_post expects array\\{ID\\?\\: int, post_author\\?\\: int, post_date\\?\\: string, post_date_gmt\\?\\: string, post_content\\?\\: string, post_content_filtered\\?\\: string, post_title\\?\\: string, post_excerpt\\?\\: string, \\.\\.\\.\\}, array\\<string, array\\<string\\>\\|int\\|string\\> given\\.$#"
 			count: 1
-			path: src/Utils/WPBlocks.php
+			path: src/Utils/DuplicatePost.php
 
 		-
-			message: "#^Parameter \\#5 \\$function of function add_menu_page expects callable\\(\\)\\: mixed, null given\\.$#"
+			message: "#^Parameter \\#5 \\$function of function add_menu_page expects callable\\(\\)\\: mixed, '' given\\.$#"
 			count: 1
 			path: src/Utils/WPBlocks.php
-
-		-
-			message: "#^Cannot access an offset on mixed\\.$#"
-			count: 1
-			path: src/helper.php
 
 		-
 			message: "#^Cannot assign offset 'sizes' to array\\<string, mixed\\>\\|string\\.$#"
@@ -146,42 +131,17 @@ parameters:
 			path: src/helper.php
 
 		-
+			message: "#^Cannot cast mixed to string\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
 			message: "#^Function app_get_image_data_array\\(\\) should return array\\{size\\: array\\<int\\>\\|string, url\\: string, width\\: float\\|int\\|numeric\\-string, height\\: float\\|int\\|numeric\\-string, alt\\?\\: string\\|null, id\\?\\: int, srcset\\?\\: string, sizes\\?\\: string\\}\\|false but returns array\\{size\\: array\\<int\\>\\|string, id\\: int, url\\: string, width\\: int, height\\: int, alt\\: string\\|null, srcset\\: bool\\|string, sizes\\: string\\|false\\}\\.$#"
 			count: 1
 			path: src/helper.php
 
 		-
-			message: "#^Function app_get_wp_block\\(\\) should return WP_Post\\|false but returns mixed\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Function app_term_get_all_children\\(\\) should return array\\<int\\> but returns mixed\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_reverse expects array, mixed given\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function strip_tags expects string, mixed given\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, mixed given\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
 			message: "#^Parameter \\#2 \\$fetch_argument of method PDOStatement\\:\\:fetchAll\\(\\) expects \\(callable\\(\\)\\: mixed\\)\\|int\\|string, array\\|null given\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Parameter \\#2 \\$pieces of function implode expects array, mixed given\\.$#"
 			count: 1
 			path: src/helper.php
 

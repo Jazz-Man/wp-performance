@@ -7,17 +7,6 @@
       <code>$rules</code>
     </MixedArgumentTypeCoercion>
   </file>
-  <file src="src/Optimization/DuplicatePost.php">
-    <MixedArgumentTypeCoercion occurrences="2">
-      <code>$actions</code>
-      <code>$actions</code>
-    </MixedArgumentTypeCoercion>
-  </file>
-  <file src="src/Optimization/Enqueue.php">
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$links</code>
-    </MixedArgumentTypeCoercion>
-  </file>
   <file src="src/Optimization/Http.php">
     <MixedArgument occurrences="1">
       <code>$this-&gt;preloadLinks</code>
@@ -27,27 +16,13 @@
     </MixedAssignment>
   </file>
   <file src="src/Optimization/Media.php">
-    <MixedArgument occurrences="5">
-      <code>$idOrEmail</code>
-      <code>$image</code>
-      <code>$image</code>
-      <code>$size</code>
-      <code>$size</code>
-    </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="5">
-      <code>$data</code>
-      <code>$data</code>
+    <MixedArgumentTypeCoercion occurrences="1">
       <code>$meta['sizes']</code>
-      <code>$mimes</code>
-      <code>$postarr</code>
     </MixedArgumentTypeCoercion>
     <MixedReturnTypeCoercion occurrences="2">
       <code>$months</code>
-      <code>array&lt;stdClass&gt;</code>
+      <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
-    <UnusedVariable occurrences="1">
-      <code>$key</code>
-    </UnusedVariable>
   </file>
   <file src="src/Optimization/NavMenu/MenuItemClasses.php">
     <MixedArgument occurrences="2">
@@ -108,21 +83,10 @@
       <code>$matches[1]</code>
     </StringIncrement>
   </file>
-  <file src="src/Optimization/TermCount.php">
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$termTaxIds</code>
-    </MixedArgumentTypeCoercion>
-  </file>
   <file src="src/Optimization/Update.php">
     <MixedArgument occurrences="1">
       <code>$current</code>
     </MixedArgument>
-    <UndefinedConstant occurrences="1">
-      <code>ABSPATH</code>
-    </UndefinedConstant>
-    <UnresolvableInclude occurrences="1">
-      <code>require_once ABSPATH . 'wp-admin/includes/plugin.php'</code>
-    </UnresolvableInclude>
   </file>
   <file src="src/Optimization/WPQuery.php">
     <MixedArgument occurrences="1">
@@ -159,18 +123,19 @@
     <MixedPropertyTypeCoercion occurrences="1">
       <code>!empty($attachment['metadata']) ? (array) maybe_unserialize((string) $attachment['metadata']) : []</code>
     </MixedPropertyTypeCoercion>
-    <ReferenceConstraintViolation occurrences="1">
-      <code>$uploadDir</code>
-    </ReferenceConstraintViolation>
+  </file>
+  <file src="src/Utils/DuplicatePost.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>$newPostArgs</code>
+    </ArgumentTypeCoercion>
+    <PossiblyNullArgument occurrences="1">
+      <code>$postId</code>
+    </PossiblyNullArgument>
   </file>
   <file src="src/Utils/WPBlocks.php">
-    <InvalidScalarArgument occurrences="1"/>
     <MissingConstructor occurrences="1">
       <code>$postType</code>
     </MissingConstructor>
-    <NullArgument occurrences="1">
-      <code>null</code>
-    </NullArgument>
     <UnusedClosureParam occurrences="1">
       <code>$column</code>
     </UnusedClosureParam>
@@ -179,34 +144,15 @@
     <InvalidReturnStatement occurrences="1">
       <code>$imageData</code>
     </InvalidReturnStatement>
-    <LessSpecificReturnStatement occurrences="1">
-      <code>$imageData</code>
-    </LessSpecificReturnStatement>
-    <MixedArgument occurrences="4">
+    <MixedArgument occurrences="1">
       <code>$attributes</code>
-      <code>$hierarchicalSlugs</code>
-      <code>$image['alt']</code>
-      <code>$termlink</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="2">
+    <MixedArgumentTypeCoercion occurrences="1">
       <code>$args</code>
-      <code>$hierarchicalSlugs</code>
     </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="9">
+    <MixedAssignment occurrences="1">
       <code>$attributes</code>
-      <code>$children</code>
-      <code>$hierarchicalSlugs</code>
-      <code>$imageData['height']</code>
-      <code>$imageData['url']</code>
-      <code>$imageData['width']</code>
-      <code>$result</code>
-      <code>$result[]</code>
-      <code>$termlink</code>
     </MixedAssignment>
-    <MixedInferredReturnType occurrences="2">
-      <code>false|WP_Post</code>
-      <code>int[]</code>
-    </MixedInferredReturnType>
     <MixedReturnTypeCoercion occurrences="2">
       <code>$pdoStatement-&gt;fetchAll($mode, ...$args)</code>
       <code>array&lt;string,string|int&gt;|false</code>
