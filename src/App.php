@@ -2,12 +2,12 @@
 
 namespace JazzMan\Performance;
 
+use JazzMan\Performance\MenuCache\NavMenuCache;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\Http;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
-use JazzMan\Performance\Optimization\NavMenu\NavMenuCache;
 use JazzMan\Performance\Optimization\PostGuid;
 use JazzMan\Performance\Optimization\PostMeta;
 use JazzMan\Performance\Optimization\TermCount;
@@ -17,8 +17,8 @@ use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\SanitizeFileName;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\DuplicatePost;
-use JazzMan\Performance\Utils\WPBlocks;
 use JazzMan\Performance\Utils\ResourceHints;
+use JazzMan\Performance\Utils\WPBlocks;
 
 /**
  * Class App.
@@ -31,7 +31,7 @@ class App {
             WPBlocks::class,
             PostGuid::class,
             Http::class,
-	        ResourceHints::class,
+            ResourceHints::class,
             Update::class,
             Media::class,
             WPQuery::class,

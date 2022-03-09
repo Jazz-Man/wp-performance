@@ -1,8 +1,8 @@
 <?php
 
-namespace JazzMan\Performance\Optimization\NavMenu;
+namespace JazzMan\Performance\MenuCache;
 
-use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
+use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
 use stdClass;
 use WP_Error;
 use WP_Post;

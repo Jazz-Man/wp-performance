@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\Performance\Optimization\NavMenu\Placeholder;
+namespace JazzMan\Performance\MenuCache\Placeholder;
 
 use stdClass;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace JazzMan\Performance\Optimization\NavMenu;
+namespace JazzMan\Performance\MenuCache;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
-use JazzMan\Performance\Optimization\NavMenu\Placeholder\NavMenuArgs;
+use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
+use JazzMan\Performance\MenuCache\Placeholder\NavMenuArgs;
 use stdClass;
 use WP_Term;
 

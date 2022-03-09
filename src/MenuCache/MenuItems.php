@@ -1,9 +1,9 @@
 <?php
 
-namespace JazzMan\Performance\Optimization\NavMenu;
+namespace JazzMan\Performance\MenuCache;
 
 use Exception;
-use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
+use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
 use JazzMan\Performance\Utils\Cache;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
