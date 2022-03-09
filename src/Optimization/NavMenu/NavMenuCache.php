@@ -10,8 +10,8 @@ use WP_Term;
 
 class NavMenuCache implements AutoloadInterface {
     public function load(): void {
-        add_filter('wp_nav_menu_args', fn (array $args): array => $this->setMenuFallbackParams($args));
-        add_filter('pre_wp_nav_menu', fn (?string $output, stdClass $args) => $this->buildWpNavMenu($output, $args), 10, 2);
+        add_filter('wp_nav_menu_args', [__CLASS__, 'setMenuFallbackParams']);
+        add_filter('pre_wp_nav_menu', [$this, 'buildWpNavMenu'], 10, 2);
     }
 
     /**
@@ -162,7 +162,7 @@ class NavMenuCache implements AutoloadInterface {
      *
      * @return array<string, mixed>
      */
-    public function setMenuFallbackParams(array $args): array {
+    public static function setMenuFallbackParams(array $args): array {
         $args['fallback_cb'] = '__return_empty_string';
 
         return $args;
