@@ -7,6 +7,7 @@
        errorBaseline="psalm-baseline.xml"
        totallyTyped="true"
        phpVersion="7.4"
+       autoloader="vendor/szepeviktor/phpstan-wordpress/bootstrap.php"
 >
     <projectFiles>
         <directory name="src"/>
@@ -49,5 +50,6 @@
         <var name="wp_query" type="\WP_Query"/>
         <var name="wp_rewrite" type="\WP_Rewrite"/>
         <var name="wp_version" type="string"/>
+        <var name="ABSPATH" type="string"/>
     </globals>
 </psalm>
