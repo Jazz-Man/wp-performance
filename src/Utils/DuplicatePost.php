@@ -54,7 +54,8 @@ class DuplicatePost implements AutoloadInterface {
 
         $parameterBag = app_get_request_data();
 
-        $postId = (int) $parameterBag->getDigits( 'post' );
+        /** @var int|null $postId */
+        $postId = $parameterBag->getDigits( 'post' );
         /** @var string|null $action */
         $action = $parameterBag->get( 'action' );
 
@@ -67,7 +68,7 @@ class DuplicatePost implements AutoloadInterface {
 
         // if post data exists, create the post duplicate
         if ( $post instanceof WP_Post ) {
-            self::createNewDraftPost( $post, $postId );
+            self::createNewDraftPost( $post, (int) $postId );
 
             exit;
         }
