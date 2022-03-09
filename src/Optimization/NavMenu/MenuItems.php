@@ -40,7 +40,6 @@ class MenuItems {
 
                 $pdoStatement->execute( $query->params() );
 
-                /** @var MenuItem[]|stdClass[] $menuItems */
                 $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
 
                 /** @var MenuItem[]|stdClass[] $menuItems */
@@ -206,7 +205,7 @@ class MenuItems {
         }
 
         if ( ! empty( $menuItem->taxonomy ) ) {
-            $menuItem->ID = $menuItem->term_id;
+            $menuItem->ID = (int) $menuItem->term_id;
             $menuItem->db_id = 0;
             $menuItem->menu_item_parent = 0;
             $menuItem->object_id = (int) $menuItem->term_id;
