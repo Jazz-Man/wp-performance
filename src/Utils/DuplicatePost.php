@@ -98,6 +98,7 @@ class DuplicatePost implements AutoloadInterface {
             $postData['ancestors']
         );
 
+		/** @var array<string,string|string[]|int> $newPostArgs */
         $newPostArgs = wp_parse_args(
             [
                 'post_author' => $newPostAuthor,
