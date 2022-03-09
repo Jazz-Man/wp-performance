@@ -40,6 +40,11 @@
                 <file name="src/Optimization/Update.php"/>
             </errorLevel>
         </MixedArgumentTypeCoercion>
+        <MissingFile>
+            <errorLevel type="suppress">
+                <file name="src/Optimization/Update.php"/>
+            </errorLevel>
+        </MissingFile>
     </issueHandlers>
 
     <stubs>
