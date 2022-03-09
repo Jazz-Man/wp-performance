@@ -27,16 +27,12 @@ class WPBlocks implements AutoloadInterface {
             'date' => __('Date'),
         ]);
 
-        $customPostType->setPopulateColumns('post_name', static function ($column, WP_Post $post): void {
+        $customPostType->setPopulateColumns('post_name', static function (string $column, WP_Post $post): void {
             printf('<code>%s</code>', esc_attr($post->post_name));
         });
 
-        add_action('admin_menu', function (): void {
-            $this->reusableBlocks();
-        });
-        add_action(sprintf('save_post_%s', $this->postType), function (int $postId, WP_Post $post): void {
-            $this->resetWpBlockCache($postId, $post);
-        }, 10, 2);
+        add_action('admin_menu', [$this, 'reusableBlocks']);
+        add_action(sprintf('save_post_%s', $this->postType), [$this, 'resetWpBlockCache'], 10, 2);
     }
 
     public function reusableBlocks(): void {
@@ -44,21 +40,30 @@ class WPBlocks implements AutoloadInterface {
             'post_type' => $this->postType,
         ];
 
-        $pageTitle = 'Reusable Blocks';
-        $taxTitle = 'Blocks Tax';
-        $capability = 'edit_posts';
-
         $wpBlockSlug = add_query_arg($postTypeProps, 'edit.php');
-        $wpBlockTaxSlug = add_query_arg(
-            array_merge($postTypeProps, [
-                'taxonomy' => 'block_category',
-            ]),
-            'edit-tags.php'
+
+        add_menu_page(
+            'Reusable Blocks',
+            'Reusable Blocks',
+            'edit_posts',
+            $wpBlockSlug,
+            '',
+            'dashicons-editor-table',
+            22
         );
 
-        add_menu_page($pageTitle, $pageTitle, $capability, $wpBlockSlug, null, 'dashicons-editor-table', 22);
+        $postTypeProps['taxonomy'] = 'block_category';
 
-        add_submenu_page($wpBlockSlug, $taxTitle, $taxTitle, $capability, $wpBlockTaxSlug);
+        add_submenu_page(
+            $wpBlockSlug,
+            'Blocks Tax',
+            'Blocks Tax',
+            'edit_posts',
+            add_query_arg(
+                $postTypeProps,
+                'edit-tags.php'
+            )
+        );
     }
 
     public function resetWpBlockCache(int $postId, WP_Post $wpPost): void {
