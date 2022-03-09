@@ -10,10 +10,10 @@ class PostGuid implements AutoloadInterface {
         add_action('save_post', [__CLASS__, 'fixPostGuid'], 10, 2);
     }
 
-	/**
-	 * @param  int  $postId
-	 * @param  \WP_Post  $wpPost
-	 */
+    /**
+     * @param int     $postId
+     * @param WP_Post $wpPost
+     */
     public static function fixPostGuid(int $postId, WP_Post $wpPost): void {
         global $wpdb;
 
