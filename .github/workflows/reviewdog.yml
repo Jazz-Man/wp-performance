@@ -1,4 +1,4 @@
-name: PHPMD
+name: ReviewDog
 on: [push, pull_request]
 
 jobs:
