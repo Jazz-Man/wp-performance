@@ -18,6 +18,7 @@ use JazzMan\Performance\Security\SanitizeFileName;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\DuplicatePost;
 use JazzMan\Performance\Utils\WPBlocks;
+use JazzMan\Performance\Utils\ResourceHints;
 
 /**
  * Class App.
@@ -30,6 +31,7 @@ class App {
             WPBlocks::class,
             PostGuid::class,
             Http::class,
+	        ResourceHints::class,
             Update::class,
             Media::class,
             WPQuery::class,
