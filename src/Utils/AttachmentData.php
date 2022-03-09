@@ -345,6 +345,6 @@ SQL);
             $uploadDir = wp_upload_dir();
         }
 
-        return (string) $uploadDir['baseurl'];
+        return $uploadDir['baseurl'];
     }
 }
