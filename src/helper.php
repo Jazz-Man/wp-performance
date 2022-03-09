@@ -153,7 +153,7 @@ if ( ! function_exists('app_get_term_link')) {
 
         $termlink = $wp_rewrite->get_extra_permastruct($term->taxonomy);
 
-        /* @var string|false $termlink */
+        /** @var string|false $termlink */
         $termlink = apply_filters('pre_term_link', $termlink, $term);
 
         $termlinkSlug = $term->slug;
@@ -185,6 +185,7 @@ if ( ! function_exists('app_get_term_link')) {
 
             if ($term->parent) {
                 $ancestorsKey = sprintf('taxonomy_ancestors_%d_%s', $term->term_id, $term->taxonomy );
+                /** @var string[]|false $hierarchicalSlugs */
                 $hierarchicalSlugs = wp_cache_get($ancestorsKey, Cache::CACHE_GROUP);
 
                 if (empty($hierarchicalSlugs)) {
