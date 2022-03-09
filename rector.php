@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
+use Rector\CodingStyle\Rector\Encapsed\EncapsedStringsToSprintfRector;
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
@@ -46,6 +47,7 @@ return static function (ContainerConfigurator $configurator): void {
         CallableThisArrayToAnonymousFunctionRector::class,
         ClassConstantToSelfClassRector::class,
         RemoveExtraParametersRector::class,
+	    EncapsedStringsToSprintfRector::class,
     ]);
 
     $parameters->set(
