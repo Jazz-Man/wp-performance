@@ -1,19 +1,6 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="src/App.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/Optimization/NavMenu/MenuItemClasses.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="setMenuItemClassesByContext"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="setMenuItemClassesByContext"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="src/Optimization/NavMenu/MenuItemClasses.php" method="setMenuItemClassesByContext"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/NavMenu/MenuItemClasses.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="isCurrentMenuItemt"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItemClasses.php" method="isCurrentMenuItemtAncestor"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItems.php" method="setupNavMenuItem"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/NavMenu/MenuItems.php" method="setupNavMenuItem"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/MenuItems.php" method="setupNavMenuItemByType"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/NavMenu/MenuItems.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/NavMenu/NavMenuCache.php" method="buildWpNavMenu"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/NavMenu/NavMenuCache.php" method="buildWpNavMenu"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/TermCount.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>

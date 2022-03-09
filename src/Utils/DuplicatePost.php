@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\Performance\Optimization;
+namespace JazzMan\Performance\Utils;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Error;
@@ -10,17 +10,15 @@ use WP_Post;
  * Class DuplicatePost.
  */
 class DuplicatePost implements AutoloadInterface {
-    private string $action = 'duplicate_post_as_draft';
+    private static string $action = 'duplicate_post_as_draft';
 
-    private string $nonce = 'duplicate_nonce';
+    private static string $nonce = 'duplicate_nonce';
 
     public function load(): void {
-        add_filter( 'post_row_actions', fn (array $actions, WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
-        add_filter( 'page_row_actions', fn (array $actions, WP_Post $post): array => $this->duplicatePostLink($actions, $post), 10, 2 );
+        add_filter( 'post_row_actions', [__CLASS__, 'duplicatePostLink'], 10, 2 );
+        add_filter( 'page_row_actions', [__CLASS__, 'duplicatePostLink'], 10, 2 );
 
-        add_action( sprintf('admin_action_%s', $this->action), function (): void {
-            $this->duplicatePostAsDraft();
-        } );
+        add_action( sprintf('admin_action_%s', self::$action), [__CLASS__, 'duplicatePostAsDraft'] );
     }
 
     /**
@@ -28,20 +26,20 @@ class DuplicatePost implements AutoloadInterface {
      *
      * @return array<string,string>
      */
-    public function duplicatePostLink(array $actions, WP_Post $wpPost): array {
+    public static function duplicatePostLink(array $actions, WP_Post $wpPost): array {
         if ( 'publish' === $wpPost->post_status && current_user_can( 'edit_posts' ) ) {
             $actions['duplicate'] = sprintf(
                 '<a href="%s" title="%s" rel="permalink">%s</a>',
                 wp_nonce_url(
                     add_query_arg(
                         [
-                            'action' => $this->action,
+                            'action' => self::$action,
                             'post' => $wpPost->ID,
                         ],
                         'admin.php'
                     ),
                     basename( __FILE__ ),
-                    $this->nonce
+                    self::$nonce
                 ),
                 esc_attr__( 'Duplicate this item' ),
                 esc_attr__( 'Duplicate' )
@@ -51,16 +49,17 @@ class DuplicatePost implements AutoloadInterface {
         return $actions;
     }
 
-    public function duplicatePostAsDraft(): void {
-        check_ajax_referer( basename( __FILE__ ), $this->nonce );
+    public static function duplicatePostAsDraft(): void {
+        check_ajax_referer( basename( __FILE__ ), self::$nonce );
 
         $parameterBag = app_get_request_data();
 
-        $postId = (int) $parameterBag->getDigits( 'post' );
+        /** @var int|null $postId */
+        $postId = $parameterBag->getDigits( 'post' );
         /** @var string|null $action */
         $action = $parameterBag->get( 'action' );
 
-        if ( !$postId && $this->action !== $action ) {
+        if ( !$postId && self::$action !== $action ) {
             wp_die( 'No post to duplicate has been supplied!' );
         }
 
@@ -69,7 +68,7 @@ class DuplicatePost implements AutoloadInterface {
 
         // if post data exists, create the post duplicate
         if ( $post instanceof WP_Post ) {
-            $this->createNewDraftPost( $post, $postId );
+            self::createNewDraftPost( $post, (int) $postId );
 
             exit;
         }
@@ -78,7 +77,7 @@ class DuplicatePost implements AutoloadInterface {
         wp_die( sprintf( '<span>%s</span>> could not find original post: %d', $title, $postId ), $title );
     }
 
-    private function createNewDraftPost(WP_Post $wpPost, int $oldPostId): void {
+    private static function createNewDraftPost(WP_Post $wpPost, int $oldPostId): void {
         /**
          * if you don't want current user to be the new post author,
          * then change next couple of lines to this: $new_post_author = $post->post_author;.
@@ -99,6 +98,7 @@ class DuplicatePost implements AutoloadInterface {
             $postData['ancestors']
         );
 
+        /** @var array<string,string|string[]|int> $newPostArgs */
         $newPostArgs = wp_parse_args(
             [
                 'post_author' => $newPostAuthor,
@@ -113,8 +113,8 @@ class DuplicatePost implements AutoloadInterface {
             wp_die( $newPostId->get_error_message() );
         }
 
-        $this->addTerms( $wpPost, (int) $newPostId, $oldPostId );
-        $this->addMetaData( (int) $newPostId, $oldPostId );
+        self::addTerms( $wpPost, (int) $newPostId, $oldPostId );
+        self::addMetaData( (int) $newPostId, $oldPostId );
 
         $editPostLink = get_edit_post_link( (int) $newPostId, 'edit' );
 
@@ -124,7 +124,7 @@ class DuplicatePost implements AutoloadInterface {
         }
     }
 
-    private function addTerms(WP_Post $wpPost, int $newPostId, int $oldPostId): void {
+    private static function addTerms(WP_Post $wpPost, int $newPostId, int $oldPostId): void {
         /** @var string[] $taxonomies */
         $taxonomies = get_object_taxonomies( $wpPost->post_type );
 
@@ -138,7 +138,7 @@ class DuplicatePost implements AutoloadInterface {
         }
     }
 
-    private function addMetaData(int $newPostId, int $oldPostId): void {
+    private static function addMetaData(int $newPostId, int $oldPostId): void {
         /** @var array<string,string>|null $data */
         $data = get_post_custom( $oldPostId );
 

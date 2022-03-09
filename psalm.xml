@@ -1,19 +1,21 @@
 <?xml version="1.0"?>
 <psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://getpsalm.org/schema/config"
-       xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-       cacheDirectory="build/cache/psalm"
+       xsi:schemaLocation="https://getpsalm.org/schema/config"
+       cacheDirectory="cache/psalm"
        serializer="igbinary"
-       allowPhpStormGenerics="true"
        errorBaseline="psalm-baseline.xml"
        totallyTyped="true"
        phpVersion="7.4"
+       autoloader="vendor/szepeviktor/phpstan-wordpress/bootstrap.php"
 >
     <projectFiles>
         <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="build"/>
+            <directory name="cache"/>
+            <file name="rector.php"/>
+            <file name=".php-cs-fixer.php"/>
         </ignoreFiles>
     </projectFiles>
 
@@ -38,18 +40,21 @@
                 <file name="src/Optimization/Update.php"/>
             </errorLevel>
         </MixedArgumentTypeCoercion>
+        <MissingFile>
+            <errorLevel type="suppress">
+                <file name="src/Optimization/Update.php"/>
+            </errorLevel>
+        </MissingFile>
     </issueHandlers>
 
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
-        <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php"/>
-        <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php"/>
-        <file name="vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php"/>
     </stubs>
     <globals>
         <var name="wpdb" type="\wpdb"/>
         <var name="wp_query" type="\WP_Query"/>
         <var name="wp_rewrite" type="\WP_Rewrite"/>
         <var name="wp_version" type="string"/>
+        <var name="ABSPATH" type="string"/>
     </globals>
 </psalm>

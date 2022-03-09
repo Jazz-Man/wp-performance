@@ -70,8 +70,8 @@ class AttachmentData {
     public function __construct(int $attachmentId = 0) {
         $attachment = $this->getAttachmentFromDb($attachmentId);
 
-		/** @psalm-suppress MixedPropertyTypeCoercion */
-        $this->metadata = !empty($attachment['metadata']) ? (array)maybe_unserialize((string) $attachment['metadata']) : [];
+        /* @psalm-suppress MixedPropertyTypeCoercion */
+        $this->metadata = !empty($attachment['metadata']) ? (array) maybe_unserialize((string) $attachment['metadata']) : [];
 
         if ( ! empty($this->metadata['file_webp'])) {
             $this->fullWebpUrl = sprintf('%s/%s', self::getBaseUploadUrl(), (string) $this->metadata['file_webp']);
@@ -345,6 +345,6 @@ SQL);
             $uploadDir = wp_upload_dir();
         }
 
-        return (string) $uploadDir['baseurl'];
+        return $uploadDir['baseurl'];
     }
 }

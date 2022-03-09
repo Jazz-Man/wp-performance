@@ -30,9 +30,7 @@ class TermCount implements AutoloadInterface {
     public array $countedTerms = [];
 
     public function load(): void {
-        add_action('init', function (): void {
-            $this->setup();
-        });
+        add_action('init', [$this, 'setup']);
     }
 
     /**
@@ -41,21 +39,17 @@ class TermCount implements AutoloadInterface {
     public function setup(): void {
         // Prevent core from counting terms.
         wp_defer_term_counting(true);
+
         remove_action('transition_post_status', '_update_term_count_on_transition_post_status');
 
-        add_action('transition_post_status', function (string $newStatus, string $oldStatus, WP_Post $post): void {
-            $this->transitionPostStatus($newStatus, $oldStatus, $post);
-        }, 10, 3);
-        add_action('added_term_relationship', function (int $objectId, int $termTaxId, string $taxonomy): void {
-            $this->addedTermRelationship($objectId, $termTaxId, $taxonomy);
-        }, 10, 3);
+        add_action('transition_post_status', [$this, 'transitionPostStatus'], 10, 3);
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        add_action('deleted_term_relationships', function (int $objectId, array $termTaxIds, string $taxonomy): void {
-            $this->deletedTermRelationships($objectId, $termTaxIds, $taxonomy);
-        }, 10, 3);
+        add_action('added_term_relationship', [$this, 'addedTermRelationship'], 10, 3);
+
+        add_action('deleted_term_relationships', [$this, 'deletedTermRelationships'], 10, 3);
+
         // Possibly recount posts for a term once it's been edited.
-        add_action('edit_term', fn (int $termId, int $termTaxId, string $taxonomy): bool => $this->maybeRecountPostsForTerm($termId, $termTaxId, $taxonomy), 10, 3);
+        add_action('edit_term', [$this, 'maybeRecountPostsForTerm'], 10, 3);
     }
 
     /**
@@ -131,8 +125,10 @@ class TermCount implements AutoloadInterface {
             if ($termIds instanceof WP_Error) {
                 continue;
             }
+
             $this->quickUpdateTermsCount( $wpPost->ID, $termIds, $taxonomy, $this->transitionType($newStatus, $oldStatus) );
         }
+
         // For non-attachments, let's check if there are any attachment children
         // with inherited post status -- if so those will need to be re-counted.
         if ('attachment' !== $wpPost->post_type) {
@@ -207,26 +203,28 @@ class TermCount implements AutoloadInterface {
             $termTaxIds
         );
 
-        $termIdsString = '(' . implode(',', $termTaxIds) . ')';
-
-        $isIncrement = 'increment' === $transitionType;
-
-        $operand = $isIncrement ? '+' : '-';
-        $ttCount = $isIncrement ? '' : 'AND tt.count > 0';
-
-        $sql = sprintf('UPDATE %s AS tt SET tt.count = tt.count %s 1 WHERE tt.term_taxonomy_id IN %s %s', $wpdb->term_taxonomy, $operand, $termIdsString, $ttCount);
-
         foreach ($termTaxIds as $termTaxId) {
             // This action is documented in wp-includes/taxonomy.php
             do_action('edit_term_taxonomy', $termTaxId, $taxonomy);
         }
 
-        $wpdb->query($sql); // WPCS: unprepared SQL ok.
+        $isIncrement = 'increment' === $transitionType;
+
+        $wpdb->query(
+            sprintf(
+                'UPDATE %s AS tt SET tt.count = tt.count %s 1 WHERE tt.term_taxonomy_id IN %s %s',
+                $wpdb->term_taxonomy,
+                $isIncrement ? '+' : '-',
+                '(' . implode(',', $termTaxIds) . ')',
+                $isIncrement ? '' : 'AND tt.count > 0'
+            )
+        );
 
         foreach ($termTaxIds as $termTaxId) {
             // This action is documented in wp-includes/taxonomy.php
             do_action('edited_term_taxonomy', $termTaxId, $taxonomy);
         }
+
         clean_term_cache($termTaxIds, $taxonomy, false);
     }
 
@@ -263,19 +261,17 @@ class TermCount implements AutoloadInterface {
      * @param int    $termTaxId the term taxonomy id
      * @param string $taxonomy  the taxonomy
      *
-     * @return bool false if the screen check fails, true otherwise
+     * @return void false if the screen check fails, true otherwise
      */
-    public function maybeRecountPostsForTerm(int $termId, int $termTaxId, string $taxonomy): bool {
+    public function maybeRecountPostsForTerm(int $termId, int $termTaxId, string $taxonomy): void {
         $screen = function_exists('get_current_screen') ? get_current_screen() : '';
 
         if ( ! ($screen instanceof WP_Screen)) {
-            return false;
+            return;
         }
 
         if (sprintf('edit-%s', $taxonomy) === $screen->id) {
             wp_update_term_count_now([$termTaxId], $taxonomy);
         }
-
-        return true;
     }
 }

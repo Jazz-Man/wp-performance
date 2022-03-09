@@ -1,9 +1,9 @@
 <?php
 
-namespace JazzMan\Performance\Optimization\NavMenu;
+namespace JazzMan\Performance\MenuCache;
 
 use Exception;
-use JazzMan\Performance\Optimization\NavMenu\Placeholder\MenuItem;
+use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
 use JazzMan\Performance\Utils\Cache;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
@@ -40,7 +40,6 @@ class MenuItems {
 
                 $pdoStatement->execute( $query->params() );
 
-                /** @var MenuItem[]|stdClass[] $menuItems */
                 $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
 
                 /** @var MenuItem[]|stdClass[] $menuItems */
@@ -206,7 +205,7 @@ class MenuItems {
         }
 
         if ( ! empty( $menuItem->taxonomy ) ) {
-            $menuItem->ID = $menuItem->term_id;
+            $menuItem->ID = (int) $menuItem->term_id;
             $menuItem->db_id = 0;
             $menuItem->menu_item_parent = 0;
             $menuItem->object_id = (int) $menuItem->term_id;

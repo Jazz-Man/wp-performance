@@ -26,21 +26,13 @@
         "symfony/web-link": "^5.3"
     },
     "require-dev": {
-        "edgedesign/phpqa": "^1.25",
-        "friendsofphp/php-cs-fixer": "@stable",
-        "nette/neon": "@stable",
-        "php-stubs/wp-cli-stubs": "^2.5",
-        "phpmd/phpmd": "@stable",
-        "phpstan/extension-installer": "@stable",
-        "rector/rector": "^0.11.52",
+        "jazzman/php-cs-fixer-rules": "^0.0.3",
+        "php-stubs/wordpress-stubs": "^5.9",
+        "phpstan/extension-installer": "^1.1",
+        "rector/rector": "^0.12.17",
         "roave/security-advisories": "dev-master",
-        "roots/wordpress": "^5.8",
-        "szepeviktor/phpstan-wordpress": "^0.7.7",
-        "vimeo/psalm": "^4.9"
-    },
-    "replace": {
-        "phpmetrics/phpmetrics": "*",
-        "sebastian/phpcpd": "*"
+        "roots/wordpress": "^5.9",
+        "szepeviktor/phpstan-wordpress": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -64,29 +56,20 @@
             "psalm --clear-cache",
             "psalm --clear-global-cache"
         ],
-        "init-baseline": [
-            "@psalm --set-baseline=psalm-baseline.xml",
-            "@phpstan-baseline",
-            "@phpmd --generate-baseline"
-        ],
-        "update-baseline": [
-            "@psalm --update-baseline=psalm-baseline.xml",
-            "@phpstan-baseline",
-            "@phpmd --update-baseline"
-        ],
         "cs-check": [
             "@php-cs-fixer --dry-run"
         ],
         "cs-fix": [
             "@php-cs-fixer"
         ],
+        "init-baseline-phpmd": "@phpmd --generate-baseline",
+        "update-baseline-phpmd": "@phpmd --update-baseline",
+        "init-baseline-psalm": "@psalm --set-baseline=psalm-baseline.xml",
+        "update-baseline-psalm": "@psalm --update-baseline=psalm-baseline.xml",
+        "baseline-phpstan": "@phpstan --generate-baseline=phpstan-baseline.neon",
         "phpstan": "phpstan --no-progress",
-        "phpstan-baseline": "@phpstan --generate-baseline=phpstan-baseline.neon",
-        "phpqa": "phpqa",
-        "phpmd": "phpmd . text phpmd.ruleset.xml --exclude \"build/,vendor/\"",
+        "phpmd": "phpmd . text phpmd.ruleset.xml --exclude 'cache/,vendor/'",
         "psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress",
-        "psalm-phpstorm": "@psalm --output-format=phpstorm",
-        "server": "php -S 0.0.0.0:8000 -t build",
-        "php-cs-fixer": "php-cs-fixer fix -v --diff"
+        "php-cs-fixer": "php-cs-fixer fix --dry-run --format=gitlab -vvv --diff"
     }
 }

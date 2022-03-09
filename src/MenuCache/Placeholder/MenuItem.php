@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\Performance\Optimization\NavMenu\Placeholder;
+namespace JazzMan\Performance\MenuCache\Placeholder;
 
 use stdClass;
 
@@ -124,7 +124,7 @@ class MenuItem extends stdClass {
     /**
      * Whether the menu item represents an object that no longer exists.
      */
-    public bool $_invalid = false; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+    public bool $_invalid = false;
 
     /**
      * Whether the menu item represents the active menu item.

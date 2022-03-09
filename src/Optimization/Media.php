@@ -15,36 +15,30 @@ class Media implements AutoloadInterface {
     public function load(): void {
         // Disable gravatars
 
-	    /** @psalm-suppress MixedArgument */
-        add_filter('get_avatar', fn (string $avatar, $idOrEmail, int $size, string $default, string $alt): string => $this->replaceGravatar($avatar, $idOrEmail, $size, $default, $alt), 1, 5);
-        add_filter('default_avatar_select', fn (string $avatarList): string => $this->defaultAvatar($avatarList));
+        add_filter('get_avatar', [__CLASS__, 'replaceGravatar'], 1, 5);
+
+        add_filter('default_avatar_select', [__CLASS__, 'defaultAvatar']);
         // Prevent BuddyPress from falling back to Gravatar avatars.
         add_filter('bp_core_fetch_avatar_no_grav', '__return_true');
 
-        add_action('add_attachment', function (int $postId): void {
-            $this->setMediaMonthsCache($postId);
-        });
+        add_action('add_attachment', [__CLASS__, 'setMediaMonthsCache']);
 
-        add_action('add_attachment', function (int $postId): void {
-            $this->setAttachmentAltTitle($postId);
-        });
+        add_action('add_attachment', [__CLASS__, 'setAttachmentAltTitle']);
 
-		/** @psalm-suppress MixedArgumentTypeCoercion */
-        add_filter('wp_insert_attachment_data', fn (array $data, array $postarr): array => $this->setAttachmentTitle($data, $postarr), 10, 2);
+        add_filter('wp_insert_attachment_data', [__CLASS__, 'setAttachmentTitle'], 10, 2);
 
         // disable responsive images srcset
         add_filter('wp_calculate_image_srcset_meta', '__return_empty_array', PHP_INT_MAX);
 
-        add_filter('upload_mimes', fn (array $mimes): array => $this->allowSvg($mimes));
-        add_filter('wp_check_filetype_and_ext', fn (array $data, string $file, string $filename): array => $this->fixMimeTypeSvg($data, $file, $filename), 75, 3);
-        add_filter('wp_get_attachment_image_src', fn ($image, int $attachmentId, $size) => $this->fixSvgSizeAttributes($image, $attachmentId, $size), 10, 3);
+        add_filter('upload_mimes', [__CLASS__, 'allowSvg']);
+        add_filter('wp_check_filetype_and_ext', [__CLASS__, 'fixMimeTypeSvg'], 75, 3);
+        add_filter('wp_get_attachment_image_src', [__CLASS__, 'fixSvgSizeAttributes'], 10, 3);
 
+        // resize image on the fly
+        add_filter('wp_get_attachment_image_src', [__CLASS__, 'resizeImageOnTheFly'], 10, 3);
 
-		// resize image on the fly
-	    /** @psalm-suppress MixedArgument */
-        add_filter('wp_get_attachment_image_src', fn ($image, int $attachmentId, $size) => $this->resizeImageOnTheFly($image, $attachmentId, $size), 10, 3);
         add_action('pre_get_posts', function (): void {
-            $this->filterQueryAttachmentFilenames();
+            remove_filter('posts_clauses', '_filter_query_attachment_filenames');
         });
 
         add_filter(
@@ -59,12 +53,8 @@ class Media implements AutoloadInterface {
         if (is_admin()) {
             add_filter('media_library_show_video_playlist', '__return_true');
             add_filter('media_library_show_audio_playlist', '__return_true');
-            add_filter('media_library_months_with_files', fn (): array => $this->mediaLibraryMonthsWithFiles());
+            add_filter('media_library_months_with_files', [__CLASS__, 'mediaLibraryMonthsWithFiles']);
         }
-    }
-
-    public function filterQueryAttachmentFilenames(): void {
-        remove_filter('posts_clauses', '_filter_query_attachment_filenames');
     }
 
     /**
@@ -73,7 +63,7 @@ class Media implements AutoloadInterface {
      *
      * @return array<string,string>
      */
-    public function setAttachmentTitle(array $data, array $postarr): array {
+    public static function setAttachmentTitle(array $data, array $postarr): array {
         if ( ! empty($postarr['file'])) {
             $url = pathinfo($postarr['file']);
             $extension = empty($url['extension']) ? '' : sprintf('.%s', $url['extension']);
@@ -86,7 +76,7 @@ class Media implements AutoloadInterface {
         return $data;
     }
 
-    public function setAttachmentAltTitle(int $postId): void {
+    public static function setAttachmentAltTitle(int $postId): void {
 
         /** @var string|null $imageAlt */
         $imageAlt = get_post_meta($postId, '_wp_attachment_image_alt', true);
@@ -110,7 +100,7 @@ class Media implements AutoloadInterface {
      *
      * @psalm-suppress MixedArgument
      */
-    public function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string {
+    public static function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string {
         // Bail if disabled.
         if ( ! app_is_enabled_wp_performance()) {
             return $avatar;
@@ -132,7 +122,7 @@ class Media implements AutoloadInterface {
      *
      * @return string Updated list with images removed
      */
-    public function defaultAvatar(string $avatarList): string {
+    public static function defaultAvatar(string $avatarList): string {
         // Bail if disabled.
         if ( ! app_is_enabled_wp_performance()) {
             return $avatarList;
@@ -171,11 +161,13 @@ class Media implements AutoloadInterface {
     }
 
     /**
-     * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
+     * @param mixed|null $months
      *
-     * @return array<stdClass>
+     * @return stdClass[]
+     *
+     * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
      */
-    public function mediaLibraryMonthsWithFiles(): array {
+    public static function mediaLibraryMonthsWithFiles($months = null): array {
         global $wpdb;
 
         /** @var stdClass[]|false $months */
@@ -202,7 +194,7 @@ SQL
             wp_cache_set('wpcom_media_months_array', $months, Cache::CACHE_GROUP);
         }
 
-		/** @var stdClass[] $months  */
+        /* @var stdClass[] $months  */
         return $months;
     }
 
@@ -211,7 +203,7 @@ SQL
      *
      * @return array<string,string>
      */
-    public function allowSvg(array $mimes): array {
+    public static function allowSvg(array $mimes): array {
         $mimes['svg'] = 'image/svg+xml';
         $mimes['svgz'] = 'image/svg+xml';
 
@@ -225,7 +217,7 @@ SQL
      *
      * @return array<string, string>
      */
-    public function fixMimeTypeSvg(array $data, string $file, string $filename): array {
+    public static function fixMimeTypeSvg(array $data, string $file, string $filename): array {
         $ext = empty($data['ext']) ? '' : $data['ext'];
 
         if ('' === $ext) {
@@ -245,12 +237,12 @@ SQL
     }
 
     /**
-     * @param array{0:string,1:int,2:int,3:bool}|false $image
-     * @param string|int[]                             $size
+     * @param array<array-key,string|int|bool>|false $image
+     * @param string|int[]                           $size
      *
-     * @return array{0:string,1:int,2:int,3:bool}|false
+     * @return array<array-key,string|int|bool>|false
      */
-    public function fixSvgSizeAttributes($image, int $attachmentId, $size) {
+    public static function fixSvgSizeAttributes($image, int $attachmentId, $size) {
         if (is_admin()) {
             return $image;
         }
@@ -259,7 +251,7 @@ SQL
             return $image;
         }
 
-        $fileExt = pathinfo($image[0], PATHINFO_EXTENSION);
+        $fileExt = pathinfo((string) $image[0], PATHINFO_EXTENSION);
 
         if ('svg' === $fileExt) {
             $image[1] = 60;
@@ -282,7 +274,7 @@ SQL
      *
      * @psalm-return array<int|string, mixed>|false
      */
-    public function resizeImageOnTheFly($image, int $attachmentId, $size) {
+    public static function resizeImageOnTheFly($image, int $attachmentId, $size) {
         if (is_admin()) {
             return $image;
         }
@@ -290,7 +282,6 @@ SQL
         if (! is_array($size)) {
             return $image;
         }
-        /** @var array{width:int,height:int,file:string,sizes:array}|false $meta */
         $meta = wp_get_attachment_metadata($attachmentId);
 
         if (empty($meta)) {
@@ -298,7 +289,7 @@ SQL
         }
 
         $upload = wp_upload_dir();
-        $filePath = sprintf('%s/%s', (string) $upload['basedir'], $meta['file']);
+        $filePath = sprintf('%s/%s', $upload['basedir'], $meta['file']);
 
         if ( ! file_exists($filePath)) {
             return $image;
@@ -306,11 +297,11 @@ SQL
 
         $imageDirname = pathinfo($filePath, PATHINFO_DIRNAME);
 
-        $imageBaseUrl = sprintf('%s/%s', (string) $upload['baseurl'], $imageDirname);
+        $imageBaseUrl = sprintf('%s/%s', $upload['baseurl'], $imageDirname);
 
         list($width, $height) = $size;
 
-        if ( ! empty($meta['sizes']) && $this->isImageSizesExist($meta['sizes'], $width, $height )) {
+        if ( ! empty($meta['sizes']) && self::isImageSizesExist($meta['sizes'], $width, $height )) {
             return $image;
         }
 
@@ -335,20 +326,19 @@ SQL
     }
 
     /**
-     * @param array<string,string> $imageSizes
-     * @param int                  $width
-     * @param int                  $height
+     * @param array<array-key,array<string,int|string>> $sizes
+     * @param int                                       $width
+     * @param int                                       $height
      *
      * @return bool
      */
-    private function isImageSizesExist(array $imageSizes, int $width, int $height): bool {
-        /** @var array<string,string> $value */
-        foreach ($imageSizes as $key => $value) {
-            if (!empty($value['width']) && (int) $value['width'] !== $width) {
+    private static function isImageSizesExist(array $sizes, int $width, int $height): bool {
+        foreach ($sizes as $size) {
+            if (!empty($size['width']) && (int) $size['width'] !== $width) {
                 continue;
             }
 
-            if (!empty($value['height']) && (int) $value['height'] !== $height) {
+            if (!empty($size['height']) && (int) $size['height'] !== $height) {
                 continue;
             }
 
