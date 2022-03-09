@@ -70,8 +70,6 @@
         "phpstan": "phpstan --no-progress",
         "phpmd": "phpmd . text phpmd.ruleset.xml --exclude 'cache/,vendor/'",
         "psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress",
-        "psalm-phpstorm": "@psalm --output-format=phpstorm",
-        "server": "php -S 0.0.0.0:8000 -t build",
-        "php-cs-fixer": "php-cs-fixer fix -v --diff"
+        "php-cs-fixer": "php-cs-fixer fix --dry-run --format=gitlab -vvv --diff"
     }
 }

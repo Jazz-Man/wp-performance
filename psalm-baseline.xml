@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.x-dev@">
+  <file src="src/MenuCache/MenuItemClasses.php">
+    <MixedArgument occurrences="1">
+      <code>$ancestorType</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$ancestorType</code>
+      <code>$ancestorType</code>
+    </MixedAssignment>
+    <RedundantCastGivenDocblockType occurrences="3">
+      <code>(int) $frontPageId</code>
+      <code>(int) $homePageId</code>
+      <code>(int) $privacyPolicyPageId</code>
+    </RedundantCastGivenDocblockType>
+    <UnnecessaryVarAnnotation occurrences="2">
+      <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
+      <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
+    </UnnecessaryVarAnnotation>
+  </file>
+  <file src="src/MenuCache/MenuItems.php">
+    <MixedPropertyTypeCoercion occurrences="1">
+      <code>(array) maybe_unserialize( (string) $menuItem-&gt;classes )</code>
+    </MixedPropertyTypeCoercion>
+  </file>
+  <file src="src/MenuCache/NavMenuCache.php">
+    <MixedArgument occurrences="1">
+      <code>$args-&gt;menu</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$sortedMenuItem-&gt;classes[]</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="1">
+      <code>$menuWithChildren[$sortedMenuItem-&gt;ID]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="1">
+      <code>$sortedMenuItem-&gt;classes</code>
+    </MixedAssignment>
+    <StringIncrement occurrences="1">
+      <code>$matches[1]</code>
+    </StringIncrement>
+  </file>
   <file src="src/Optimization/Http.php">
     <MixedArgument occurrences="1">
       <code>$this-&gt;preloadLinks</code>
@@ -16,59 +56,6 @@
       <code>$months</code>
       <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
-  </file>
-  <file src="src/Optimization/NavMenu/MenuItemClasses.php">
-    <MixedArgument occurrences="2">
-      <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
-      <code>$objectParents</code>
-    </MixedArgument>
-    <PossiblyNullArgument occurrences="1">
-      <code>$object-&gt;taxonomy ?: $object-&gt;post_type</code>
-    </PossiblyNullArgument>
-    <PossiblyNullPropertyFetch occurrences="3">
-      <code>$object-&gt;post_type</code>
-      <code>$object-&gt;post_type</code>
-      <code>$object-&gt;taxonomy</code>
-    </PossiblyNullPropertyFetch>
-    <PossiblyUndefinedVariable occurrences="1">
-      <code>$objectParents</code>
-    </PossiblyUndefinedVariable>
-    <UndefinedMagicPropertyFetch occurrences="3">
-      <code>$object-&gt;post_type</code>
-      <code>$object-&gt;post_type</code>
-      <code>$object-&gt;taxonomy</code>
-    </UndefinedMagicPropertyFetch>
-    <UndefinedPropertyFetch occurrences="3">
-      <code>$object-&gt;post_type</code>
-      <code>$object-&gt;post_type</code>
-      <code>$object-&gt;taxonomy</code>
-    </UndefinedPropertyFetch>
-    <UnnecessaryVarAnnotation occurrences="2">
-      <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
-      <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
-    </UnnecessaryVarAnnotation>
-  </file>
-  <file src="src/Optimization/NavMenu/MenuItems.php">
-    <MixedPropertyTypeCoercion occurrences="1">
-      <code>(array) maybe_unserialize( (string) $menuItem-&gt;classes )</code>
-    </MixedPropertyTypeCoercion>
-  </file>
-  <file src="src/Optimization/NavMenu/NavMenuCache.php">
-    <MixedArgument occurrences="1">
-      <code>$args-&gt;menu</code>
-    </MixedArgument>
-    <MixedArrayAssignment occurrences="1">
-      <code>$sortedMenuItem-&gt;classes[]</code>
-    </MixedArrayAssignment>
-    <MixedArrayOffset occurrences="1">
-      <code>$menuWithChildren[$sortedMenuItem-&gt;ID]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="1">
-      <code>$sortedMenuItem-&gt;classes</code>
-    </MixedAssignment>
-    <StringIncrement occurrences="1">
-      <code>$matches[1]</code>
-    </StringIncrement>
   </file>
   <file src="src/Optimization/WPQuery.php">
     <MixedArgument occurrences="1">

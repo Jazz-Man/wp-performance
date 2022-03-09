@@ -6,26 +6,6 @@ parameters:
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Cannot access property \\$post_type on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
-			count: 2
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Cannot access property \\$taxonomy on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 3
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
-			message: "#^Variable \\$objectParents might not be defined\\.$#"
-			count: 1
-			path: src/Optimization/NavMenu/MenuItemClasses.php
-
-		-
 			message: "#^Property WP_Taxonomy\\:\\:\\$update_count_callback \\(callable\\) in empty\\(\\) is not falsy\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
