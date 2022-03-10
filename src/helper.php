@@ -84,10 +84,14 @@ if ( ! function_exists('app_get_attachment_image_url')) {
 
 if ( ! function_exists('app_get_attachment_image')) {
     /**
-     * @param array<string,mixed>|string $attributes
+     * @param int                               $attachmentId
+     * @param string                            $size
+     * @param array<string,mixed>|string|object $attributes
+     *
+     * @return string
      */
     function app_get_attachment_image(int $attachmentId, string $size = AttachmentData::SIZE_THUMBNAIL, $attributes = ''): string {
-        /** @var array<string,mixed> $image */
+        /** @var array<string,string|int> $image */
         $image = app_get_image_data_array($attachmentId, $size);
 
         if (empty($image)) {
@@ -107,11 +111,14 @@ if ( ! function_exists('app_get_attachment_image')) {
                 'width' => empty($image['width']) ? false : (int) $image['width'],
                 'height' => empty($image['height']) ? false : (int) $image['height'],
                 'loading' => $lazyLoading ? 'lazy' : false,
-                'srcset' => empty($attributes['srcset']) ? (empty($image['srcset']) ? false : $image['srcset']) : ($attributes['srcset']),
-                'sizes' => empty($attributes['sizes']) ? (empty($image['sizes']) ? false : $image['sizes']) : ($attributes['sizes']),
+                'decoding' => 'async',
             ];
 
+			/** @var array<string,string|int|bool|null> $attributes */
             $attributes = wp_parse_args($attributes, $defaultAttributes);
+
+            $attributes['srcset'] = empty($attributes['srcset']) ? (empty($image['srcset']) ? false : $image['srcset']) : ($attributes['srcset']);
+            $attributes['sizes'] = empty($attributes['sizes']) ? (empty($image['sizes']) ? false : $image['sizes']) : ($attributes['sizes']);
 
             // If the default value of `lazy` for the `loading` attribute is overridden
             // to omit the attribute for this image, ensure it is not included.

@@ -91,27 +91,7 @@ parameters:
 			path: src/Utils/WPBlocks.php
 
 		-
-			message: "#^Cannot assign offset 'sizes' to array\\<string, mixed\\>\\|string\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Cannot assign offset 'srcset' to array\\<string, mixed\\>\\|string\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
 			message: "#^Cannot cast array\\<int\\>\\|string to string\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 2
-			path: src/helper.php
-
-		-
-			message: "#^Cannot cast mixed to string\\.$#"
 			count: 1
 			path: src/helper.php
 
