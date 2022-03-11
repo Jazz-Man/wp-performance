@@ -12,7 +12,7 @@ use WP_Site;
  */
 class Enqueue implements AutoloadInterface {
     public function load(): void {
-        add_filter( 'app_preload_links', [$this, 'preloadLinks'] );
+        add_filter( 'app_preload_links', [ $this, 'preloadLinks' ] );
         add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jsToFooter' ] );
         add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jqueryFromCdn' ] );
         add_filter( 'style_loader_tag', [ __CLASS__, 'addAsyncStyle' ], 10, 4 );
@@ -69,18 +69,16 @@ class Enqueue implements AutoloadInterface {
         foreach ( $methods as $method => $data ) {
             $validHandlers = (array) apply_filters( "app_{$method}_scripts_handlers", $data );
 
-            if (empty( $validHandlers )) {
-                continue;
+            if ( empty( $validHandlers ) ) {
+                return $tag;
             }
 
-            if (!in_array( $handle, $validHandlers )) {
-                continue;
+            if ( ! in_array( $handle, $validHandlers ) ) {
+                return $tag;
             }
 
             return str_replace( ' src', " {$method} src", $tag );
         }
-
-        return $tag;
     }
 
     public static function setScriptVersion(string $scriptSrc, string $handle): string {
@@ -113,13 +111,17 @@ class Enqueue implements AutoloadInterface {
      * @return string|bool
      */
     private static function prepareScriptFilePath(string $scriptSrc) {
+
+        /** @var string|bool $rootDir */
+        $rootDir = app_locate_root_dir();
+
+        if (empty($rootDir)) {
+            return false;
+        }
+
         $path = ltrim( (string) parse_url( $scriptSrc, PHP_URL_PATH ), '/' );
 
-        $file = sprintf(
-            '%s/%s',
-            (string) app_locate_root_dir(),
-            self::fixMultiSitePath( $path )
-        );
+        $file = sprintf( '%s/%s', $rootDir, self::fixMultiSitePath( $path ) );
 
         return is_readable( $file ) ? $file : false;
     }
@@ -132,11 +134,19 @@ class Enqueue implements AutoloadInterface {
     private static function fixMultiSitePath(string $path): string {
         static $blogDetails;
 
+        if ( ! is_multisite() ) {
+            return $path;
+        }
+
         if ( $blogDetails === null ) {
             $blogDetails = get_blog_details( null, false );
         }
 
-        return is_multisite() && $blogDetails instanceof WP_Site ? ltrim( $path, $blogDetails->path ) : $path;
+        if ( ! ( $blogDetails instanceof WP_Site ) ) {
+            return $path;
+        }
+
+        return ltrim( $path, $blogDetails->path );
     }
 
     public static function jqueryFromCdn(): void {
@@ -147,7 +157,7 @@ class Enqueue implements AutoloadInterface {
 
         $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
 
-        foreach ( array_keys($registered) as $handle ) {
+        foreach ( array_keys( $registered ) as $handle ) {
             if ( strpos( $handle, 'jquery-effects-' ) === 0 ) {
                 $isCore = $handle === 'jquery-effects-core';
 
@@ -210,7 +220,7 @@ class Enqueue implements AutoloadInterface {
                 /* @var callable $function */
                 $function = $enqueue ? 'wp_enqueue_script' : 'wp_register_script';
 
-                $function($jsLib->handle, $newUrl, $jsLib->deps, $jsLib->ver, true);
+                $function( $jsLib->handle, $newUrl, $jsLib->deps, $jsLib->ver, true );
             }
         }
     }
@@ -228,7 +238,7 @@ class Enqueue implements AutoloadInterface {
             if ( ! empty( $newUrl ) ) {
                 /** @var callable $function */
                 $function = $enqueue ? 'wp_enqueue_style' : 'wp_register_style';
-                $function($cssLib->handle, $newUrl, $cssLib->deps, $cssLib->ver);
+                $function( $cssLib->handle, $newUrl, $cssLib->deps, $cssLib->ver );
             }
         }
     }
