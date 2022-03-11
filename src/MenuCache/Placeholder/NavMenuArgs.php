@@ -1,6 +1,6 @@
 <?php
 
-namespace JazzMan\PerformanceStub;
+namespace JazzMan\Performance\MenuCache\Placeholder;
 
 use stdClass;
 use Walker_Nav_Menu;

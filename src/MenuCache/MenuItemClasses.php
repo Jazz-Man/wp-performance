@@ -2,7 +2,8 @@
 
 namespace JazzMan\Performance\MenuCache;
 
-use JazzMan\PerformanceStub\NavMenuItemStub;
+use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
+use stdClass;
 use WP_Error;
 use WP_Post;
 use WP_Post_Type;
@@ -12,13 +13,14 @@ use WP_User;
 
 class MenuItemClasses {
     /**
-     * @param NavMenuItemStub[] $menuItems
+     * @param MenuItem[]|stdClass[] $menuItems
      */
     public static function setMenuItemClassesByContext(array &$menuItems): void {
         global $wp_query, $wp_rewrite;
 
         /** @var WP_Term|WP_Post_Type|WP_Post|WP_User|null $object */
         $object = $wp_query->get_queried_object();
+        $queriedObjectId = $wp_query->queried_object_id;
 
         $activeObject = '';
         $ancestorItemIds = [];
@@ -62,7 +64,7 @@ class MenuItemClasses {
                 $activeParentItemIds[] = (int) $menuItem->db_id;
                 /** @var WP_Post $object */
                 $activeObject = $object->post_type;
-            } elseif (self::isCurrentMenuItemt($menuItem, $object, (int) $homePageId)) {
+            } elseif (self::isCurrentMenuItemt($menuItem, $queriedObjectId, $object, (int) $homePageId)) {
                 $classes[] = 'current-menu-item';
                 $menuItems[$key]->current = true;
 
@@ -216,6 +218,7 @@ class MenuItemClasses {
 
         /** @var WP_Term|WP_Post_Type|WP_Post|WP_User|null $object */
         $object = $wp_query->get_queried_object();
+        $queriedObjectId = $wp_query->queried_object_id;
 
         $taxonomyAncestors = [];
 
@@ -228,7 +231,7 @@ class MenuItemClasses {
                     /** @var array<int,int> $termHierarchy */
                     $termHierarchy = _get_term_hierarchy($taxonomy);
                     /** @var int[]|WP_Error $terms */
-                    $terms = wp_get_object_terms( $wp_query->queried_object_id, $taxonomy, [ 'fields' => 'ids']);
+                    $terms = wp_get_object_terms($queriedObjectId, $taxonomy, [ 'fields' => 'ids']);
 
                     if (is_array($terms)) {
                         $objectParents = array_merge($objectParents, $terms);
@@ -287,16 +290,17 @@ class MenuItemClasses {
     }
 
     /**
-     * @param NavMenuItemStub                           $menuItem
+     * @param MenuItem|stdClass                         $menuItem
+     * @param int                                       $queriedObjectId
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $queriedObject
      * @param int|null                                  $homePageId
      *
      * @return bool
      */
-    private static function isCurrentMenuItemt($menuItem, $queriedObject, ?int $homePageId = null): bool {
+    private static function isCurrentMenuItemt(stdClass $menuItem, int $queriedObjectId, $queriedObject, ?int $homePageId = null): bool {
         global $wp_query;
 
-        if ( (int) $menuItem->object_id === $wp_query->queried_object_id ) {
+        if ((int) $menuItem->object_id === $queriedObjectId) {
             return true;
         }
 
@@ -318,13 +322,13 @@ class MenuItemClasses {
     }
 
     /**
-     * @param NavMenuItemStub                           $parent
+     * @param MenuItem|stdClass                         $parent
      * @param WP_Post|WP_Post_Type|WP_Term|WP_User|null $object
      * @param array<string,array<int,int>>              $ancestors
      *
      * @return bool
      */
-    private static function isCurrentMenuItemtAncestor($parent, $object, array $ancestors): bool {
+    private static function isCurrentMenuItemtAncestor(stdClass $parent, $object, array $ancestors): bool {
         if (empty($parent->type)) {
             return false;
         }

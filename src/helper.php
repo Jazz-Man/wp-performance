@@ -114,7 +114,7 @@ if ( ! function_exists('app_get_attachment_image')) {
                 'decoding' => 'async',
             ];
 
-            /** @var array<string,string|int|bool|null> $attributes */
+			/** @var array<string,string|int|bool|null> $attributes */
             $attributes = wp_parse_args($attributes, $defaultAttributes);
 
             $attributes['srcset'] = empty($attributes['srcset']) ? (empty($image['srcset']) ? false : $image['srcset']) : ($attributes['srcset']);

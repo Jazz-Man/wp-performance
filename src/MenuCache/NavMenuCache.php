@@ -3,8 +3,9 @@
 namespace JazzMan\Performance\MenuCache;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use JazzMan\PerformanceStub\NavMenuArgs;
-use JazzMan\PerformanceStub\NavMenuItemStub;
+use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
+use JazzMan\Performance\MenuCache\Placeholder\NavMenuArgs;
+use stdClass;
 use WP_Term;
 
 class NavMenuCache implements AutoloadInterface {
@@ -14,11 +15,11 @@ class NavMenuCache implements AutoloadInterface {
     }
 
     /**
-     * @param NavMenuArgs $args
+     * @param NavMenuArgs|stdClass $args
      *
      * @return false|mixed|string
      */
-    public function buildWpNavMenu(?string $output, $args) {
+    public function buildWpNavMenu(?string $output, stdClass $args) {
         $menu = wp_get_nav_menu_object( $args->menu );
 
         if ( $menu === false ) {
@@ -41,7 +42,7 @@ class NavMenuCache implements AutoloadInterface {
 
         MenuItemClasses::setMenuItemClassesByContext( $menuItems );
 
-        /** @var array<int,NavMenuItemStub> $sortedMenuItems */
+        /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = [];
         /** @var array<int,boolean> $menuWithChildren */
         $menuWithChildren = [];
@@ -65,7 +66,7 @@ class NavMenuCache implements AutoloadInterface {
 
         unset( $menuItems, $menuItem, $menuWithChildren );
 
-        /** @var array<int,NavMenuItemStub> $sortedMenuItems */
+        /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = apply_filters( 'wp_nav_menu_objects', $sortedMenuItems, $args );
 
         $items = walk_nav_menu_tree( $sortedMenuItems, (int) $args->depth, $args );
@@ -97,9 +98,9 @@ class NavMenuCache implements AutoloadInterface {
     }
 
     /**
-     * @param NavMenuArgs $args
+     * @param NavMenuArgs|stdClass $args
      */
-    private function getMenuWrapId(WP_Term $wpTerm, $args): string {
+    private function getMenuWrapId(WP_Term $wpTerm, stdClass $args): string {
         /** @var string[] $menuIdSlugs */
         static $menuIdSlugs = [];
 
@@ -123,13 +124,13 @@ class NavMenuCache implements AutoloadInterface {
     }
 
     /**
-     * @param NavMenuArgs $args
-     * @param WP_Term     $wpTerm
-     * @param string      $navMenu
+     * @param NavMenuArgs|stdClass $args
+     * @param WP_Term              $wpTerm
+     * @param string               $navMenu
      *
      * @return string
      */
-    private function wrapToContainer($args, WP_Term $wpTerm, string $navMenu): string {
+    private function wrapToContainer(stdClass $args, WP_Term $wpTerm, string $navMenu): string {
         /** @var string[] $allowedTags */
         $allowedTags = (array) apply_filters( 'wp_nav_menu_container_allowedtags', [ 'div', 'nav' ] );
 

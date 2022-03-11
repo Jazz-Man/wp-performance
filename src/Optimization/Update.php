@@ -191,7 +191,7 @@ class Update implements AutoloadInterface {
     /**
      * Remove all the various schedule hooks for themes, plugins, etc.
      */
-    public static function removeScheduleHook(): void {
+    public function removeScheduleHook(): void {
         wp_clear_scheduled_hook('wp_update_themes');
         wp_clear_scheduled_hook('wp_update_plugins');
         wp_clear_scheduled_hook('wp_version_check');
@@ -301,12 +301,6 @@ class Update implements AutoloadInterface {
         // Call the global WP version.
         global $wp_version;
 
-		/** @var array<string,array<string,string>>|null  $pluginsList */
-		static $pluginsList;
-		/** @var \WP_Theme[]|null $themesList */
-		static $themesList;
-
-
         $curentAction = current_action();
 
         switch ($curentAction) {
@@ -315,12 +309,10 @@ class Update implements AutoloadInterface {
                 /** @var array<string,string> $data */
                 $data = [];
 
-				if ($themesList === null){
-					$themesList = wp_get_themes();
-				}
+                $themes = wp_get_themes();
 
                 // Build my theme data array.
-                foreach ($themesList as $theme) {
+                foreach ($themes as $theme) {
                     $data[$theme->get_stylesheet()] = $theme->get('Version');
                 }
 
@@ -343,19 +335,14 @@ class Update implements AutoloadInterface {
                 /** @var array<string,string> $data */
                 $data = [];
 
-				if ($pluginsList === null){
-					// Add our plugin file if we don't have it.
-					if ( ! function_exists('get_plugins')) {
-						require_once ABSPATH . 'wp-admin/includes/plugin.php';
-					}
+                // Add our plugin file if we don't have it.
+                if ( ! function_exists('get_plugins')) {
+                    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+                }
 
-					$pluginsList = get_plugins();
-				}
-
-
-	            // Build my plugin data array.
-                foreach ($pluginsList as $file => $plugin) {
-                    $data[$file] = (string) $plugin['Version'];
+                // Build my plugin data array.
+                foreach (get_plugins() as $file => $pl) {
+                    $data[$file] = (string) $pl['Version'];
                 }
 
                 return (object) [
