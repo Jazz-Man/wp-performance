@@ -103,17 +103,16 @@ class AttachmentData {
 
             $pdoStatement = $pdo->prepare(<<<SQL
 select
-  i.ID as attachmentId,
-  file.meta_value as fullUrl,
+  img.ID as attachmentId,
+  imgFile.meta_value as fullUrl,
   metadata.meta_value as metadata,
-  alt.meta_value as imageAlt
-from $wpdb->posts as i
-left join $wpdb->postmeta as metadata on i.ID = metadata.post_id
-left join $wpdb->postmeta as file on i.ID = file.post_id
-left join $wpdb->postmeta as alt on i.ID = alt.post_id and alt.meta_key = '_wp_attachment_image_alt'
-where i.ID = :attachmentId
-and metadata.meta_key = '_wp_attachment_metadata'
-and file.meta_key = '_wp_attached_file'
+  imgAlt.meta_value as imageAlt
+from $wpdb->posts as img
+left join $wpdb->postmeta as metadata on img.ID = metadata.post_id and metadata.meta_key = '_wp_attachment_metadata'
+left join $wpdb->postmeta as imgFile on img.ID = imgFile.post_id
+left join $wpdb->postmeta as imgAlt on img.ID = imgAlt.post_id and imgAlt.meta_key = '_wp_attachment_image_alt'
+where img.ID = :attachmentId
+and imgFile.meta_key = '_wp_attached_file'
 group by ID
 limit 1
 
