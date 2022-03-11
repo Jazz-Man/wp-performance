@@ -132,7 +132,7 @@ class CleanUp implements AutoloadInterface {
     /**
      * Kill bloginfo('pingback_url').
      */
-    public function killPingbackUrl(string $output, string $show): string {
+    public static function killPingbackUrl(string $output, string $show): string {
         return 'pingback_url' === $show ? '' : $output;
     }
 
