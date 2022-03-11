@@ -16,6 +16,7 @@ class NavMenuArgs extends stdClass {
      * Desired menu. Accepts a menu ID, slug, name, or object. Default empty.
      *
      * @var int|string|WP_Term
+     * @phpstan-ignore-next-line
      */
     public $menu = 0;
 
@@ -95,6 +96,7 @@ class NavMenuArgs extends stdClass {
      * Instance of a custom walker class. Default empty.
      *
      * @var Walker_Nav_Menu|null
+     * @phpstan-ignore-next-line
      */
     public ?Walker_Nav_Menu $walker = null;
 
