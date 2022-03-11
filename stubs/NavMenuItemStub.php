@@ -9,7 +9,6 @@ use stdClass;
  *
  * @SuppressWarnings(PHPMD)
  */
-
 class NavMenuItemStub extends stdClass {
     /**
      * The term_id if the menu item represents a taxonomy term.
@@ -44,8 +43,10 @@ class NavMenuItemStub extends stdClass {
 
     /**
      * The DB ID of the nav_menu_item that is this item's menu parent, if any. 0 otherwise.
+     *
+     * @var int|string
      */
-    public int $menu_item_parent = 0;
+    public $menu_item_parent = 0;
 
     /**
      * The type of object originally represented, such as "category," "post", or "attachment.".
