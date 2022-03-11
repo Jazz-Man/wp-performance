@@ -153,13 +153,12 @@ class WPQuery implements AutoloadInterface {
                     }
 
                     if ( ! empty($wpQuery->query_vars['post__in'])) {
-						/** @var int[] $postIn */
-						$postIn = $wpQuery->query_vars['post__in'];
+                        /** @var int[] $postIn */
+                        $postIn = $wpQuery->query_vars['post__in'];
 
-						shuffle($postIn);
+                        shuffle($postIn);
 
-	                    $wpQuery->set('post__in', $postIn);
-//                        shuffle($wpQuery->query_vars['post__in']);
+                        $wpQuery->set('post__in', $postIn);
                     }
 
                     $wpQuery->set('orderby', 'post__in');
