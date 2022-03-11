@@ -3,8 +3,8 @@
 namespace JazzMan\Performance\MenuCache;
 
 use Exception;
-use JazzMan\Performance\MenuCache\Placeholder\MenuItem;
 use JazzMan\Performance\Utils\Cache;
+use JazzMan\PerformanceStub\NavMenuItemStub;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
 use function Latitude\QueryBuilder\on;
@@ -22,12 +22,12 @@ class MenuItems {
     /**
      * @param WP_Term $wpTerm
      *
-     * @return MenuItem[]|stdClass[]
+     * @return NavMenuItemStub[]
      */
     public static function getItems(WP_Term $wpTerm): array {
         $cacheKey = Cache::getMenuItemCacheKey( $wpTerm );
 
-        /** @var MenuItem[]|stdClass[]|false $menuItems */
+        /** @var NavMenuItemStub[]|false $menuItems */
         $menuItems = wp_cache_get( $cacheKey, 'menu_items' );
 
         if ( false === $menuItems ) {
@@ -42,7 +42,7 @@ class MenuItems {
 
                 $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
 
-                /** @var MenuItem[]|stdClass[] $menuItems */
+                /** @var NavMenuItemStub[] $menuItems */
                 $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $wpTerm );
 
                 foreach ( $menuItems as $key => $item ) {
@@ -51,6 +51,7 @@ class MenuItems {
 
                 wp_cache_set( $cacheKey, $menuItems, 'menu_items' );
             } catch ( Exception $exception ) {
+                /** @var NavMenuItemStub $item */
                 $item = new stdClass();
                 $item->_invalid = true;
 
@@ -152,9 +153,11 @@ class MenuItems {
     }
 
     /**
-     * @param MenuItem|stdClass $menuItem
+     * @param NavMenuItemStub $menuItem
+     *
+     * @return NavMenuItemStub
      */
-    private static function setupNavMenuItem(stdClass $menuItem): stdClass {
+    private static function setupNavMenuItem($menuItem) {
         if ( property_exists($menuItem, 'post_type') && $menuItem->post_type !== null ) {
             if ( 'nav_menu_item' === $menuItem->post_type ) {
                 $menuItem->db_id = (int) $menuItem->ID;
@@ -169,7 +172,15 @@ class MenuItems {
                     $menuItem->description = (string) apply_filters( 'nav_menu_description', wp_trim_words( (string) $menuItem->post_content, 200 ) );
                 }
 
-                $menuItem->classes = (array) maybe_unserialize( (string) $menuItem->classes );
+                /** @var string[] $classes */
+                $classes = [];
+
+                if (!empty($menuItem->classes) && is_string($menuItem->classes)) {
+                    /** @var string[] $classes */
+                    $classes = maybe_unserialize( (string) $menuItem->classes );
+                }
+
+                $menuItem->classes = $classes;
 
                 return $menuItem;
             }
@@ -226,7 +237,7 @@ class MenuItems {
 
             $menuItem->title = (string) $menuItem->name;
 
-            $termLink = app_get_term_link( (int) $menuItem->term_id, (string) $menuItem->taxonomy );
+            $termLink = app_get_term_link( $menuItem->term_id, (string) $menuItem->taxonomy );
 
             $menuItem->url = empty($termLink) ? '' : $termLink;
 
@@ -252,11 +263,11 @@ class MenuItems {
     }
 
     /**
-     * @param MenuItem|stdClass $menuItem
+     * @param NavMenuItemStub $menuItem
      *
-     * @return MenuItem|stdClass
+     * @return NavMenuItemStub
      */
-    private static function setupNavMenuItemByType(stdClass $menuItem): stdClass {
+    private static function setupNavMenuItemByType($menuItem) {
         switch ( $menuItem->type ) {
             case 'post_type':
                 $postTypeObject = get_post_type_object( (string) $menuItem->object );
@@ -345,11 +356,11 @@ class MenuItems {
     }
 
     /**
-     * @param MenuItem|stdClass $menuItem
+     * @param NavMenuItemStub $menuItem
      *
      * @return string
      */
-    private static function getTaxonomyLabel(stdClass $menuItem): string {
+    private static function getTaxonomyLabel($menuItem): string {
         $taxonomyObject = get_taxonomy( (string) $menuItem->object );
 
         if ($taxonomyObject instanceof WP_Taxonomy) {
@@ -362,34 +373,34 @@ class MenuItems {
     }
 
     /**
-     * @param MenuItem|stdClass $menuItem
+     * @param NavMenuItemStub $menuItem
      *
      * @return string
      */
-    private static function getPostTypeLabel(stdClass $menuItem): string {
+    private static function getPostTypeLabel($menuItem): string {
         $label = (string) $menuItem->object;
 
-        $postTypeObject = get_post_type_object( (string) $menuItem->object );
-
-        $originalPost = get_post( (int) $menuItem->object_id );
+        $postTypeObject = get_post_type_object( $label );
 
         if ($postTypeObject instanceof WP_Post_Type) {
+            $originalPost = get_post( (int) $menuItem->object_id );
+
             if ($originalPost instanceof WP_Post) {
-                $label = wp_strip_all_tags( implode( ', ', get_post_states( $originalPost ) ) );
-            } else {
-                $label = (string) $postTypeObject->labels->singular_name;
+                return wp_strip_all_tags( implode( ', ', get_post_states( $originalPost ) ) );
             }
+
+            return (string) $postTypeObject->labels->singular_name;
         }
 
         return $label;
     }
 
     /**
-     * @param MenuItem|stdClass $menuItem
+     * @param NavMenuItemStub $menuItem
      *
      * @return string
      */
-    private static function getBaseMenuItemTitle(stdClass $menuItem): string {
+    private static function getBaseMenuItemTitle($menuItem): string {
         return '' === $menuItem->post_title ? sprintf( __( '#%d (no title)' ), (int) $menuItem->ID ) : (string) $menuItem->post_title;
     }
 }
