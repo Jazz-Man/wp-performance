@@ -49,6 +49,8 @@
 
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+        <file name="stubs/NavMenuItemStub.php"/>
+        <file name="stubs/NavMenuArgs.php" />
     </stubs>
     <globals>
         <var name="wpdb" type="\wpdb"/>
