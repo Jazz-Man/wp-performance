@@ -1,21 +1,18 @@
 <?php
 
-namespace JazzMan\Performance\MenuCache\Placeholder;
+namespace JazzMan\PerformanceStub;
 
 use stdClass;
 
 /**
- * Class MenuItem.
+ * Class NavMenuItemStub.
  *
  * @SuppressWarnings(PHPMD)
  */
-class MenuItem extends stdClass {
+
+class NavMenuItemStub extends stdClass {
     /**
      * The term_id if the menu item represents a taxonomy term.
-     *
-     * @overrides WP_Post
-     *
-     * @var int
      */
     public int $ID = 0;
 
@@ -29,7 +26,7 @@ class MenuItem extends stdClass {
      *
      * @var string|string[]
      */
-    public $classes = [];
+    public $classes;
 
     /**
      * The DB ID of this item as a nav_menu_item object, if it exists (0 if it doesn't exist).
@@ -38,9 +35,6 @@ class MenuItem extends stdClass {
      */
     public $db_id = 0;
 
-    /**
-     * @var int
-     */
     public int $term_id = 0;
 
     /**
@@ -77,8 +71,6 @@ class MenuItem extends stdClass {
 
     /**
      * The DB ID of the original object's parent object, if any (0 otherwise).
-     *
-     * @overrides WP_Post
      */
     public int $post_parent = 0;
 
@@ -229,8 +221,6 @@ class MenuItem extends stdClass {
 
     /**
      * A field used for ordering posts.
-     *
-     * @var int|null
      */
     public ?int $menu_order = 0;
 
@@ -248,8 +238,6 @@ class MenuItem extends stdClass {
      * Cached comment count.
      *
      * A numeric string, for compatibility reasons.
-     *
-     * @var int|null
      */
     public ?int $comment_count = null;
 
