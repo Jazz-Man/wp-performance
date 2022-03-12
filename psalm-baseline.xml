@@ -13,10 +13,7 @@
       <code>(int) $homePageId</code>
       <code>(int) $privacyPolicyPageId</code>
     </RedundantCastGivenDocblockType>
-    <UnnecessaryVarAnnotation occurrences="2">
-      <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
-      <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
-    </UnnecessaryVarAnnotation>
+    <UnnecessaryVarAnnotation occurrences="2"/>
   </file>
   <file src="src/MenuCache/NavMenuCache.php">
     <StringIncrement occurrences="1">
@@ -92,7 +89,6 @@
     </MixedAssignment>
     <MixedReturnTypeCoercion occurrences="2">
       <code>$pdoStatement-&gt;fetchAll($mode, ...$args)</code>
-      <code>array&lt;string,string|int&gt;|false</code>
     </MixedReturnTypeCoercion>
     <MoreSpecificReturnType occurrences="1">
       <code>array{size: array&lt;int&gt;|string, url: string, width: numeric, height: numeric, alt?: null|string, id?: int, srcset?: string, sizes?: string}|false</code>
