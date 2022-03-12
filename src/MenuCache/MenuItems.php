@@ -20,37 +20,35 @@ use WP_Term;
 
 class MenuItems {
     /**
-     * @param WP_Term $wpTerm
-     *
      * @return NavMenuItemStub[]
      */
     public static function getItems(WP_Term $wpTerm): array {
-        $cacheKey = Cache::getMenuItemCacheKey( $wpTerm );
+        $cacheKey = Cache::getMenuItemCacheKey($wpTerm);
 
-        /** @var NavMenuItemStub[]|false $menuItems */
-        $menuItems = wp_cache_get( $cacheKey, 'menu_items' );
+        /** @var false|NavMenuItemStub[] $menuItems */
+        $menuItems = wp_cache_get($cacheKey, 'menu_items');
 
-        if ( false === $menuItems ) {
+        if (false === $menuItems) {
             try {
                 $pdo = app_db_pdo();
 
-                $query = self::generateSql( $wpTerm );
+                $query = self::generateSql($wpTerm);
 
-                $pdoStatement = $pdo->prepare( $query->sql() );
+                $pdoStatement = $pdo->prepare($query->sql());
 
-                $pdoStatement->execute( $query->params() );
+                $pdoStatement->execute($query->params());
 
-                $menuItems = $pdoStatement->fetchAll( PDO::FETCH_OBJ );
+                $menuItems = $pdoStatement->fetchAll(PDO::FETCH_OBJ);
 
                 /** @var NavMenuItemStub[] $menuItems */
-                $menuItems = (array) apply_filters( 'app_nav_menu_cache_items', $menuItems, $wpTerm );
+                $menuItems = (array) apply_filters('app_nav_menu_cache_items', $menuItems, $wpTerm);
 
-                foreach ( $menuItems as $key => $item ) {
-                    $menuItems[ $key ] = self::setupNavMenuItem( $item );
+                foreach ($menuItems as $key => $item) {
+                    $menuItems[$key] = self::setupNavMenuItem($item);
                 }
 
-                wp_cache_set( $cacheKey, $menuItems, 'menu_items' );
-            } catch ( Exception $exception ) {
+                wp_cache_set($cacheKey, $menuItems, 'menu_items');
+            } catch (Exception $exception) {
                 /** @var NavMenuItemStub $item */
                 $item = new stdClass();
                 $item->_invalid = true;
@@ -58,7 +56,7 @@ class MenuItems {
                 $menuItems = [];
                 $menuItems[] = $item;
 
-                app_error_log( $exception, __METHOD__ );
+                app_error_log($exception, __METHOD__);
             }
         }
 
@@ -78,78 +76,79 @@ class MenuItems {
                 'm.post_type',
                 'm.post_content',
                 'm.post_excerpt',
-                alias( 'classes.meta_value', 'classes' ),
-                alias( 'menu_item_parent.meta_value', 'menu_item_parent' ),
-                alias( 'object.meta_value', 'object' ),
-                alias( 'object_id.meta_value', 'object_id' ),
-                alias( 'target.meta_value', 'target' ),
-                alias( 'type.meta_value', 'type' ),
-                alias( 'url.meta_value', 'url' ),
-                alias( 'xfn.meta_value', 'xfn' ),
-                alias( 'hide_link.meta_value', 'hide_link' ),
-                alias( 'image_link.meta_value', 'image_link' )
+                alias('classes.meta_value', 'classes'),
+                alias('menu_item_parent.meta_value', 'menu_item_parent'),
+                alias('object.meta_value', 'object'),
+                alias('object_id.meta_value', 'object_id'),
+                alias('target.meta_value', 'target'),
+                alias('type.meta_value', 'type'),
+                alias('url.meta_value', 'url'),
+                alias('xfn.meta_value', 'xfn'),
+                alias('hide_link.meta_value', 'hide_link'),
+                alias('image_link.meta_value', 'image_link')
             )
-            ->from( alias( $wpdb->posts, 'm' ) )
-            ->leftJoin( alias( $wpdb->term_relationships, 'tr' ), on( 'm.ID', 'tr.object_id' ) )
+            ->from(alias($wpdb->posts, 'm'))
+            ->leftJoin(alias($wpdb->term_relationships, 'tr'), on('m.ID', 'tr.object_id'))
             ->leftJoin(
-                alias( $wpdb->postmeta, 'classes' ),
-                on( 'm.ID', 'classes.post_id' )
-                    ->and( field( 'classes.meta_key' )->eq( '_menu_item_classes' ) )
-            )
-            ->leftJoin(
-                alias( $wpdb->postmeta, 'menu_item_parent' ),
-                on( 'm.ID', 'menu_item_parent.post_id' )
-                    ->and( field( 'menu_item_parent.meta_key' )->eq( '_menu_item_menu_item_parent' ) )
+                alias($wpdb->postmeta, 'classes'),
+                on('m.ID', 'classes.post_id')
+                    ->and(field('classes.meta_key')->eq('_menu_item_classes'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'object' ),
-                on( 'm.ID', 'object.post_id' )
-                    ->and( field( 'object.meta_key' )->eq( '_menu_item_object' ) )
+                alias($wpdb->postmeta, 'menu_item_parent'),
+                on('m.ID', 'menu_item_parent.post_id')
+                    ->and(field('menu_item_parent.meta_key')->eq('_menu_item_menu_item_parent'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'object_id' ),
-                on( 'm.ID', 'object_id.post_id' )
-                    ->and( field( 'object_id.meta_key' )->eq( '_menu_item_object_id' ) )
+                alias($wpdb->postmeta, 'object'),
+                on('m.ID', 'object.post_id')
+                    ->and(field('object.meta_key')->eq('_menu_item_object'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'target' ),
-                on( 'm.ID', 'target.post_id' )
-                    ->and( field( 'target.meta_key' )->eq( '_menu_item_target' ) )
+                alias($wpdb->postmeta, 'object_id'),
+                on('m.ID', 'object_id.post_id')
+                    ->and(field('object_id.meta_key')->eq('_menu_item_object_id'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'type' ),
-                on( 'm.ID', 'type.post_id' )
-                    ->and( field( 'type.meta_key' )->eq( '_menu_item_type' ) )
+                alias($wpdb->postmeta, 'target'),
+                on('m.ID', 'target.post_id')
+                    ->and(field('target.meta_key')->eq('_menu_item_target'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'url' ),
-                on( 'm.ID', 'url.post_id' )
-                    ->and( field( 'url.meta_key' )->eq( '_menu_item_url' ) )
+                alias($wpdb->postmeta, 'type'),
+                on('m.ID', 'type.post_id')
+                    ->and(field('type.meta_key')->eq('_menu_item_type'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'xfn' ),
-                on( 'm.ID', 'xfn.post_id' )
-                    ->and( field( 'xfn.meta_key' )->eq( '_menu_item_xfn' ) )
+                alias($wpdb->postmeta, 'url'),
+                on('m.ID', 'url.post_id')
+                    ->and(field('url.meta_key')->eq('_menu_item_url'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'hide_link' ),
-                on( 'm.ID', 'hide_link.post_id' )
-                    ->and( field( 'hide_link.meta_key' )->eq( 'menu-item-mm-hide-link' ) )
+                alias($wpdb->postmeta, 'xfn'),
+                on('m.ID', 'xfn.post_id')
+                    ->and(field('xfn.meta_key')->eq('_menu_item_xfn'))
             )
             ->leftJoin(
-                alias( $wpdb->postmeta, 'image_link' ),
-                on( 'm.ID', 'image_link.post_id' )
-                    ->and( field( 'image_link.meta_key' )->eq( 'menu-item-mm-image-link' ) )
+                alias($wpdb->postmeta, 'hide_link'),
+                on('m.ID', 'hide_link.post_id')
+                    ->and(field('hide_link.meta_key')->eq('menu-item-mm-hide-link'))
+            )
+            ->leftJoin(
+                alias($wpdb->postmeta, 'image_link'),
+                on('m.ID', 'image_link.post_id')
+                    ->and(field('image_link.meta_key')->eq('menu-item-mm-image-link'))
             )
             ->where(
-                field( 'tr.term_taxonomy_id' )
-                    ->eq( $wpTerm->term_taxonomy_id )
-                    ->and( field( 'm.post_type' )->eq( 'nav_menu_item' ) )
-                    ->and( field( 'm.post_status' )->eq( 'publish' ) )
+                field('tr.term_taxonomy_id')
+                    ->eq($wpTerm->term_taxonomy_id)
+                    ->and(field('m.post_type')->eq('nav_menu_item'))
+                    ->and(field('m.post_status')->eq('publish'))
             )
-            ->groupBy( 'm.ID', 'm.menu_order' )
-            ->orderBy( 'm.menu_order', 'asc' )
-            ->compile();
+            ->groupBy('m.ID', 'm.menu_order')
+            ->orderBy('m.menu_order', 'asc')
+            ->compile()
+        ;
     }
 
     /**
@@ -158,31 +157,31 @@ class MenuItems {
      * @return NavMenuItemStub
      */
     private static function setupNavMenuItem($menuItem) {
-        if ( property_exists($menuItem, 'post_type') && $menuItem->post_type !== null ) {
-            if ( 'nav_menu_item' === $menuItem->post_type ) {
+        if (property_exists($menuItem, 'post_type') && null !== $menuItem->post_type) {
+            if ('nav_menu_item' === $menuItem->post_type) {
                 $menuItem->db_id = $menuItem->ID;
                 $menuItem->menu_item_parent = (int) $menuItem->menu_item_parent;
                 $menuItem->object_id = (int) $menuItem->object_id;
 
-                $menuItem = self::setupNavMenuItemByType( $menuItem );
+                $menuItem = self::setupNavMenuItemByType($menuItem);
 
                 /** @var string $attrTitleProp */
                 $attrTitleProp = !empty($menuItem->attr_title) ? $menuItem->attr_title : $menuItem->post_excerpt;
 
-                $menuItem->attr_title = (string) apply_filters( 'nav_menu_attr_title', $attrTitleProp );
+                $menuItem->attr_title = (string) apply_filters('nav_menu_attr_title', $attrTitleProp);
 
                 unset($attrTitleProp);
 
-                if ( ! isset($menuItem->description) ) {
-                    $menuItem->description = (string) apply_filters( 'nav_menu_description', wp_trim_words( (string) $menuItem->post_content, 200 ) );
+                if (!isset($menuItem->description)) {
+                    $menuItem->description = (string) apply_filters('nav_menu_description', wp_trim_words((string) $menuItem->post_content, 200));
                 }
 
                 /** @var string[] $classes */
                 $classes = [];
 
-                if (!empty($menuItem->classes) && is_string($menuItem->classes)) {
+                if (!empty($menuItem->classes) && \is_string($menuItem->classes)) {
                     /** @var string[] $classes */
-                    $classes = maybe_unserialize( (string) $menuItem->classes );
+                    $classes = maybe_unserialize((string) $menuItem->classes);
                 }
 
                 $menuItem->classes = $classes;
@@ -197,7 +196,7 @@ class MenuItems {
             $menuItem->object = '';
             $menuItem->type_label = '';
 
-            $object = get_post_type_object( (string) $menuItem->post_type );
+            $object = get_post_type_object((string) $menuItem->post_type);
 
             if ($object instanceof WP_Post_Type) {
                 $menuItem->object = $object->name;
@@ -208,19 +207,19 @@ class MenuItems {
 
             $menuItem->title = $menuItem->post_title;
 
-            $permalink = get_permalink( $menuItem->ID );
+            $permalink = get_permalink($menuItem->ID);
 
             $menuItem->url = empty($permalink) ? '' : $permalink;
             $menuItem->target = '';
-            $menuItem->attr_title = (string) apply_filters( 'nav_menu_attr_title', '' );
-            $menuItem->description = (string) apply_filters( 'nav_menu_description', '' );
+            $menuItem->attr_title = (string) apply_filters('nav_menu_attr_title', '');
+            $menuItem->description = (string) apply_filters('nav_menu_description', '');
             $menuItem->classes = [];
             $menuItem->xfn = '';
 
             return $menuItem;
         }
 
-        if ( ! empty( $menuItem->taxonomy ) ) {
+        if (!empty($menuItem->taxonomy)) {
             $menuItem->ID = $menuItem->term_id;
             $menuItem->db_id = 0;
             $menuItem->menu_item_parent = 0;
@@ -231,7 +230,7 @@ class MenuItems {
             $menuItem->object = '';
             $menuItem->type_label = '';
 
-            $object = get_taxonomy( (string) $menuItem->taxonomy );
+            $object = get_taxonomy((string) $menuItem->taxonomy);
 
             if ($object instanceof WP_Taxonomy) {
                 $menuItem->object = $object->name;
@@ -242,7 +241,7 @@ class MenuItems {
 
             $menuItem->title = (string) $menuItem->name;
 
-            $termLink = app_get_term_link( $menuItem->term_id, (string) $menuItem->taxonomy );
+            $termLink = app_get_term_link($menuItem->term_id, (string) $menuItem->taxonomy);
 
             $menuItem->url = empty($termLink) ? '' : $termLink;
 
@@ -252,7 +251,7 @@ class MenuItems {
             $menuItem->attr_title = '';
             $menuItem->description = '';
 
-            $termDescription = get_term_field( 'description', $menuItem->term_id, (string) $menuItem->taxonomy );
+            $termDescription = get_term_field('description', $menuItem->term_id, (string) $menuItem->taxonomy);
 
             if (!($termDescription instanceof WP_Error)) {
                 $menuItem->description = (string) $termDescription;
@@ -273,22 +272,22 @@ class MenuItems {
      * @return NavMenuItemStub
      */
     private static function setupNavMenuItemByType($menuItem) {
-        switch ( $menuItem->type ) {
+        switch ($menuItem->type) {
             case 'post_type':
-                $postTypeObject = get_post_type_object( (string) $menuItem->object );
+                $postTypeObject = get_post_type_object((string) $menuItem->object);
 
                 $menuItem->_invalid = true;
                 $menuItem->url = '';
 
                 $originalTitle = self::getBaseMenuItemTitle($menuItem);
 
-                $originalPost = get_post( (int) $menuItem->object_id );
+                $originalPost = get_post((int) $menuItem->object_id);
 
                 $menuItem->type_label = self::getPostTypeLabel($menuItem);
 
                 if ($originalPost instanceof WP_Post) {
-                    $menuItem->url = (string) get_permalink( $originalPost->ID );
-                    $originalTitle = (string) apply_filters( 'the_title', $originalPost->post_title, $originalPost->ID );
+                    $menuItem->url = (string) get_permalink($originalPost->ID);
+                    $originalTitle = (string) apply_filters('the_title', $originalPost->post_title, $originalPost->ID);
 
                     $menuItem->_invalid = 'trash' === $originalPost->post_status;
                 }
@@ -302,7 +301,7 @@ class MenuItems {
                 break;
 
             case 'post_type_archive':
-                $postTypeObject = get_post_type_object( (string) $menuItem->object );
+                $postTypeObject = get_post_type_object((string) $menuItem->object);
 
                 $menuItem->_invalid = true;
 
@@ -313,16 +312,15 @@ class MenuItems {
                     $menuItem->_invalid = false;
                 }
 
-                $menuItem->type_label = __( 'Post Type Archive' );
+                $menuItem->type_label = __('Post Type Archive');
 
-                $archiveLink = get_post_type_archive_link( (string) $menuItem->object );
+                $archiveLink = get_post_type_archive_link((string) $menuItem->object);
 
                 $menuItem->url = empty($archiveLink) ? '' : $archiveLink;
 
                 break;
 
             case 'taxonomy':
-
                 $menuItem->_invalid = true;
                 $menuItem->url = '';
 
@@ -330,19 +328,19 @@ class MenuItems {
 
                 $menuItem->title = (string) $menuItem->post_title;
 
-                $originalTerm = get_term( (int) $menuItem->object_id, (string) $menuItem->object );
+                $originalTerm = get_term((int) $menuItem->object_id, (string) $menuItem->object);
 
                 $menuItem->type_label = self::getTaxonomyLabel($menuItem);
 
                 if ($originalTerm instanceof WP_Term) {
-                    $menuItem->url = (string) app_get_term_link( (int) $menuItem->object_id, (string) $menuItem->object );
+                    $menuItem->url = (string) app_get_term_link((int) $menuItem->object_id, (string) $menuItem->object);
 
                     $originalTitle = $originalTerm->name;
 
                     $menuItem->_invalid = false;
                 }
 
-                if (taxonomy_exists( (string) $menuItem->object )) {
+                if (taxonomy_exists((string) $menuItem->object)) {
                     $menuItem->_invalid = false;
                 }
 
@@ -351,7 +349,7 @@ class MenuItems {
                 break;
 
             default:
-                $menuItem->type_label = __( 'Custom Link' );
+                $menuItem->type_label = __('Custom Link');
                 $menuItem->title = (string) $menuItem->post_title;
 
                 break;
@@ -362,11 +360,9 @@ class MenuItems {
 
     /**
      * @param NavMenuItemStub $menuItem
-     *
-     * @return string
      */
     private static function getTaxonomyLabel($menuItem): string {
-        $taxonomyObject = get_taxonomy( (string) $menuItem->object );
+        $taxonomyObject = get_taxonomy((string) $menuItem->object);
 
         if ($taxonomyObject instanceof WP_Taxonomy) {
             $taxonomyLabels = get_taxonomy_labels($taxonomyObject);
@@ -379,19 +375,17 @@ class MenuItems {
 
     /**
      * @param NavMenuItemStub $menuItem
-     *
-     * @return string
      */
     private static function getPostTypeLabel($menuItem): string {
         $label = (string) $menuItem->object;
 
-        $postTypeObject = get_post_type_object( $label );
+        $postTypeObject = get_post_type_object($label);
 
         if ($postTypeObject instanceof WP_Post_Type) {
-            $originalPost = get_post( (int) $menuItem->object_id );
+            $originalPost = get_post((int) $menuItem->object_id);
 
             if ($originalPost instanceof WP_Post) {
-                return wp_strip_all_tags( implode( ', ', get_post_states( $originalPost ) ) );
+                return wp_strip_all_tags(implode(', ', get_post_states($originalPost)));
             }
 
             return (string) $postTypeObject->labels->singular_name;
@@ -402,10 +396,8 @@ class MenuItems {
 
     /**
      * @param NavMenuItemStub $menuItem
-     *
-     * @return string
      */
     private static function getBaseMenuItemTitle($menuItem): string {
-        return '' === $menuItem->post_title ? sprintf( __( '#%d (no title)' ), (int) $menuItem->ID ) : (string) $menuItem->post_title;
+        return '' === $menuItem->post_title ? sprintf(__('#%d (no title)'), (int) $menuItem->ID) : (string) $menuItem->post_title;
     }
 }

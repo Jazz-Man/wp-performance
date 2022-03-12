@@ -10,6 +10,6 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 class PostMeta implements AutoloadInterface {
     public function load(): void {
         // Disable custom fields meta box dropdown (very slow)
-        add_filter( 'postmeta_form_keys', '__return_false' );
+        add_filter('postmeta_form_keys', '__return_false');
     }
 }

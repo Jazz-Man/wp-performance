@@ -50,16 +50,11 @@ class NavMenuItemStub extends stdClass {
 
     /**
      * The type of object originally represented, such as "category," "post", or "attachment.".
-     *
-     * @var string|null
      */
     public ?string $object = null;
 
     public ?string $taxonomy = null;
 
-    /**
-     * @var int|null
-     */
     public ?int $parent = null;
 
     /**
@@ -141,7 +136,7 @@ class NavMenuItemStub extends stdClass {
      *
      * A numeric string, for compatibility reasons.
      *
-     * @var string|int|null
+     * @var null|int|string
      */
     public $post_author = 0;
 

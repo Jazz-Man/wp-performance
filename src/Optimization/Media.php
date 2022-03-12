@@ -64,7 +64,7 @@ class Media implements AutoloadInterface {
      * @return array<string,string>
      */
     public static function setAttachmentTitle(array $data, array $postarr): array {
-        if ( ! empty($postarr['file'])) {
+        if (!empty($postarr['file'])) {
             $url = pathinfo($postarr['file']);
             $extension = empty($url['extension']) ? '' : sprintf('.%s', $url['extension']);
 
@@ -77,8 +77,7 @@ class Media implements AutoloadInterface {
     }
 
     public static function setAttachmentAltTitle(int $postId): void {
-
-        /** @var string|null $imageAlt */
+        /** @var null|string $imageAlt */
         $imageAlt = get_post_meta($postId, '_wp_attachment_image_alt', true);
 
         if (empty($imageAlt)) {
@@ -102,7 +101,7 @@ class Media implements AutoloadInterface {
      */
     public static function replaceGravatar(string $avatar, $idOrEmail, int $size, string $default, string $alt): string {
         // Bail if disabled.
-        if ( ! app_is_enabled_wp_performance()) {
+        if (!app_is_enabled_wp_performance()) {
             return $avatar;
         }
 
@@ -124,7 +123,7 @@ class Media implements AutoloadInterface {
      */
     public static function defaultAvatar(string $avatarList): string {
         // Bail if disabled.
-        if ( ! app_is_enabled_wp_performance()) {
+        if (!app_is_enabled_wp_performance()) {
             return $avatarList;
         }
 
@@ -142,10 +141,10 @@ class Media implements AutoloadInterface {
         }
 
         // Grab the cache to see if it needs updating
-        /** @var stdClass[]|false $mediaMonths */
+        /** @var false|stdClass[] $mediaMonths */
         $mediaMonths = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
-        if ( ! empty($mediaMonths)) {
+        if (!empty($mediaMonths)) {
             $cachedLatestYear = empty($mediaMonths[0]->year) ? '' : (string) $mediaMonths[0]->year;
             $cachedLatestMonth = empty($mediaMonths[0]->month) ? '' : (string) $mediaMonths[0]->month;
 
@@ -153,7 +152,7 @@ class Media implements AutoloadInterface {
             $latestYear = get_the_time('Y', $postId) === $cachedLatestYear;
             $latestMonth = get_the_time('n', $postId) === $cachedLatestMonth;
 
-            if ( ! $latestYear || ! $latestMonth) {
+            if (!$latestYear || !$latestMonth) {
                 // the new attachment is not in the same month/year as the data in our cache
                 wp_cache_delete('wpcom_media_months_array', Cache::CACHE_GROUP);
             }
@@ -161,7 +160,7 @@ class Media implements AutoloadInterface {
     }
 
     /**
-     * @param mixed|null $months
+     * @param null|mixed $months
      *
      * @return stdClass[]
      *
@@ -170,7 +169,7 @@ class Media implements AutoloadInterface {
     public static function mediaLibraryMonthsWithFiles($months = null): array {
         global $wpdb;
 
-        /** @var stdClass[]|false $months */
+        /** @var false|stdClass[] $months */
         $months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (false === $months) {
@@ -181,10 +180,10 @@ class Media implements AutoloadInterface {
                     select 
                       distinct year( post_date ) as year, 
                       month( post_date ) as month
-                    from $wpdb->posts
+                    from {$wpdb->posts}
                     where post_type = 'attachment'
                     order by post_date desc 
-SQL
+                    SQL
             );
 
             $pdoStatement->execute();
@@ -212,8 +211,6 @@ SQL
 
     /**
      * @param array<string,string> $data
-     * @param string               $file
-     * @param string               $filename
      *
      * @return array<string, string>
      */
@@ -237,10 +234,10 @@ SQL
     }
 
     /**
-     * @param array<array-key,string|int|bool>|false $image
-     * @param string|int[]                           $size
+     * @param array<array-key,bool|int|string>|false $image
+     * @param int[]|string                           $size
      *
-     * @return array<array-key,string|int|bool>|false
+     * @return array<array-key,bool|int|string>|false
      */
     public static function fixSvgSizeAttributes($image, int $attachmentId, $size) {
         if (is_admin()) {
@@ -257,7 +254,7 @@ SQL
             $image[1] = 60;
             $image[2] = 60;
 
-            if (is_array($size) && 2 === count($size)) {
+            if (\is_array($size) && 2 === \count($size)) {
                 $image[1] = $size[0];
                 $image[2] = $size[1];
             }
@@ -270,7 +267,7 @@ SQL
      * @param array<string,mixed>|false $image
      * @param int[]|string              $size
      *
-     * @return array<string, mixed>|bool|array<int|string, mixed>
+     * @return array<int|string, mixed>|array<string, mixed>|bool
      *
      * @psalm-return array<int|string, mixed>|false
      */
@@ -279,7 +276,7 @@ SQL
             return $image;
         }
 
-        if (! is_array($size)) {
+        if (!\is_array($size)) {
             return $image;
         }
         $meta = wp_get_attachment_metadata($attachmentId);
@@ -291,7 +288,7 @@ SQL
         $upload = wp_upload_dir();
         $filePath = sprintf('%s/%s', $upload['basedir'], $meta['file']);
 
-        if ( ! file_exists($filePath)) {
+        if (!file_exists($filePath)) {
             return $image;
         }
 
@@ -299,9 +296,9 @@ SQL
 
         $imageBaseUrl = sprintf('%s/%s', $upload['baseurl'], $imageDirname);
 
-        list($width, $height) = $size;
+        [$width, $height] = $size;
 
-        if ( ! empty($meta['sizes']) && self::isImageSizesExist($meta['sizes'], $width, $height )) {
+        if (!empty($meta['sizes']) && self::isImageSizesExist($meta['sizes'], $width, $height)) {
             return $image;
         }
 
@@ -327,10 +324,6 @@ SQL
 
     /**
      * @param array<array-key,array<string,int|string>> $sizes
-     * @param int                                       $width
-     * @param int                                       $height
-     *
-     * @return bool
      */
     private static function isImageSizesExist(array $sizes, int $width, int $height): bool {
         foreach ($sizes as $size) {

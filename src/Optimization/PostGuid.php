@@ -10,10 +10,6 @@ class PostGuid implements AutoloadInterface {
         add_action('save_post', [__CLASS__, 'fixPostGuid'], 10, 2);
     }
 
-    /**
-     * @param int     $postId
-     * @param WP_Post $wpPost
-     */
     public static function fixPostGuid(int $postId, WP_Post $wpPost): void {
         global $wpdb;
 
@@ -25,7 +21,7 @@ class PostGuid implements AutoloadInterface {
             app_get_attachment_image_url($postId, 'full') :
             get_permalink($postId);
 
-        if ( ! empty($guid)) {
+        if (!empty($guid)) {
             $wpdb->update(
                 $wpdb->posts,
                 ['guid' => $guid],
