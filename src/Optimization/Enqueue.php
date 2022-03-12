@@ -212,7 +212,7 @@ class Enqueue implements AutoloadInterface {
 
         $path = ltrim((string) parse_url($scriptSrc, PHP_URL_PATH), '/');
 
-        $file = sprintf('%s/%s', $rootDir, self::fixMultiSitePath($path));
+        $file = sprintf('%s/%s', (string) $rootDir, self::fixMultiSitePath($path));
 
         return is_readable($file) ? $file : false;
     }
