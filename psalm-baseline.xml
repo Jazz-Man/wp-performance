@@ -18,24 +18,7 @@
       <code>WP_Term|WP_Post_Type|WP_Post|WP_User|null</code>
     </UnnecessaryVarAnnotation>
   </file>
-  <file src="src/MenuCache/MenuItems.php">
-    <MixedPropertyTypeCoercion occurrences="1">
-      <code>(array) maybe_unserialize( (string) $menuItem-&gt;classes )</code>
-    </MixedPropertyTypeCoercion>
-  </file>
   <file src="src/MenuCache/NavMenuCache.php">
-    <MixedArgument occurrences="1">
-      <code>$args-&gt;menu</code>
-    </MixedArgument>
-    <MixedArrayAssignment occurrences="1">
-      <code>$sortedMenuItem-&gt;classes[]</code>
-    </MixedArrayAssignment>
-    <MixedArrayOffset occurrences="1">
-      <code>$menuWithChildren[ $sortedMenuItem-&gt;ID ]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="1">
-      <code>$sortedMenuItem-&gt;classes</code>
-    </MixedAssignment>
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>
     </StringIncrement>
@@ -56,18 +39,6 @@
       <code>$months</code>
       <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
-  </file>
-  <file src="src/Optimization/WPQuery.php">
-    <MixedArgument occurrences="1">
-      <code>$wpQuery-&gt;query_vars['post__in']</code>
-    </MixedArgument>
-    <MixedReturnTypeCoercion occurrences="2">
-      <code>(array) wp_cache_get($this-&gt;generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP)</code>
-      <code>int[]</code>
-    </MixedReturnTypeCoercion>
-    <PossiblyNullArgument occurrences="1">
-      <code>$this-&gt;queryHash</code>
-    </PossiblyNullArgument>
   </file>
   <file src="src/Security/SanitizeFileName.php">
     <DuplicateArrayKey occurrences="6">

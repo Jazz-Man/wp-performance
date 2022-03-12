@@ -165,7 +165,7 @@ class WPQuery implements AutoloadInterface {
             return false;
         }
 
-        return (int) $time;
+        return $time;
     }
 
     /**
@@ -179,7 +179,7 @@ class WPQuery implements AutoloadInterface {
             return false;
         }
 
-        return (int) $time;
+        return $time;
     }
 
     private function generateFoundPostCacheKey(bool $addTime = false): string {
