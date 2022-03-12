@@ -349,13 +349,16 @@ class Update implements AutoloadInterface {
 						require_once ABSPATH . 'wp-admin/includes/plugin.php';
 					}
 
+					/** @var array<string,array<string,string>>  $pluginsList */
 					$pluginsList = get_plugins();
 				}
 
 
 	            // Build my plugin data array.
                 foreach ($pluginsList as $file => $plugin) {
-                    $data[$file] = (string) $plugin['Version'];
+					if (!empty($plugin['Version'])){
+						$data[$file] = $plugin['Version'];
+					}
                 }
 
                 return (object) [
