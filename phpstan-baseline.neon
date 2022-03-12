@@ -16,16 +16,6 @@ parameters:
 			path: src/Optimization/Update.php
 
 		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 4
-			path: src/Optimization/WPQuery.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\WPQuery\\:\\:getFoundPostsCache\\(\\) should return array\\<int\\> but returns array\\.$#"
-			count: 1
-			path: src/Optimization/WPQuery.php
-
-		-
 			message: "#^Array has 2 duplicate keys with value 'â€' \\('â€', 'â€'\\)\\.$#"
 			count: 1
 			path: src/Security/SanitizeFileName.php

@@ -43,7 +43,7 @@ class WPQuery implements AutoloadInterface {
             return $clauses;
         }
 
-        $limit = (int) $wpQuery->get('posts_per_page');
+        $limit = absint($wpQuery->get('posts_per_page'));
 
         $this->invalidateFoundPostsCache();
         $postIds = $this->getFoundPostsCache();
@@ -55,7 +55,7 @@ class WPQuery implements AutoloadInterface {
                 /** @noinspection SqlConstantCondition */
                 $pdoStatement = $pdo->prepare(
                     sprintf(
-                        'SELECT %s.ID FROM %s %s WHERE 1=1 %s GROUP BY %s.ID ORDER BY %s.post_date',
+                        'select %s.ID from %s %s where 1=1 %s group by %s.ID order by %s.post_date',
                         $wpdb->posts,
                         $wpdb->posts,
                         $clauses['join'] ?? '',
@@ -76,10 +76,11 @@ class WPQuery implements AutoloadInterface {
             }
         }
 
-        if ( ! empty($postIds)) {
-            $wpQuery->found_posts = count($postIds);
+        if (!empty($postIds)) {
+            /** @var int[] $postIds */
+            $wpQuery->found_posts = \count($postIds);
 
-            if ( ! empty($clauses['limits'])) {
+            if (!empty($clauses['limits'])) {
                 $wpQuery->max_num_pages = (int) ceil($wpQuery->found_posts / $limit);
             }
         }
@@ -87,48 +88,11 @@ class WPQuery implements AutoloadInterface {
         return $clauses;
     }
 
-    private function invalidateFoundPostsCache(): void {
-        $globalInvalidateTime = $this->getInvalidateTime();
-        $timeFoundPosts = $this->getTimeFoundPosts();
-
-        if ($timeFoundPosts < $globalInvalidateTime) {
-            wp_cache_delete($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
-            wp_cache_delete($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
-        }
-    }
-
-    private function getInvalidateTime(): int {
-        return (int) wp_cache_get(self::INVALIDATE_TIME_KEY, Cache::QUERY_CACHE_GROUP);
-    }
-
-    private function getTimeFoundPosts(): int {
-        return (int) wp_cache_get($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
-    }
-
-    private function generateFoundPostCacheKey(bool $addTime = false): string {
-        return sprintf('%s%s-%s', $addTime ? 'time-' : '', self::FOUND_POSTS_KEY, $this->queryHash);
-    }
-
-    /**
-     * @return int[]
-     */
-    private function getFoundPostsCache(): array {
-        return (array) wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
-    }
-
-    /**
-     * @param int[] $postIds
-     */
-    private function setFoundPostsCache(array $postIds): void {
-        wp_cache_set($this->generateFoundPostCacheKey(), $postIds, Cache::QUERY_CACHE_GROUP);
-        wp_cache_set($this->generateFoundPostCacheKey(true), time(), Cache::QUERY_CACHE_GROUP);
-    }
-
     public function setQueryParams(WP_Query $wpQuery): void {
-        if ( ! $wpQuery->is_main_query()) {
-            $limit = (int) $wpQuery->get('posts_per_page');
+        if (!$wpQuery->is_main_query()) {
+            $limit = absint($wpQuery->get('posts_per_page'));
 
-            /** @var string|false $orderby */
+            /** @var false|string $orderby */
             $orderby = $wpQuery->get('orderby', false);
 
             $wpQuery->set('no_found_rows', true);
@@ -141,18 +105,19 @@ class WPQuery implements AutoloadInterface {
             if ('rand' === $orderby) {
                 $postIds = $this->getFoundPostsCache();
 
-                if ( ! empty($postIds)) {
+                if (!empty($postIds)) {
                     if (empty($wpQuery->get('post__in'))) {
+                        /** @var int[] $postIds */
                         shuffle($postIds);
 
                         if ($limit > 0) {
-                            $postIds = array_slice($postIds, 0, $limit);
+                            $postIds = \array_slice($postIds, 0, $limit);
                         }
 
                         $wpQuery->set('post__in', $postIds);
                     }
 
-                    if ( ! empty($wpQuery->query_vars['post__in'])) {
+                    if (!empty($wpQuery->query_vars['post__in'])) {
                         /** @var int[] $postIn */
                         $postIn = $wpQuery->query_vars['post__in'];
 
@@ -169,5 +134,82 @@ class WPQuery implements AutoloadInterface {
 
     public function flushFoundRowsCach(int $postId): void {
         wp_cache_set(self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP);
+    }
+
+    private function invalidateFoundPostsCache(): void {
+        $globalInvalidateTime = $this->getInvalidateTime();
+
+        if (empty($globalInvalidateTime)) {
+            return;
+        }
+        $timeFoundPosts = $this->getTimeFoundPosts();
+
+        if (empty($timeFoundPosts)) {
+            return;
+        }
+
+        if ($timeFoundPosts < $globalInvalidateTime) {
+            wp_cache_delete($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
+            wp_cache_delete($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
+        }
+    }
+
+    /**
+     * @return false|int
+     */
+    private function getInvalidateTime() {
+        /** @var false|int $time */
+        $time = wp_cache_get(self::INVALIDATE_TIME_KEY, Cache::QUERY_CACHE_GROUP);
+
+        if (!$time) {
+            return false;
+        }
+
+        return (int) $time;
+    }
+
+    /**
+     * @return false|int
+     */
+    private function getTimeFoundPosts() {
+        /** @var false|int $time */
+        $time = wp_cache_get($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
+
+        if (!$time) {
+            return false;
+        }
+
+        return (int) $time;
+    }
+
+    private function generateFoundPostCacheKey(bool $addTime = false): string {
+        return sprintf(
+            '%s%s-%s',
+            $addTime ? 'time-' : '',
+            self::FOUND_POSTS_KEY,
+            $this->queryHash ?: ''
+        );
+    }
+
+    /**
+     * @return bool|int[]
+     */
+    private function getFoundPostsCache() {
+        /** @var bool|int[] $postIds */
+        $postIds = wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
+
+        if (false === $postIds) {
+            return false;
+        }
+
+        return $postIds;
+    }
+
+    /**
+     * @param int[] $postIds
+     */
+    private function setFoundPostsCache(array $postIds): void {
+        wp_cache_set($this->generateFoundPostCacheKey(), $postIds, Cache::QUERY_CACHE_GROUP);
+        wp_cache_set($this->generateFoundPostCacheKey(true), time(), Cache::QUERY_CACHE_GROUP);
     }
 }
