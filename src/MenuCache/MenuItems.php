@@ -165,7 +165,6 @@ class MenuItems {
 
                 $menuItem = self::setupNavMenuItemByType($menuItem);
 
-                /** @var string $attrTitleProp */
                 $attrTitleProp = !empty($menuItem->attr_title) ? $menuItem->attr_title : $menuItem->post_excerpt;
 
                 $menuItem->attr_title = (string) apply_filters('nav_menu_attr_title', $attrTitleProp);
@@ -173,7 +172,7 @@ class MenuItems {
                 unset($attrTitleProp);
 
                 if (!isset($menuItem->description)) {
-                    $menuItem->description = (string) apply_filters('nav_menu_description', wp_trim_words((string) $menuItem->post_content, 200));
+                    $menuItem->description = (string) apply_filters('nav_menu_description', wp_trim_words($menuItem->post_content, 200));
                 }
 
                 /** @var string[] $classes */
@@ -181,7 +180,7 @@ class MenuItems {
 
                 if (!empty($menuItem->classes) && \is_string($menuItem->classes)) {
                     /** @var string[] $classes */
-                    $classes = maybe_unserialize((string) $menuItem->classes);
+                    $classes = maybe_unserialize($menuItem->classes);
                 }
 
                 $menuItem->classes = $classes;
@@ -196,7 +195,7 @@ class MenuItems {
             $menuItem->object = '';
             $menuItem->type_label = '';
 
-            $object = get_post_type_object((string) $menuItem->post_type);
+            $object = get_post_type_object($menuItem->post_type);
 
             if ($object instanceof WP_Post_Type) {
                 $menuItem->object = $object->name;
@@ -230,7 +229,7 @@ class MenuItems {
             $menuItem->object = '';
             $menuItem->type_label = '';
 
-            $object = get_taxonomy((string) $menuItem->taxonomy);
+            $object = get_taxonomy($menuItem->taxonomy);
 
             if ($object instanceof WP_Taxonomy) {
                 $menuItem->object = $object->name;
@@ -241,7 +240,7 @@ class MenuItems {
 
             $menuItem->title = (string) $menuItem->name;
 
-            $termLink = app_get_term_link($menuItem->term_id, (string) $menuItem->taxonomy);
+            $termLink = app_get_term_link($menuItem->term_id, $menuItem->taxonomy);
 
             $menuItem->url = empty($termLink) ? '' : $termLink;
 
@@ -251,7 +250,7 @@ class MenuItems {
             $menuItem->attr_title = '';
             $menuItem->description = '';
 
-            $termDescription = get_term_field('description', $menuItem->term_id, (string) $menuItem->taxonomy);
+            $termDescription = get_term_field('description', $menuItem->term_id, $menuItem->taxonomy);
 
             if (!($termDescription instanceof WP_Error)) {
                 $menuItem->description = (string) $termDescription;
@@ -316,7 +315,7 @@ class MenuItems {
 
                 $archiveLink = get_post_type_archive_link((string) $menuItem->object);
 
-                $menuItem->url = empty($archiveLink) ? '' : $archiveLink;
+                $menuItem->url = !empty($archiveLink) ? $archiveLink : '';
 
                 break;
 
@@ -398,6 +397,6 @@ class MenuItems {
      * @param NavMenuItemStub $menuItem
      */
     private static function getBaseMenuItemTitle($menuItem): string {
-        return '' === $menuItem->post_title ? sprintf(__('#%d (no title)'), (int) $menuItem->ID) : (string) $menuItem->post_title;
+        return '' === $menuItem->post_title ? sprintf(__('#%d (no title)'), $menuItem->ID) : (string) $menuItem->post_title;
     }
 }
