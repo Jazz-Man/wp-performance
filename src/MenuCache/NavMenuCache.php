@@ -31,15 +31,13 @@ class NavMenuCache implements AutoloadInterface {
             $menuItems = array_filter($menuItems, '_is_valid_nav_menu_item');
         }
 
-        if (
-            (empty($menuItems) && !$args->theme_location)
-            && (property_exists($args, 'fallback_cb') && null !== $args->fallback_cb)
-            && $args->fallback_cb && \is_callable($args->fallback_cb)
-        ) {
+        if (empty($menuItems) && (!empty($args->fallback_cb) && \is_callable($args->fallback_cb))) {
             return \call_user_func($args->fallback_cb, (array) $args);
         }
 
-        MenuItemClasses::setMenuItemClassesByContext($menuItems);
+        $menuCssClassses = new MenuItemClasses();
+
+        $menuCssClassses->setMenuItemClassesByContext($menuItems);
 
         /** @var array<int,NavMenuItemStub> $sortedMenuItems */
         $sortedMenuItems = [];
@@ -69,12 +67,12 @@ class NavMenuCache implements AutoloadInterface {
         /** @var array<int,NavMenuItemStub> $sortedMenuItems */
         $sortedMenuItems = apply_filters('wp_nav_menu_objects', $sortedMenuItems, $args);
 
-        $items = walk_nav_menu_tree($sortedMenuItems, (int) $args->depth, $args);
+        $items = walk_nav_menu_tree($sortedMenuItems, $args->depth, $args);
         unset($sortedMenuItems);
 
         $wrapId = $this->getMenuWrapId($menu, $args);
 
-        $wrapClass = (string) $args->menu_class ?: '';
+        $wrapClass = $args->menu_class ?: '';
 
         $items = (string) apply_filters('wp_nav_menu_items', $items, $args);
 
@@ -119,7 +117,7 @@ class NavMenuCache implements AutoloadInterface {
 
         // Attributes.
         if (!empty($args->menu_id)) {
-            return (string) $args->menu_id;
+            return $args->menu_id;
         }
 
         $wrapId = sprintf('menu-%s', $wpTerm->slug);
@@ -143,18 +141,18 @@ class NavMenuCache implements AutoloadInterface {
         /** @var string[] $allowedTags */
         $allowedTags = (array) apply_filters('wp_nav_menu_container_allowedtags', ['div', 'nav']);
 
-        if (($args->container && \is_string($args->container)) && \in_array($args->container, $allowedTags, true)) {
+        if (!empty($args->container) && \in_array($args->container, $allowedTags, true)) {
             /** @var array<string,string|string[]> $attributes */
             $attributes = [
                 'class' => $args->container_class ?: sprintf('menu-%s-container', $wpTerm->slug),
             ];
 
             if ($args->container_id) {
-                $attributes['id'] = (string) $args->container_id;
+                $attributes['id'] = $args->container_id;
             }
 
             if ('nav' === $args->container && !empty($args->container_aria_label)) {
-                $attributes['aria-label'] = (string) $args->container_aria_label;
+                $attributes['aria-label'] = $args->container_aria_label;
             }
 
             return sprintf(
