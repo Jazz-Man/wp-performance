@@ -243,4 +243,6 @@ class NavMenuItemStub extends stdClass {
      * Does not correspond to a DB field.
      */
     public ?string $filter = null;
+
+	public ?string $image_link = null;
 }

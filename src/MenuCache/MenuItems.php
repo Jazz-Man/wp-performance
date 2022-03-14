@@ -66,89 +66,68 @@ class MenuItems {
     private static function generateSql(WP_Term $wpTerm): Query {
         global $wpdb;
 
-        return ( new QueryFactory() )
+        $factory = new QueryFactory();
+
+        $query = $factory
             ->select(
-                'm.ID',
-                'm.post_title',
-                'm.post_name',
-                'm.post_parent',
-                'm.menu_order',
-                'm.post_type',
-                'm.post_content',
-                'm.post_excerpt',
-                alias('classes.meta_value', 'classes'),
-                alias('menu_item_parent.meta_value', 'menu_item_parent'),
-                alias('object.meta_value', 'object'),
-                alias('object_id.meta_value', 'object_id'),
-                alias('target.meta_value', 'target'),
-                alias('type.meta_value', 'type'),
-                alias('url.meta_value', 'url'),
-                alias('xfn.meta_value', 'xfn'),
-                alias('hide_link.meta_value', 'hide_link'),
-                alias('image_link.meta_value', 'image_link')
+                'menu.ID',
+                'menu.post_title',
+                'menu.post_name',
+                'menu.post_parent',
+                'menu.menu_order',
+                'menu.post_type',
+                'menu.post_content',
+                'menu.post_excerpt'
             )
-            ->from(alias($wpdb->posts, 'm'))
-            ->leftJoin(alias($wpdb->term_relationships, 'tr'), on('m.ID', 'tr.object_id'))
+            ->from(alias($wpdb->posts, 'menu'))
             ->leftJoin(
-                alias($wpdb->postmeta, 'classes'),
-                on('m.ID', 'classes.post_id')
-                    ->and(field('classes.meta_key')->eq('_menu_item_classes'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'menu_item_parent'),
-                on('m.ID', 'menu_item_parent.post_id')
-                    ->and(field('menu_item_parent.meta_key')->eq('_menu_item_menu_item_parent'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'object'),
-                on('m.ID', 'object.post_id')
-                    ->and(field('object.meta_key')->eq('_menu_item_object'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'object_id'),
-                on('m.ID', 'object_id.post_id')
-                    ->and(field('object_id.meta_key')->eq('_menu_item_object_id'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'target'),
-                on('m.ID', 'target.post_id')
-                    ->and(field('target.meta_key')->eq('_menu_item_target'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'type'),
-                on('m.ID', 'type.post_id')
-                    ->and(field('type.meta_key')->eq('_menu_item_type'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'url'),
-                on('m.ID', 'url.post_id')
-                    ->and(field('url.meta_key')->eq('_menu_item_url'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'xfn'),
-                on('m.ID', 'xfn.post_id')
-                    ->and(field('xfn.meta_key')->eq('_menu_item_xfn'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'hide_link'),
-                on('m.ID', 'hide_link.post_id')
-                    ->and(field('hide_link.meta_key')->eq('menu-item-mm-hide-link'))
-            )
-            ->leftJoin(
-                alias($wpdb->postmeta, 'image_link'),
-                on('m.ID', 'image_link.post_id')
-                    ->and(field('image_link.meta_key')->eq('menu-item-mm-image-link'))
+                alias($wpdb->term_relationships, 'tr'),
+                on('menu.ID', 'tr.object_id')
             )
             ->where(
                 field('tr.term_taxonomy_id')
                     ->eq($wpTerm->term_taxonomy_id)
-                    ->and(field('m.post_type')->eq('nav_menu_item'))
-                    ->and(field('m.post_status')->eq('publish'))
+                    ->and(field('menu.post_type')->eq('nav_menu_item'))
+                    ->and(field('menu.post_status')->eq('publish'))
             )
-            ->groupBy('m.ID', 'm.menu_order')
-            ->orderBy('m.menu_order', 'asc')
-            ->compile()
+            ->groupBy('menu.ID', 'menu.menu_order')
+            ->orderBy('menu.menu_order', 'asc')
         ;
+
+        $menuMetaFields = [
+            'classes' => '_menu_item_classes',
+            'menu_item_parent' => '_menu_item_menu_item_parent',
+            'object' => '_menu_item_object',
+            'object_id' => '_menu_item_object_id',
+            'target' => '_menu_item_target',
+            'type' => '_menu_item_type',
+            'url' => '_menu_item_url',
+            'xfn' => '_menu_item_xfn',
+            'hide_link' => 'menu-item-mm-hide-link',
+            'image_link' => 'menu-item-mm-image-link',
+        ];
+
+        foreach ($menuMetaFields as $field => $metaKey) {
+            $query->addColumns(alias("{$field}.meta_value", $field));
+            $query->leftJoin(
+                alias($wpdb->postmeta, $field),
+                on('menu.ID', "{$field}.post_id")
+                    ->and(
+                        field("{$field}.meta_key")->eq($metaKey)
+                    )
+            );
+        }
+
+        $query->addColumns('term.taxonomy', 'term.term_id');
+        $query->leftJoin(
+            alias($wpdb->postmeta, 'term'),
+            on('term.term_id', 'object_id.meta_value')
+                ->and(
+                    field('type.meta_value')->eq('taxonomy')
+                )
+        );
+
+        return $query->compile();
     }
 
     /**
