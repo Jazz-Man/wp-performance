@@ -5,9 +5,9 @@ namespace JazzMan\Performance\Utils;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 
 class ResourceHints implements AutoloadInterface {
-    public function load() {
+    public function load(): void {
         add_action('init', [__CLASS__, 'removeWpResourceHints']);
-        add_action('template_redirect', [__CLASS__, 'preloadLinksHttpHeader' ]);
+        add_action('template_redirect', [__CLASS__, 'preloadLinksHttpHeader']);
         add_action('wp_head', [__CLASS__, 'preloadLinks']);
     }
 
@@ -16,7 +16,7 @@ class ResourceHints implements AutoloadInterface {
     }
 
     public static function preloadLinksHttpHeader(): void {
-        if (\headers_sent()) {
+        if (headers_sent()) {
             return;
         }
 
@@ -28,11 +28,11 @@ class ResourceHints implements AutoloadInterface {
             $attributes = [];
 
             foreach ($uniqueUrl as $attr => $value) {
-                if ( ! self::isValidAttr($attr, $value) ) {
+                if (!self::isValidAttr($attr, $value)) {
                     continue;
                 }
 
-                $attributes[] = $attr === 'href' ?
+                $attributes[] = 'href' === $attr ?
                     sprintf('<%s>', esc_url($value)) :
                     sprintf('%s="%s"', $attr, esc_attr($value));
             }
@@ -54,25 +54,25 @@ class ResourceHints implements AutoloadInterface {
     public static function preloadLinks(): void {
         $uniqueUrls = self::getUniqueHintsUrls();
 
-        foreach ( $uniqueUrls as $uniqueUrl ) {
+        foreach ($uniqueUrls as $uniqueUrl) {
             $html = '';
 
-            foreach ( $uniqueUrl as $attr => $value ) {
-                if ( ! self::isValidAttr($attr, $value) ) {
+            foreach ($uniqueUrl as $attr => $value) {
+                if (!self::isValidAttr($attr, $value)) {
                     continue;
                 }
 
-                $html .= is_numeric( $attr ) ?
+                $html .= is_numeric($attr) ?
                     sprintf(' %s', $value) :
                     sprintf(
                         ' %s="%s"',
                         $attr,
-                        $attr === 'href' ? esc_url($value) : esc_attr( $value )
+                        'href' === $attr ? esc_url($value) : esc_attr($value)
                     );
             }
 
             if (!empty($html)) {
-                printf("<link %s />\n", trim( $html ));
+                printf("<link %s />\n", trim($html));
             }
 
             unset($html);
@@ -82,13 +82,11 @@ class ResourceHints implements AutoloadInterface {
     }
 
     /**
-     * @param string|array-key $attr
+     * @param array-key|string $attr
      * @param mixed            $value
-     *
-     * @return bool
      */
     private static function isValidAttr($attr, $value): bool {
-        return is_scalar( $value ) && !(! in_array( $attr, [ 'as', 'crossorigin', 'href', 'pr', 'rel', 'type' ], true ) && ! is_numeric( $attr ));
+        return is_scalar($value) && !(!\in_array($attr, ['as', 'crossorigin', 'href', 'pr', 'rel', 'type'], true) && !is_numeric($attr));
     }
 
     /**
@@ -99,16 +97,16 @@ class ResourceHints implements AutoloadInterface {
 
         $uniqueUrls = [];
 
-        foreach ( $hints as $relationType => $hintUrls ) {
-            /** @var array<array-key,string|array<string,string>> $hintUrls */
-            $hintUrls = apply_filters( 'wp_resource_hints', $hintUrls, $relationType);
+        foreach ($hints as $relationType => $hintUrls) {
+            /** @var array<array-key,array<string,string>|string> $hintUrls */
+            $hintUrls = apply_filters('wp_resource_hints', $hintUrls, $relationType);
 
-            foreach ( $hintUrls as $hintUrl ) {
+            foreach ($hintUrls as $hintUrl) {
                 /** @var array<string,string> $atts */
                 $atts = [];
 
-                if ( is_array( $hintUrl ) ) {
-                    if (!isset( $hintUrl['href'] )) {
+                if (\is_array($hintUrl)) {
+                    if (!isset($hintUrl['href'])) {
                         continue;
                     }
 
@@ -116,26 +114,26 @@ class ResourceHints implements AutoloadInterface {
                     $hintUrl = $hintUrl['href'];
                 }
 
-                $hintUrl = esc_url( $hintUrl, [ 'http', 'https' ] );
+                $hintUrl = esc_url($hintUrl, ['http', 'https']);
 
                 if (empty($hintUrl)) {
                     continue;
                 }
 
-                if (! filter_var($hintUrl, FILTER_VALIDATE_URL)) {
+                if (!filter_var($hintUrl, FILTER_VALIDATE_URL)) {
                     continue;
                 }
 
                 $hintUrl = app_make_link_relative($hintUrl);
 
-                if ( isset( $uniqueUrls[ $hintUrl ] ) ) {
+                if (isset($uniqueUrls[$hintUrl])) {
                     continue;
                 }
 
                 $atts['rel'] = $relationType;
                 $atts['href'] = $hintUrl;
 
-                $uniqueUrls[ $hintUrl ] = $atts;
+                $uniqueUrls[$hintUrl] = $atts;
             }
         }
 
@@ -143,13 +141,13 @@ class ResourceHints implements AutoloadInterface {
     }
 
     /**
-     * @return array<string,string[]|array<string,string>>
+     * @return array<string,array<string,string>|string[]>
      */
     private static function getResourceHints(): array {
-        /** @var array<string,string[]|array<string,string>>|null $hints */
+        /** @var null|array<string,array<string,string>|string[]> $hints */
         static $hints;
 
-        if ($hints === null) {
+        if (null === $hints) {
             $hints = [
                 'dns-prefetch' => wp_dependencies_unique_hosts(),
                 'preconnect' => [],

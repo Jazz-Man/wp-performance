@@ -8,7 +8,7 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
  * Class Update.
  */
 class Update implements AutoloadInterface {
-    public function load() {
+    public function load(): void {
         // Remove admin news dashboard widget
         add_action('admin_init', [__CLASS__, 'removeDashboards']);
 
@@ -24,7 +24,7 @@ class Update implements AutoloadInterface {
         // Remove menu items for updates from a standard WP install.
         add_action('admin_menu', static function (): void {
             // Bail if disabled, or on a multisite.
-            if (! app_is_enabled_wp_performance()) {
+            if (!app_is_enabled_wp_performance()) {
                 return;
             }
 
@@ -47,12 +47,12 @@ class Update implements AutoloadInterface {
         // Hijack the themes api setup to bypass the API call.
         add_filter('themes_api_args', static function (object $args, string $action) {
             // Bail if disabled.
-            if ( ! app_is_enabled_wp_performance()) {
+            if (!app_is_enabled_wp_performance()) {
                 return $args;
             }
 
             // Return false on feature list to avoid the API call.
-            return ! empty($action) && 'feature_list' === $action ? false : $args;
+            return !empty($action) && 'feature_list' === $action ? false : $args;
         }, 10, 2);
 
         add_filter('themes_api', '__return_false');
@@ -144,11 +144,11 @@ class Update implements AutoloadInterface {
 
     public static function removeMultisiteMenuItems(?string $menu = ''): void {
         // Bail if disabled or not on our network admin.
-        if (! app_is_enabled_wp_performance()) {
+        if (!app_is_enabled_wp_performance()) {
             return;
         }
 
-        if (! is_network_admin()) {
+        if (!is_network_admin()) {
             return;
         }
 
@@ -210,13 +210,13 @@ class Update implements AutoloadInterface {
      */
     public static function preventAutoUpdates(array $caps, string $cap): array {
         // Check for being enabled and look for specific cap requirements.
-        if (app_is_enabled_wp_performance() && in_array($cap, [
+        if (app_is_enabled_wp_performance() && \in_array($cap, [
             'install_plugins',
             'install_themes',
             'update_plugins',
             'update_themes',
             'update_core',
-        ])) {
+        ], true)) {
             $caps[] = 'do_not_allow';
         }
 
@@ -238,7 +238,7 @@ class Update implements AutoloadInterface {
         }
 
         // Set an array of items to be removed with optional filter.
-        /** @var string[]|false $removeActionList */
+        /** @var false|string[] $removeActionList */
         $removeActionList = apply_filters('core_blocker_bulk_items', ['update-selected', 'update', 'upgrade']);
 
         if (false === $removeActionList) {
@@ -264,12 +264,12 @@ class Update implements AutoloadInterface {
      */
     public static function disablePluginAddTabs(array $tabs): array {
         // Bail if disabled.
-        if ( ! app_is_enabled_wp_performance()) {
+        if (!app_is_enabled_wp_performance()) {
             return $tabs;
         }
 
         // Set an array of tabs to be removed with optional filter.
-        /** @var string[]|false $removeActionList */
+        /** @var false|string[] $removeActionList */
         $removeActionList = apply_filters('core_blocker_bulk_items', ['featured', 'popular', 'recommended', 'favorites', 'beta']);
 
         if (false === $removeActionList) {
@@ -288,24 +288,22 @@ class Update implements AutoloadInterface {
     /**
      * Always send back that the latest version of WordPress/Plugins/Theme is the one we're running.
      *
-     * @param bool $transient
-     *
      * @return bool|object the modified output with our information
      */
     public static function lastCheckedCore(bool $transient = false) {
         // Bail if disabled.
-        if ( ! app_is_enabled_wp_performance()) {
+        if (!app_is_enabled_wp_performance()) {
             return false;
         }
 
         // Call the global WP version.
         global $wp_version;
 
-		/** @var array<string,array<string,string>>|null  $pluginsList */
-		static $pluginsList;
-		/** @var \WP_Theme[]|null $themesList */
-		static $themesList;
+        /** @var null|array<string,array<string,string>> $pluginsList */
+        static $pluginsList;
 
+        /** @var null|\WP_Theme[] $themesList */
+        static $themesList;
 
         $curentAction = current_action();
 
@@ -315,9 +313,9 @@ class Update implements AutoloadInterface {
                 /** @var array<string,string> $data */
                 $data = [];
 
-				if ($themesList === null){
-					$themesList = wp_get_themes();
-				}
+                if (null === $themesList) {
+                    $themesList = wp_get_themes();
+                }
 
                 // Build my theme data array.
                 foreach ($themesList as $theme) {
@@ -343,19 +341,21 @@ class Update implements AutoloadInterface {
                 /** @var array<string,string> $data */
                 $data = [];
 
-				if ($pluginsList === null){
-					// Add our plugin file if we don't have it.
-					if ( ! function_exists('get_plugins')) {
-						require_once ABSPATH . 'wp-admin/includes/plugin.php';
-					}
+                if (null === $pluginsList) {
+                    // Add our plugin file if we don't have it.
+                    if (!\function_exists('get_plugins')) {
+                        require_once ABSPATH.'wp-admin/includes/plugin.php';
+                    }
 
-					$pluginsList = get_plugins();
-				}
+                    /** @var array<string,array<string,string>> $pluginsList */
+                    $pluginsList = get_plugins();
+                }
 
-
-	            // Build my plugin data array.
+                // Build my plugin data array.
                 foreach ($pluginsList as $file => $plugin) {
-                    $data[$file] = (string) $plugin['Version'];
+                    if (!empty($plugin['Version'])) {
+                        $data[$file] = $plugin['Version'];
+                    }
                 }
 
                 return (object) [
@@ -377,7 +377,7 @@ class Update implements AutoloadInterface {
      * @return array<string, mixed>|object
      */
     public static function removePluginUpdates($current) {
-        if ( ! $current) {
+        if (!$current) {
             $current = [
                 'last_checked' => time(),
                 'translations' => [],

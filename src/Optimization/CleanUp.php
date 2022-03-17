@@ -23,7 +23,7 @@ class CleanUp implements AutoloadInterface {
          * @see http://www.readability.com/publishers/guidelines#publisher
          *
          */
-        add_filter('embed_oembed_html', static fn (string $cache): string => '<div class="entry-content-asset">' . $cache . '</div>');
+        add_filter('embed_oembed_html', static fn (string $cache): string => '<div class="entry-content-asset">'.$cache.'</div>');
 
         // Don't return the default description in the RSS feed if it hasn't been changed.
         add_filter('get_bloginfo_rss', static fn (string $bloginfo): string => ('Just another WordPress site' === $bloginfo) ? '' : $bloginfo);
@@ -49,23 +49,6 @@ class CleanUp implements AutoloadInterface {
         add_filter('emoji_svg_url', '__return_false');
         add_filter('show_recent_comments_widget_style', '__return_false');
         add_filter('rest_queried_resource_route', '__return_empty_string');
-    }
-
-    /**
-     * Originally from http://wpengineer.com/1438/wordpress-header/.
-     */
-    private static function cleanupWpHead(): void {
-        remove_action('wp_head', 'feed_links', 2);
-        remove_action('wp_head', 'feed_links_extra', 3);
-        remove_action('wp_head', 'rest_output_link_wp_head');
-        remove_action('wp_head', 'rsd_link');
-        remove_action('wp_head', 'wlwmanifest_link');
-        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
-        remove_action('wp_head', 'wp_generator');
-        remove_action('wp_head', 'wp_shortlink_wp_head');
-        remove_action('wp_head', 'print_emoji_detection_script', 7);
-        remove_action('wp_head', 'wp_oembed_add_discovery_links');
-        remove_action('wp_head', 'wp_oembed_add_host_js');
     }
 
     public static function languageAttributes(): string {
@@ -143,5 +126,22 @@ class CleanUp implements AutoloadInterface {
         if ('pingback.ping' === $action) {
             wp_die('Pingbacks are not supported', 'Not Allowed!', ['response' => 403]);
         }
+    }
+
+    /**
+     * Originally from http://wpengineer.com/1438/wordpress-header/.
+     */
+    private static function cleanupWpHead(): void {
+        remove_action('wp_head', 'feed_links', 2);
+        remove_action('wp_head', 'feed_links_extra', 3);
+        remove_action('wp_head', 'rest_output_link_wp_head');
+        remove_action('wp_head', 'rsd_link');
+        remove_action('wp_head', 'wlwmanifest_link');
+        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
+        remove_action('wp_head', 'wp_generator');
+        remove_action('wp_head', 'wp_shortlink_wp_head');
+        remove_action('wp_head', 'print_emoji_detection_script', 7);
+        remove_action('wp_head', 'wp_oembed_add_discovery_links');
+        remove_action('wp_head', 'wp_oembed_add_host_js');
     }
 }

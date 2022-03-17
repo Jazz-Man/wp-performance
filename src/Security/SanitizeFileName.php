@@ -271,7 +271,7 @@ class SanitizeFileName implements AutoloadInterface {
         // If this was full path return it like it was before
         // pathinfo returns . for only filenames
         if ('.' !== $fileInfo['dirname']) {
-            $fileName = $fileInfo['dirname'] . '/' . $fileName;
+            $fileName = $fileInfo['dirname'].'/'.$fileName;
         }
 
         // Return full path

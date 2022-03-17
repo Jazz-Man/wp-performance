@@ -22,8 +22,6 @@ class NavMenuArgs extends stdClass {
 
     /**
      * CSS class to use for the ul element which forms the menu. Default 'menu'.
-     *
-     * @var string
      */
     public string $menu_class = 'menu';
 
@@ -57,7 +55,7 @@ class NavMenuArgs extends stdClass {
      * If the menu doesn't exists, a callback function will fire.
      * Default is 'wp_page_menu'. Set to false for no fallback.
      *
-     * @var callable|bool
+     * @var null|bool|callable|string
      */
     public $fallback_cb = '__return_empty_string';
 
@@ -95,7 +93,6 @@ class NavMenuArgs extends stdClass {
     /**
      * Instance of a custom walker class. Default empty.
      *
-     * @var Walker_Nav_Menu|null
      * @phpstan-ignore-next-line
      */
     public ?Walker_Nav_Menu $walker = null;
