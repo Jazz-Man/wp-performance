@@ -1,9 +1,9 @@
 runner:
   phpmd:
-    cmd: phpmd . text phpmd.ruleset.xml --exclude 'cache/,vendor/' --baseline-file phpmd.baseline.xml
+    cmd: phpmd . github phpmd.ruleset.xml --exclude 'cache/,vendor/' --baseline-file phpmd.baseline.xml
     name: phpmd
     errorformat:
-      - "%f:%l%*[\ ]%m"
+      - "%.%#%*[\ ]file=%f,line=%l::%m"
     level: warning
 
   phpstan:
