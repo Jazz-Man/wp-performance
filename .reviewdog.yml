@@ -13,7 +13,7 @@ runner:
     level: warning
 
   psalm:
-    cmd: psalm --config=psalm.xml --use-baseline=psalm-baseline.xml --output-format=text
-    format: psalm
+    cmd: psalm --config=psalm.xml --use-baseline=psalm-baseline.xml --output-format=checkstyle
+    format: checkstyle
     name: psalm
     level: warning

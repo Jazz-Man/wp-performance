@@ -296,7 +296,7 @@ class MenuItems {
     private static function getMenuItemUrl($menuItem): string {
         switch ($menuItem->type) {
             case 'post_type':
-                $url = get_permalink($menuItem->ID);
+                $url = get_permalink((int) $menuItem->object_id);
 
                 break;
 
