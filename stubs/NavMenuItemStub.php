@@ -18,7 +18,7 @@ class NavMenuItemStub extends stdClass {
     /**
      * The title attribute of the link element for this menu item.
      */
-    public ?string $attr_title = null;
+    public ?string $attr_title = '';
 
     /**
      * The array of class attribute values for the link element of this menu item.
@@ -34,12 +34,21 @@ class NavMenuItemStub extends stdClass {
      */
     public $db_id = 0;
 
-    public int $term_id = 0;
+    public ?int $term_id = null;
+
+    public ?string $term_name = null;
 
     /**
      * The description of this menu item.
      */
     public ?string $description = null;
+
+    /**
+     * The description of current term.
+     */
+    public ?string $term_description = null;
+
+    public ?int $term_parent = null;
 
     /**
      * The DB ID of the nav_menu_item that is this item's menu parent, if any. 0 otherwise.
@@ -64,6 +73,12 @@ class NavMenuItemStub extends stdClass {
      * @var int|string
      */
     public $object_id = 0;
+
+    public ?int $original_id = null;
+
+    public ?string $original_post_status = null;
+
+    public ?string $original_post_title = null;
 
     /**
      * The DB ID of the original object's parent object, if any (0 otherwise).
@@ -244,5 +259,5 @@ class NavMenuItemStub extends stdClass {
      */
     public ?string $filter = null;
 
-	public ?string $image_link = null;
+    public ?string $image_link = null;
 }

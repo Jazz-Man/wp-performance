@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.x-dev@">
-  <file src="src/MenuCache/MenuItemClasses.php">
-    <MixedArgument occurrences="1">
-      <code>$ancestorType</code>
-    </MixedArgument>
-    <MixedAssignment occurrences="2">
-      <code>$ancestorType</code>
-      <code>$ancestorType</code>
-    </MixedAssignment>
-    <RedundantCastGivenDocblockType occurrences="3">
-      <code>(int) $frontPageId</code>
-      <code>(int) $homePageId</code>
-      <code>(int) $privacyPolicyPageId</code>
-    </RedundantCastGivenDocblockType>
-    <UnnecessaryVarAnnotation occurrences="2"/>
-  </file>
   <file src="src/MenuCache/NavMenuCache.php">
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>

@@ -31,6 +31,9 @@ class NavMenuCache implements AutoloadInterface {
             $menuItems = array_filter($menuItems, '_is_valid_nav_menu_item');
         }
 
+        /** @var NavMenuItemStub[] $menuItems */
+        $menuItems = apply_filters('wp_get_nav_menu_items', $menuItems, $menu, $args);
+
         if (empty($menuItems) && (!empty($args->fallback_cb) && \is_callable($args->fallback_cb))) {
             return \call_user_func($args->fallback_cb, (array) $args);
         }

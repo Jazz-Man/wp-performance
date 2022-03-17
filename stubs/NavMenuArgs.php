@@ -55,7 +55,7 @@ class NavMenuArgs extends stdClass {
      * If the menu doesn't exists, a callback function will fire.
      * Default is 'wp_page_menu'. Set to false for no fallback.
      *
-     * @var bool|string|callable|null
+     * @var null|bool|callable|string
      */
     public $fallback_cb = '__return_empty_string';
 
