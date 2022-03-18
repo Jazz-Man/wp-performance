@@ -55,21 +55,8 @@
     </UnusedClosureParam>
   </file>
   <file src="src/helper.php">
-    <MixedArgument occurrences="1">
-      <code>$attributes</code>
-    </MixedArgument>
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$args</code>
     </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="1">
-      <code>$attributes</code>
-    </MixedAssignment>
-    <MixedReturnTypeCoercion occurrences="2">
-      <code>$pdoStatement-&gt;fetchAll($mode, ...$args)</code>
-    </MixedReturnTypeCoercion>
-    <PossiblyInvalidCast occurrences="1"/>
-    <PossiblyNullArgument occurrences="1">
-      <code>$args</code>
-    </PossiblyNullArgument>
   </file>
 </files>

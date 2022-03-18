@@ -7,9 +7,7 @@ if (!function_exists('app_get_image_data_array')) {
     /**
      * @param int[]|string $size
      *
-     * @return array|false
-     *
-     * @psalm-return array{size: array<int>|string, url: string, width: numeric, height: numeric, alt?: null|string, id?: int, srcset?: string, sizes?: string}|false
+     * @return array{alt?: string, height: int, id?: int, size: array<array-key, int>|string, sizes?: string, srcset?: string, url: string, width: int}|false
      */
     function app_get_image_data_array(int $attachmentId, $size = 'large') {
         $imageData = [
@@ -22,7 +20,7 @@ if (!function_exists('app_get_image_data_array')) {
             if (!empty($image)) {
                 [$url, $width, $height] = $image;
 
-                /** @var string $alt */
+                /** @var null|string $alt */
                 $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
 
                 $imageData['url'] = $url;
@@ -35,20 +33,25 @@ if (!function_exists('app_get_image_data_array')) {
 
                 return $imageData;
             }
+
+            return false;
         }
 
         try {
             $attachment = new AttachmentData($attachmentId);
 
-            $image = $attachment->getUrl((string) $size);
+            $image = $attachment->getUrl($size);
 
             $imageData['id'] = $attachmentId;
-            $imageData['url'] = $image['src'];
-            $imageData['width'] = $image['width'];
-            $imageData['height'] = $image['height'];
-            $imageData['alt'] = $attachment->getImageAlt();
-            $imageData['srcset'] = $image['srcset'];
-            $imageData['sizes'] = $image['sizes'];
+            $imageData['url'] = (string) $image['src'];
+            $imageData['width'] = (int) $image['width'];
+            $imageData['height'] = (int) $image['height'];
+            $imageData['srcset'] = (string) $image['srcset'];
+            $imageData['sizes'] = (string) $image['sizes'];
+
+            if (!empty($attachment->getImageAlt())) {
+                $imageData['alt'] = (string) $attachment->getImageAlt();
+            }
 
             return $imageData;
         } catch (Exception $exception) {
@@ -124,6 +127,7 @@ if (!function_exists('app_get_attachment_image')) {
 
             $post = get_post($attachmentId);
 
+            /** @var array<string,string|string[]> $attributes */
             $attributes = apply_filters('wp_get_attachment_image_attributes', $attributes, $post, $size);
 
             return sprintf('<img %s/>', app_add_attr_to_el($attributes));
@@ -242,7 +246,7 @@ if (!function_exists('app_term_link_filter')) {
 
 if (!function_exists('app_get_taxonomy_ancestors')) {
     /**
-     * @param null|array<array-key, mixed> ...$args PDO fetch options
+     * @param array<array-key, mixed> ...$args PDO fetch options
      *
      * @return array<string,int|string>|false
      */
@@ -285,7 +289,14 @@ if (!function_exists('app_get_taxonomy_ancestors')) {
 
             $pdoStatement->execute(['termId' => $termId, 'taxonomy' => $taxonomy]);
 
-            return $pdoStatement->fetchAll($mode, ...$args);
+            /** @var array<string,int|string> $ancestors */
+            $ancestors = $pdoStatement->fetchAll($mode, ...$args);
+
+            if (!empty($ancestors)) {
+                return $ancestors;
+            }
+
+            return false;
         } catch (Exception $exception) {
             app_error_log($exception, 'app_get_taxonomy_ancestors');
 
