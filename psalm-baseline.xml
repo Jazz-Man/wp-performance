@@ -38,11 +38,6 @@
       <code>$fileName</code>
     </PossiblyNullOperand>
   </file>
-  <file src="src/Utils/AttachmentData.php">
-    <MixedPropertyTypeCoercion occurrences="1">
-      <code>!empty($attachment['metadata']) ? (array) maybe_unserialize((string) $attachment['metadata']) : []</code>
-    </MixedPropertyTypeCoercion>
-  </file>
   <file src="src/Utils/DuplicatePost.php">
     <ArgumentTypeCoercion occurrences="1">
       <code>$newPostArgs</code>
@@ -60,9 +55,6 @@
     </UnusedClosureParam>
   </file>
   <file src="src/helper.php">
-    <InvalidReturnStatement occurrences="1">
-      <code>$imageData</code>
-    </InvalidReturnStatement>
     <MixedArgument occurrences="1">
       <code>$attributes</code>
     </MixedArgument>
@@ -75,12 +67,7 @@
     <MixedReturnTypeCoercion occurrences="2">
       <code>$pdoStatement-&gt;fetchAll($mode, ...$args)</code>
     </MixedReturnTypeCoercion>
-    <MoreSpecificReturnType occurrences="1">
-      <code>array{size: array&lt;int&gt;|string, url: string, width: numeric, height: numeric, alt?: null|string, id?: int, srcset?: string, sizes?: string}|false</code>
-    </MoreSpecificReturnType>
-    <PossiblyInvalidCast occurrences="1">
-      <code>$size</code>
-    </PossiblyInvalidCast>
+    <PossiblyInvalidCast occurrences="1"/>
     <PossiblyNullArgument occurrences="1">
       <code>$args</code>
     </PossiblyNullArgument>
