@@ -7,8 +7,8 @@ runner:
     level: warning
 
   phpstan:
-    cmd: ./vendor/bin/phpstan --error-format=raw
-    format: phpstan
+    cmd: ./vendor/bin/phpstan --error-format=checkstyle
+    format: checkstyle
     name: phpstan
     level: warning
 
