@@ -1,19 +1,18 @@
 runner:
   phpmd:
-    cmd: phpmd . github phpmd.ruleset.xml --exclude 'cache/,vendor/' --baseline-file phpmd.baseline.xml
+    cmd: phpmd . checkstyle phpmd.ruleset.xml --exclude 'cache/,vendor/' --baseline-file phpmd.baseline.xml
     name: phpmd
-    errorformat:
-      - "%.%#%*[\ ]file=%f,line=%l::%m"
+    format: checkstyle
     level: warning
 
   phpstan:
-    cmd: ./vendor/bin/phpstan --error-format=raw
-    format: phpstan
+    cmd: ./vendor/bin/phpstan --error-format=checkstyle
+    format: checkstyle
     name: phpstan
     level: warning
 
   psalm:
-    cmd: psalm --config=psalm.xml --use-baseline=psalm-baseline.xml --output-format=text
-    format: psalm
+    cmd: psalm --config=psalm.xml --no-progress --use-baseline=psalm-baseline.xml --output-format=checkstyle
+    format: checkstyle
     name: psalm
     level: warning
