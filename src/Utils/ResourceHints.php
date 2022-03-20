@@ -86,7 +86,7 @@ class ResourceHints implements AutoloadInterface {
      * @param mixed            $value
      */
     private static function isValidAttr($attr, $value): bool {
-        return is_scalar($value) && !(!\in_array($attr, ['as', 'crossorigin', 'href', 'pr', 'rel', 'type'], true) && !is_numeric($attr));
+        return \is_scalar($value) && !(!\in_array($attr, ['as', 'crossorigin', 'href', 'pr', 'rel', 'type'], true) && !is_numeric($attr));
     }
 
     /**
