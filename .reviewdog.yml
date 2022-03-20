@@ -7,13 +7,13 @@ runner:
     level: warning
 
   phpstan:
-    cmd: ./vendor/bin/phpstan --error-format=checkstyle
-    format: checkstyle
+    cmd: ./vendor/bin/phpstan --error-format=raw
+    format: phpstan
     name: phpstan
     level: warning
 
   psalm:
-    cmd: psalm --config=psalm.xml --use-baseline=psalm-baseline.xml --output-format=checkstyle
-    format: checkstyle
+    cmd: psalm --config=psalm.xml --use-baseline=psalm-baseline.xml --output-format=text
+    format: psalm
     name: psalm
     level: warning
