@@ -5,12 +5,6 @@ runner:
     format: checkstyle
     level: warning
 
-  php-cs-fixer:
-    cmd: php-cs-fixer fix --dry-run --format=checkstyle
-    format: checkstyle
-    name: php-cs-fixer
-    level: warning
-
   phpstan:
     cmd: ./vendor/bin/phpstan --error-format=checkstyle
     format: checkstyle
