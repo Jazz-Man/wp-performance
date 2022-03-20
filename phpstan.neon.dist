@@ -16,7 +16,7 @@ parameters:
 	    - rector.php
 	stubFiles:
 	    - stubs/NavMenuArgs.php
-	    - stubs/NavMenuItemStub.php
+	    - stubs/MenuItem.php
 	paths:
 	    - src
 	ignoreErrors:

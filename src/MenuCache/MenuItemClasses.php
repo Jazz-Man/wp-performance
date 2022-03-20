@@ -2,7 +2,7 @@
 
 namespace JazzMan\Performance\MenuCache;
 
-use JazzMan\PerformanceStub\NavMenuItemStub;
+use JazzMan\PerformanceStub\MenuItem;
 use WP_Error;
 use WP_Post;
 use WP_Post_Type;
@@ -58,7 +58,7 @@ class MenuItemClasses {
     }
 
     /**
-     * @param NavMenuItemStub[] $menuItems
+     * @param MenuItem[]|\stdClass[] $menuItems
      */
     public function setMenuItemClassesByContext(array &$menuItems): void {
         $activeObject = '';
@@ -71,6 +71,7 @@ class MenuItemClasses {
         foreach ($menuItems as $key => $menuItem) {
             $menuItems[$key]->current = false;
 
+            /** @var string[] $classes */
             $classes = (array) $menuItem->classes;
             $classes[] = 'menu-item';
             $classes[] = sprintf('menu-item-type-%s', (string) $menuItem->type);
@@ -108,7 +109,7 @@ class MenuItemClasses {
                 }
 
                 $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
-                $parentObjectIds[] = $menuItem->post_parent;
+                $parentObjectIds[] = (int) $menuItem->post_parent;
                 $activeObject = (string) $menuItem->object;
             } elseif ('post_type_archive' === (string) $menuItem->type && $this->wpQuery->is_post_type_archive((string) $menuItem->object)) {
                 $classes[] = 'current-menu-item';
@@ -162,7 +163,7 @@ class MenuItemClasses {
                         $classes[] = 'current_page_item';
                     }
                     $activeParentItemIds[] = (int) $menuItem->menu_item_parent;
-                    $parentObjectIds[] = $menuItem->post_parent;
+                    $parentObjectIds[] = (int) $menuItem->post_parent;
                     $activeObject = (string) $menuItem->object;
                 } elseif ($itemUrl === $this->frontPageUrl && $this->wpQuery->is_front_page()) {
                     $classes[] = 'current-menu-item';
@@ -182,6 +183,7 @@ class MenuItemClasses {
                 $classes[] = 'current_page_parent';
             }
 
+            /** @var string[] $classes */
             $menuItems[$key]->classes = array_unique($classes);
         }
         $ancestorItemIds = array_filter(array_unique($ancestorItemIds));
@@ -190,6 +192,7 @@ class MenuItemClasses {
 
         // Set parent's class.
         foreach ($menuItems as $key => $parentItem) {
+            /** @var string[] $classes */
             $classes = (array) $parentItem->classes;
             $menuItems[$key]->current_item_ancestor = false;
             $menuItems[$key]->current_item_parent = false;
@@ -316,7 +319,7 @@ class MenuItemClasses {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      */
     private function isCurrentMenuItemt($menuItem): bool {
         if ((int) $menuItem->object_id === $this->queriedObjectId) {
@@ -344,7 +347,7 @@ class MenuItemClasses {
     }
 
     /**
-     * @param NavMenuItemStub $parent
+     * @param MenuItem|\stdClass $parent
      */
     private function isCurrentMenuItemtAncestor($parent): bool {
         if (empty($parent->type)) {

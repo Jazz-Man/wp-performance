@@ -3,8 +3,8 @@
 namespace JazzMan\Performance\MenuCache;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JazzMan\PerformanceStub\MenuItem;
 use JazzMan\PerformanceStub\NavMenuArgs;
-use JazzMan\PerformanceStub\NavMenuItemStub;
 use WP_Term;
 
 class NavMenuCache implements AutoloadInterface {
@@ -31,7 +31,7 @@ class NavMenuCache implements AutoloadInterface {
             $menuItems = array_filter($menuItems, '_is_valid_nav_menu_item');
         }
 
-        /** @var NavMenuItemStub[] $menuItems */
+        /** @var MenuItem[]|\stdClass[] $menuItems */
         $menuItems = apply_filters('wp_get_nav_menu_items', $menuItems, $menu, $args);
 
         if (empty($menuItems) && (!empty($args->fallback_cb) && \is_callable($args->fallback_cb))) {
@@ -42,7 +42,7 @@ class NavMenuCache implements AutoloadInterface {
 
         $menuCssClassses->setMenuItemClassesByContext($menuItems);
 
-        /** @var array<int,NavMenuItemStub> $sortedMenuItems */
+        /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = [];
 
         /** @var array<int,boolean> $menuWithChildren */
@@ -58,16 +58,21 @@ class NavMenuCache implements AutoloadInterface {
 
         // Add the menu-item-has-children class where applicable.
         if ([] !== $menuWithChildren) {
+            /** @var MenuItem $sortedMenuItem */
             foreach ($sortedMenuItems as &$sortedMenuItem) {
                 if (isset($menuWithChildren[$sortedMenuItem->ID])) {
-                    $sortedMenuItem->classes[] = 'menu-item-has-children';
+                    $classes = (array) $sortedMenuItem->classes;
+
+                    $classes[] = 'menu-item-has-children';
+
+                    $sortedMenuItem->classes = $classes;
                 }
             }
         }
 
         unset($menuItems, $menuItem, $menuWithChildren);
 
-        /** @var array<int,NavMenuItemStub> $sortedMenuItems */
+        /** @var array<int,MenuItem> $sortedMenuItems */
         $sortedMenuItems = apply_filters('wp_nav_menu_objects', $sortedMenuItems, $args);
 
         $items = walk_nav_menu_tree($sortedMenuItems, $args->depth, $args);
