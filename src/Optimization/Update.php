@@ -291,43 +291,17 @@ class Update implements AutoloadInterface {
      * @return bool|object the modified output with our information
      */
     public static function lastCheckedCore(bool $transient = false) {
-        // Bail if disabled.
+        global $wp_version;
+
         if (!app_is_enabled_wp_performance()) {
             return false;
         }
-
-        // Call the global WP version.
-        global $wp_version;
-
-        /** @var null|array<string,array<string,string>> $pluginsList */
-        static $pluginsList;
-
-        /** @var null|\WP_Theme[] $themesList */
-        static $themesList;
 
         $curentAction = current_action();
 
         switch ($curentAction) {
             case 'pre_site_transient_update_themes':
-                // Set a blank data array.
-                /** @var array<string,string> $data */
-                $data = [];
-
-                if (null === $themesList) {
-                    $themesList = wp_get_themes();
-                }
-
-                // Build my theme data array.
-                foreach ($themesList as $theme) {
-                    $data[$theme->get_stylesheet()] = $theme->get('Version');
-                }
-
-                return (object) [
-                    'last_checked' => time(),
-                    'updates' => [],
-                    'version_checked' => $wp_version,
-                    'checked' => $data,
-                ];
+                return self::preSiteTransientUpdateThemes();
 
             case 'pre_site_transient_update_core':
                 return (object) [
@@ -337,33 +311,7 @@ class Update implements AutoloadInterface {
                 ];
 
             case 'pre_site_transient_update_plugins':
-                // Set a blank data array.
-                /** @var array<string,string> $data */
-                $data = [];
-
-                if (null === $pluginsList) {
-                    // Add our plugin file if we don't have it.
-                    if (!\function_exists('get_plugins')) {
-                        require_once ABSPATH.'wp-admin/includes/plugin.php';
-                    }
-
-                    /** @var array<string,array<string,string>> $pluginsList */
-                    $pluginsList = get_plugins();
-                }
-
-                // Build my plugin data array.
-                foreach ($pluginsList as $file => $plugin) {
-                    if (!empty($plugin['Version'])) {
-                        $data[$file] = $plugin['Version'];
-                    }
-                }
-
-                return (object) [
-                    'last_checked' => time(),
-                    'updates' => [],
-                    'version_checked' => $wp_version,
-                    'checked' => $data,
-                ];
+                return self::preSiteTransientUpdatePlugins();
         }
 
         return $transient;
@@ -437,6 +385,64 @@ class Update implements AutoloadInterface {
         /* @var array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}> $availableLanguages */
 
         return $availableLanguages;
+    }
+
+    private static function preSiteTransientUpdateThemes(): object {
+        global $wp_version;
+
+        /** @var null|\WP_Theme[] $themesList */
+        static $themesList;
+
+        if (null === $themesList) {
+            $themesList = wp_get_themes();
+        }
+
+        // Build my theme data array.
+        foreach ($themesList as $theme) {
+            $data[$theme->get_stylesheet()] = $theme->get('Version');
+        }
+
+        return (object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+            'checked' => $data,
+        ];
+    }
+
+    private static function preSiteTransientUpdatePlugins(): object {
+        global $wp_version;
+
+        /** @var null|array<string,array<string,string>> $pluginsList */
+        static $pluginsList;
+
+        // Set a blank data array.
+        /** @var array<string,string> $data */
+        $data = [];
+
+        if (null === $pluginsList) {
+            // Add our plugin file if we don't have it.
+            if (!\function_exists('get_plugins')) {
+                require_once ABSPATH.'wp-admin/includes/plugin.php';
+            }
+
+            /** @var array<string,array<string,string>> $pluginsList */
+            $pluginsList = get_plugins();
+        }
+
+        // Build my plugin data array.
+        foreach ($pluginsList as $file => $plugin) {
+            if (!empty($plugin['Version'])) {
+                $data[$file] = $plugin['Version'];
+            }
+        }
+
+        return (object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+            'checked' => $data,
+        ];
     }
 
     /**
