@@ -20,7 +20,7 @@ jobs:
           php-version: 7.4
           extensions: igbinary
           coverage: none
-          tools: phpmd, psalm
+          tools: phpmd, psalm, php-cs-fixer
 
       - name: Get composer cache directory
         id: composer-cache
@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
