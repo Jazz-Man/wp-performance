@@ -193,7 +193,7 @@ class Media implements AutoloadInterface {
             wp_cache_set('wpcom_media_months_array', $months, Cache::CACHE_GROUP);
         }
 
-        /* @var stdClass[] $months  */
+        /* @var stdClass[] $months */
         return $months;
     }
 
@@ -279,6 +279,7 @@ class Media implements AutoloadInterface {
         if (!\is_array($size)) {
             return $image;
         }
+
         $meta = wp_get_attachment_metadata($attachmentId);
 
         if (empty($meta)) {

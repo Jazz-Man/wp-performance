@@ -4,7 +4,6 @@ namespace JazzMan\Performance\Optimization;
 
 use _WP_Dependency;
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use Symfony\Component\WebLink\Link;
 use WP_Site;
 
 /**
@@ -12,7 +11,6 @@ use WP_Site;
  */
 class Enqueue implements AutoloadInterface {
     public function load(): void {
-        add_filter('app_preload_links', [$this, 'preloadLinks']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'jsToFooter']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'jqueryFromCdn']);
         add_filter('style_loader_tag', [__CLASS__, 'addAsyncStyle'], 10, 4);
@@ -21,19 +19,6 @@ class Enqueue implements AutoloadInterface {
             add_filter('script_loader_src', [__CLASS__, 'setScriptVersion'], 15, 2);
             add_filter('style_loader_src', [__CLASS__, 'setScriptVersion'], 15, 2);
         }
-    }
-
-    /**
-     * @param Link[] $links
-     *
-     * @return Link[]
-     *
-     * @psalm-return array<Link>
-     */
-    public function preloadLinks(array $links): array {
-        $links[] = Http::dnsPrefetchLink('https://code.jquery.com');
-
-        return $links;
     }
 
     public static function addAsyncStyle(string $tag, string $handle, string $href, string $media): string {
@@ -60,19 +45,22 @@ class Enqueue implements AutoloadInterface {
             'defer' => ['google-recaptcha'],
         ];
 
-        foreach ($methods as $method => $data) {
-            $validHandlers = (array) apply_filters("app_{$method}_scripts_handlers", $data);
+        foreach ($methods as $method => $handlers) {
+            /** @var string[] $validHandlers */
+            $validHandlers = apply_filters("app_{$method}_scripts_handlers", $handlers);
 
             if (empty($validHandlers)) {
-                return $tag;
+                continue;
             }
 
             if (!\in_array($handle, $validHandlers, true)) {
-                return $tag;
+                continue;
             }
 
-            return str_replace(' src', " {$method} src", $tag);
+            $tag = str_replace(' src', " {$method} src", $tag);
         }
+
+        return $tag;
     }
 
     public static function setScriptVersion(string $scriptSrc, string $handle): string {

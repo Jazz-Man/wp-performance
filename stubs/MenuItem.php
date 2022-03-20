@@ -5,11 +5,11 @@ namespace JazzMan\PerformanceStub;
 use stdClass;
 
 /**
- * Class NavMenuItemStub.
+ * Class MenuItem.
  *
  * @SuppressWarnings(PHPMD)
  */
-class NavMenuItemStub extends stdClass {
+class MenuItem extends stdClass {
     /**
      * The term_id if the menu item represents a taxonomy term.
      */

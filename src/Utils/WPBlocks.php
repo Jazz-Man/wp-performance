@@ -7,7 +7,7 @@ use JazzMan\Post\CustomPostType;
 use WP_Post;
 
 class WPBlocks implements AutoloadInterface {
-    private string $postType;
+    private ?string $postType = null;
 
     public function load(): void {
         $customPostType = new CustomPostType('wp_block');

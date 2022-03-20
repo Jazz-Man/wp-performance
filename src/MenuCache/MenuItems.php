@@ -4,7 +4,7 @@ namespace JazzMan\Performance\MenuCache;
 
 use Exception;
 use JazzMan\Performance\Utils\Cache;
-use JazzMan\PerformanceStub\NavMenuItemStub;
+use JazzMan\PerformanceStub\MenuItem;
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
 use function Latitude\QueryBuilder\on;
@@ -19,12 +19,12 @@ use WP_Term;
 
 class MenuItems {
     /**
-     * @return NavMenuItemStub[]
+     * @return MenuItem[]|\stdClass[]
      */
     public static function getItems(WP_Term $wpTerm): array {
         $cacheKey = Cache::getMenuItemCacheKey($wpTerm);
 
-        /** @var false|NavMenuItemStub[] $menuItems */
+        /** @var false|MenuItem[]|\stdClass[] $menuItems */
         $menuItems = wp_cache_get($cacheKey, 'menu_items');
 
         if (false === $menuItems) {
@@ -37,7 +37,7 @@ class MenuItems {
 
                 $pdoStatement->execute($query->params());
 
-                /** @var NavMenuItemStub[] $menuItems */
+                /** @var MenuItem[]|\stdClass[] $menuItems */
                 $menuItems = $pdoStatement->fetchAll(PDO::FETCH_OBJ);
 
                 foreach ($menuItems as $key => $item) {
@@ -46,7 +46,7 @@ class MenuItems {
 
                 wp_cache_set($cacheKey, $menuItems, 'menu_items');
             } catch (Exception $exception) {
-                /** @var NavMenuItemStub $item */
+                /** @var MenuItem|\stdClass $item */
                 $item = new stdClass();
                 $item->_invalid = true;
 
@@ -141,15 +141,15 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      *
-     * @return NavMenuItemStub
+     * @return MenuItem|\stdClass
      */
     private static function setupNavMenuItem($menuItem) {
         /**
          * Wrap the element in the WP_Post class for backward compatibility.
          *
-         * @var NavMenuItemStub $menuItem
+         * @var MenuItem|\stdClass $menuItem
          */
         $menuItem = new WP_Post($menuItem);
 
@@ -170,16 +170,16 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      */
     private static function getMenuItemPostTitle($menuItem): string {
-        return '' === $menuItem->post_title ? sprintf(__('#%d (no title)'), $menuItem->ID) : (string) $menuItem->post_title;
+        return '' === $menuItem->post_title ? sprintf(__('#%d (no title)'), (int) $menuItem->ID) : (string) $menuItem->post_title;
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      *
-     * @return NavMenuItemStub
+     * @return MenuItem|\stdClass
      */
     private static function setMenuItemLabels(&$menuItem) {
         $menuItem->post_title = self::getMenuItemPostTitle($menuItem);
@@ -198,7 +198,7 @@ class MenuItems {
                     $typeLabel = !empty($taxonomyLabels->singular_name) ? (string) $taxonomyLabels->singular_name : (string) $menuItem->object;
                 }
 
-                $menuTitle = $menuItem->term_name;
+                $menuTitle = (string) $menuItem->term_name;
 
                 break;
 
@@ -249,10 +249,10 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      */
     private static function setMenuItemIds(&$menuItem): void {
-        $menuItem->db_id = $menuItem->ID;
+        $menuItem->db_id = (int) $menuItem->ID;
         $menuItem->menu_item_parent = (int) $menuItem->menu_item_parent;
         $menuItem->object_id = (int) $menuItem->object_id;
 
@@ -262,12 +262,12 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      */
     private static function getMenuItemDescription($menuItem): string {
         switch ($menuItem->type) {
             case 'taxonomy':
-                $description = !empty($menuItem->term_description) ? $menuItem->term_description : '';
+                $description = !empty($menuItem->term_description) ? (string) $menuItem->term_description : '';
 
                 break;
 
@@ -280,7 +280,7 @@ class MenuItems {
 
             case 'post_type':
             default:
-                $description = $menuItem->post_content;
+                $description = (string) $menuItem->post_content;
 
                 break;
         }
@@ -291,7 +291,7 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      */
     private static function getMenuItemUrl($menuItem): string {
         switch ($menuItem->type) {
@@ -311,7 +311,7 @@ class MenuItems {
                 break;
 
             default:
-                $url = $menuItem->url;
+                $url = (string) $menuItem->url;
 
                 break;
         }
@@ -320,7 +320,7 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      */
     private static function checkIfInvalid($menuItem): bool {
         switch ($menuItem->type) {
@@ -341,7 +341,7 @@ class MenuItems {
     }
 
     /**
-     * @param NavMenuItemStub $menuItem
+     * @param MenuItem|\stdClass $menuItem
      *
      * @return string[]
      */
