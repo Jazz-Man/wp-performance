@@ -106,13 +106,12 @@ if (!function_exists('app_get_attachment_image')) {
             $defaultAttributes = [
                 'src' => $image['url'],
                 'class' => sprintf('attachment-%1$s size-%1$s', $size),
-                'alt' => empty($image['alt'])? false : app_trim_string(strip_tags((string) $image['alt'])),
+                'alt' => empty($image['alt']) ? false : app_trim_string(strip_tags((string) $image['alt'])),
                 'width' => empty($image['width']) ? false : (int) $image['width'],
                 'height' => empty($image['height']) ? false : (int) $image['height'],
                 'loading' => $lazyLoading ? 'lazy' : false,
                 'decoding' => 'async',
             ];
-
 
             /** @var array<string,null|bool|int|string> $attributes */
             $attributes = wp_parse_args($attributes, $defaultAttributes);
