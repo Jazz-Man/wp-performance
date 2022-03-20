@@ -5,7 +5,6 @@ namespace JazzMan\Performance;
 use JazzMan\Performance\MenuCache\NavMenuCache;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\Enqueue;
-use JazzMan\Performance\Optimization\Http;
 use JazzMan\Performance\Optimization\LastPostModified;
 use JazzMan\Performance\Optimization\Media;
 use JazzMan\Performance\Optimization\PostGuid;
@@ -30,7 +29,6 @@ class App {
             NavMenuCache::class,
             WPBlocks::class,
             PostGuid::class,
-            Http::class,
             ResourceHints::class,
             Update::class,
             Media::class,
