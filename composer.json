@@ -21,7 +21,7 @@
         "composer/installers": "^1",
         "jazzman/autoload-interface": "^0.3.1",
         "jazzman/custom-post-type": "^2.3",
-        "jazzman/wp-app-config": "^2.1",
+        "jazzman/wp-app-config": "^2.2",
         "jazzman/wp-db-pdo": "^0.1.3",
         "symfony/web-link": "^5.3"
     },
