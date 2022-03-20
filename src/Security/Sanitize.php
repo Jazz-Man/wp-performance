@@ -40,8 +40,10 @@ class Sanitize implements AutoloadInterface {
 
     public static function sanitizeEmail(string $sanitizedEmail): string {
         if (!empty($sanitizedEmail) && filter_var($sanitizedEmail, FILTER_VALIDATE_EMAIL)) {
-            /** @var string $sanitizedEmail */
-            $sanitizedEmail = filter_var($sanitizedEmail, FILTER_SANITIZE_EMAIL);
+            /** @var false|string $email */
+            $email = filter_var($sanitizedEmail, FILTER_SANITIZE_EMAIL);
+
+            return !empty($email) ? $email : $sanitizedEmail;
         }
 
         return $sanitizedEmail;
