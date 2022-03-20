@@ -397,6 +397,8 @@ class Update implements AutoloadInterface {
             $themesList = wp_get_themes();
         }
 
+        $data = [];
+
         // Build my theme data array.
         foreach ($themesList as $theme) {
             $data[$theme->get_stylesheet()] = $theme->get('Version');
