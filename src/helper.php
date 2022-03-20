@@ -307,9 +307,9 @@ if (!function_exists('app_get_taxonomy_ancestors')) {
 
 if (!function_exists('app_term_get_all_children')) {
     /**
-     * @return int[]
+     * @return false|int[]
      */
-    function app_term_get_all_children(int $termId): array {
+    function app_term_get_all_children(int $termId) {
         global $wpdb;
 
         /** @var int[] $children */
@@ -343,7 +343,7 @@ if (!function_exists('app_term_get_all_children')) {
 
                 $pdoStatement->execute(['termId' => $termId]);
 
-                /** @var int[] $children */
+                /** @var false|int[] $children */
                 $children = $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
 
                 if (!empty($children)) {
