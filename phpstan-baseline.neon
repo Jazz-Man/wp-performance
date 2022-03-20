@@ -16,41 +16,6 @@ parameters:
 			path: src/Optimization/Update.php
 
 		-
-			message: "#^Array has 2 duplicate keys with value 'â€' \\('â€', 'â€'\\)\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Array has 6 duplicate keys with value 'Ã' \\('Ã', 'Ã', 'Ã', 'Ã', 'Ã', 'Ã'\\)\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$newFile \\- full path to new file\\)\\: Unexpected token \"\\$newFile\", expected type at offset 217$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$oldFile \\- full path to original file\\)\\: Unexpected token \"\\$oldFile\", expected type at offset 165$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Parameter \\#1 \\$old_name of function rename expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function strtolower expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function remove_accents expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Security/SanitizeFileName.php
-
-		-
 			message: "#^Parameter \\#1 \\$postarr of function wp_insert_post expects array\\{ID\\?\\: int, post_author\\?\\: int, post_date\\?\\: string, post_date_gmt\\?\\: string, post_content\\?\\: string, post_content_filtered\\?\\: string, post_title\\?\\: string, post_excerpt\\?\\: string, \\.\\.\\.\\}, array\\<string, array\\<string\\>\\|int\\|string\\> given\\.$#"
 			count: 1
 			path: src/Utils/DuplicatePost.php

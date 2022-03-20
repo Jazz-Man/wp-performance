@@ -22,22 +22,6 @@
       <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
   </file>
-  <file src="src/Security/SanitizeFileName.php">
-    <DuplicateArrayKey occurrences="6">
-      <code>'Ã' =&gt; 'Í'</code>
-      <code>'Ã' =&gt; 'Ï'</code>
-      <code>'Ã' =&gt; 'Ð'</code>
-      <code>'Ã' =&gt; 'Ý'</code>
-      <code>'Ã' =&gt; 'à'</code>
-      <code>'â€' =&gt; '”'</code>
-    </DuplicateArrayKey>
-    <PossiblyNullArgument occurrences="1">
-      <code>self::removeAccents($filename, false)</code>
-    </PossiblyNullArgument>
-    <PossiblyNullOperand occurrences="1">
-      <code>$fileName</code>
-    </PossiblyNullOperand>
-  </file>
   <file src="src/Utils/DuplicatePost.php">
     <ArgumentTypeCoercion occurrences="1">
       <code>$newPostArgs</code>
@@ -47,9 +31,6 @@
     </PossiblyNullArgument>
   </file>
   <file src="src/Utils/WPBlocks.php">
-    <MissingConstructor occurrences="1">
-      <code>$postType</code>
-    </MissingConstructor>
     <UnusedClosureParam occurrences="1">
       <code>$column</code>
     </UnusedClosureParam>

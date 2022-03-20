@@ -60,19 +60,22 @@ class Enqueue implements AutoloadInterface {
             'defer' => ['google-recaptcha'],
         ];
 
-        foreach ($methods as $method => $data) {
-            $validHandlers = (array) apply_filters("app_{$method}_scripts_handlers", $data);
+        foreach ($methods as $method => $handlers) {
+            /** @var string[] $validHandlers */
+            $validHandlers = apply_filters("app_{$method}_scripts_handlers", $handlers);
 
             if (empty($validHandlers)) {
-                return $tag;
+                continue;
             }
 
             if (!\in_array($handle, $validHandlers, true)) {
-                return $tag;
+                continue;
             }
 
-            return str_replace(' src', " {$method} src", $tag);
+            $tag = str_replace(' src', " {$method} src", $tag);
         }
+
+        return $tag;
     }
 
     public static function setScriptVersion(string $scriptSrc, string $handle): string {
