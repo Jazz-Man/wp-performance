@@ -114,7 +114,7 @@ class ResourceHints implements AutoloadInterface {
                     $hintUrl = $hintUrl['href'];
                 }
 
-                $hintUrl = esc_url($hintUrl, ['http', 'https']);
+                $hintUrl = esc_url($hintUrl, ['https']);
 
                 if (empty($hintUrl)) {
                     continue;

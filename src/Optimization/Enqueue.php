@@ -14,6 +14,7 @@ class Enqueue implements AutoloadInterface {
         add_action('wp_enqueue_scripts', [__CLASS__, 'jsToFooter']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'jqueryFromCdn']);
         add_filter('style_loader_tag', [__CLASS__, 'addAsyncStyle'], 10, 4);
+        add_filter('script_loader_tag', [__CLASS__, 'addAsyncScript'], 10, 2);
 
         if (!is_admin()) {
             add_filter('script_loader_src', [__CLASS__, 'setScriptVersion'], 15, 2);
@@ -90,7 +91,6 @@ class Enqueue implements AutoloadInterface {
     }
 
     public static function jqueryFromCdn(): void {
-        /** @var array<string,_WP_Dependency> $registered */
         $registered = wp_scripts()->registered;
 
         $jqCore = $registered['jquery-core'];
@@ -151,7 +151,6 @@ class Enqueue implements AutoloadInterface {
     }
 
     public static function deregisterScript(string $handle, ?string $newUrl = null, bool $enqueue = false): void {
-        /** @var array<string,_WP_Dependency> $registered */
         $registered = wp_scripts()->registered;
 
         if (!empty($registered[$handle])) {
@@ -170,7 +169,6 @@ class Enqueue implements AutoloadInterface {
     }
 
     public static function deregisterStyle(string $handle, ?string $newUrl = null, bool $enqueue = false): void {
-        /** @var array<string,_WP_Dependency> $registered */
         $registered = wp_styles()->registered;
 
         if (!empty($registered[$handle])) {
