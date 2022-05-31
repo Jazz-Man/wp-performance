@@ -28,7 +28,7 @@
         "jazzman/php-cs-fixer-rules": "^0.1.1",
         "php-stubs/wordpress-stubs": "^5.9",
         "phpstan/extension-installer": "^1.1",
-        "rector/rector": "^0.12.17",
+        "rector/rector": "^0.13.3",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.9",
         "szepeviktor/phpstan-wordpress": "^1.0"
