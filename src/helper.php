@@ -341,7 +341,7 @@ if (!function_exists('app_term_get_all_children')) {
                         SQL
                 );
 
-                $pdoStatement->execute(['termId' => $termId]);
+                $pdoStatement->execute(['term_id' => $termId]);
 
                 /** @var false|int[] $children */
                 $children = $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
