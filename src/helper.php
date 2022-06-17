@@ -287,7 +287,7 @@ if (!function_exists('app_get_taxonomy_ancestors')) {
                     SQL
             );
 
-            $pdoStatement->execute(['termId' => $termId, 'taxonomy' => $taxonomy]);
+            $pdoStatement->execute(['term_id' => $termId, 'taxonomy' => $taxonomy]);
 
             /** @var array<string,int|string> $ancestors */
             $ancestors = $pdoStatement->fetchAll($mode, ...$args);
