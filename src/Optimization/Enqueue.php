@@ -74,7 +74,7 @@ class Enqueue implements AutoloadInterface {
             $file = self::prepareScriptFilePath($scriptSrc);
 
             if (!empty($file)) {
-                $fileMap = sprintf('%s.map', $file);
+                $fileMap = $file.'.map';
 
                 $timestamp = is_readable($fileMap) ? $fileMap : $file;
 

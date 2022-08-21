@@ -136,7 +136,7 @@ class TermCount implements AutoloadInterface {
     public function maybeRecountPostsForTerm(int $termId, int $termTaxId, string $taxonomy): void {
         $screen = \function_exists('get_current_screen') ? get_current_screen() : '';
 
-        if (!($screen instanceof WP_Screen)) {
+        if (!$screen instanceof WP_Screen) {
             return;
         }
 
@@ -195,7 +195,7 @@ class TermCount implements AutoloadInterface {
 
         $taxonomyObj = get_taxonomy($taxonomy);
 
-        if (!($taxonomyObj instanceof WP_Taxonomy)) {
+        if (!$taxonomyObj instanceof WP_Taxonomy) {
             return;
         }
 

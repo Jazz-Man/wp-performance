@@ -54,7 +54,7 @@ class Cache implements AutoloadInterface {
         /** @var WP_Error|WP_Term[] $terms */
         $terms = wp_get_post_terms($menuId, 'nav_menu');
 
-        if (!($terms instanceof WP_Error)) {
+        if (!$terms instanceof WP_Error) {
             foreach ($terms as $term) {
                 self::deleteMenuItemCache($term);
             }

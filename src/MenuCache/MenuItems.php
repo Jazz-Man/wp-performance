@@ -5,9 +5,11 @@ namespace JazzMan\Performance\MenuCache;
 use Exception;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\PerformanceStub\MenuItem;
+
 use function Latitude\QueryBuilder\alias;
 use function Latitude\QueryBuilder\field;
 use function Latitude\QueryBuilder\on;
+
 use Latitude\QueryBuilder\Query;
 use Latitude\QueryBuilder\QueryFactory;
 use PDO;
@@ -333,7 +335,7 @@ class MenuItems {
             case 'taxonomy':
                 $term = get_term((int) $menuItem->object_id, (string) $menuItem->object);
 
-                return !($term instanceof WP_Term);
+                return !$term instanceof WP_Term;
 
             default:
                 return false;

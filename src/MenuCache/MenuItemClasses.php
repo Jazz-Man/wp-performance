@@ -370,7 +370,7 @@ class MenuItemClasses {
             return false;
         }
 
-        if (!($this->curentQueriedObject instanceof WP_Term)) {
+        if (!$this->curentQueriedObject instanceof WP_Term) {
             return false;
         }
 
