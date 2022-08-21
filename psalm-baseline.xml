@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.x-dev@">
+<files psalm-version="4.26.0@6998fabb2bf528b65777bf9941920888d23c03ac">
   <file src="src/MenuCache/NavMenuCache.php">
+    <MixedArgument occurrences="1">
+      <code>$args-&gt;depth</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$attributes</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="2">
+      <code>$attributes['aria-label']</code>
+      <code>$attributes['id']</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>$args-&gt;menu_id</code>
+    </MixedReturnStatement>
     <StringIncrement occurrences="1">
       <code>$matches[1]</code>
     </StringIncrement>
@@ -23,6 +39,7 @@
     </PossiblyNullArgument>
   </file>
   <file src="src/Utils/WPBlocks.php">
+    <InvalidScalarArgument occurrences="1"/>
     <UnusedClosureParam occurrences="1">
       <code>$column</code>
     </UnusedClosureParam>

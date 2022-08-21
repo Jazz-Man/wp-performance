@@ -57,7 +57,7 @@ class AttachmentData {
             $this->readImgMetadata($attachment['metadata']);
         }
 
-        $this->fullJpegUrl = sprintf('%s/%s', self::getBaseUploadUrl(), $attachment['fullUrl']);
+        $this->fullJpegUrl = app_upload_url($attachment['fullUrl']);
         $this->imageAlt = !empty($attachment['imageAlt']) ? $attachment['imageAlt'] : null;
     }
 
@@ -195,11 +195,11 @@ class AttachmentData {
 
             $sizeArray['dirname'] = trailingslashit($dirname);
 
-            $imageBaseurl = trailingslashit(self::getBaseUploadUrl()).$sizeArray['dirname'];
+            $imageBaseurl = trailingslashit(app_upload_url($sizeArray['dirname']));
 
             if (is_ssl()
                 && 'https' !== substr($imageBaseurl, 0, 5)
-                && parse_url($imageBaseurl, PHP_URL_HOST) === filter_input(INPUT_SERVER, 'HTTP_HOST')) {
+                && parse_url($imageBaseurl, PHP_URL_HOST) === app_get_server_data('HTTP_HOST')) {
                 $imageBaseurl = set_url_scheme($imageBaseurl, 'https');
             }
 
@@ -323,16 +323,5 @@ class AttachmentData {
         }
 
         return $sources;
-    }
-
-    private static function getBaseUploadUrl(): string {
-        /** @var null|array{path:string, url:string, subdir:string, basedir:string, baseurl:string, error:false|string} $uploadDir */
-        static $uploadDir;
-
-        if (null === $uploadDir) {
-            $uploadDir = wp_upload_dir();
-        }
-
-        return $uploadDir['baseurl'];
     }
 }

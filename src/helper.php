@@ -148,13 +148,13 @@ if (!function_exists('app_get_term_link')) {
 
         $term = get_term($termId, $termTaxonomy);
 
-        if (!($term instanceof WP_Term)) {
+        if (!$term instanceof WP_Term) {
             return false;
         }
 
         $taxonomy = get_taxonomy($term->taxonomy);
 
-        if (!($taxonomy instanceof WP_Taxonomy)) {
+        if (!$taxonomy instanceof WP_Taxonomy) {
             return false;
         }
 

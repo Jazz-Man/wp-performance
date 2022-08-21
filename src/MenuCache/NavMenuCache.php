@@ -14,12 +14,12 @@ class NavMenuCache implements AutoloadInterface {
     }
 
     /**
-     * @param NavMenuArgs $args
+     * @param NavMenuArgs|\stdClass $args
      *
      * @return false|mixed|string
      */
     public function buildWpNavMenu(?string $output, $args) {
-        $menu = wp_get_nav_menu_object($args->menu);
+        $menu = wp_get_nav_menu_object((string) $args->menu);
 
         if (false === $menu) {
             return $output;
@@ -80,7 +80,7 @@ class NavMenuCache implements AutoloadInterface {
 
         $wrapId = $this->getMenuWrapId($menu, $args);
 
-        $wrapClass = $args->menu_class ?: '';
+        $wrapClass = !empty($args->menu_class) ? (string) $args->menu_class : '';
 
         $items = (string) apply_filters('wp_nav_menu_items', $items, $args);
 
@@ -117,7 +117,7 @@ class NavMenuCache implements AutoloadInterface {
     }
 
     /**
-     * @param NavMenuArgs $args
+     * @param NavMenuArgs|\stdClass $args
      */
     private function getMenuWrapId(WP_Term $wpTerm, $args): string {
         /** @var string[] $menuIdSlugs */
@@ -143,7 +143,7 @@ class NavMenuCache implements AutoloadInterface {
     }
 
     /**
-     * @param NavMenuArgs $args
+     * @param NavMenuArgs|\stdClass $args
      */
     private function wrapToContainer($args, WP_Term $wpTerm, string $navMenu): string {
         /** @var string[] $allowedTags */
