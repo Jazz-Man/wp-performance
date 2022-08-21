@@ -21,6 +21,11 @@ parameters:
 			path: src/Utils/DuplicatePost.php
 
 		-
+			message: "#^Parameter \\#2 \\$options of method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) expects array\\<string, string\\>, array\\<string, bool\\> given\\.$#"
+			count: 1
+			path: src/Utils/WPBlocks.php
+
+		-
 			message: "#^Parameter \\#5 \\$function of function add_menu_page expects callable\\(\\)\\: mixed, '' given\\.$#"
 			count: 1
 			path: src/Utils/WPBlocks.php

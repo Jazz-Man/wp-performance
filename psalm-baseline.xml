@@ -23,6 +23,7 @@
     </PossiblyNullArgument>
   </file>
   <file src="src/Utils/WPBlocks.php">
+    <InvalidScalarArgument occurrences="1"/>
     <UnusedClosureParam occurrences="1">
       <code>$column</code>
     </UnusedClosureParam>
