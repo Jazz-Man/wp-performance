@@ -1,6 +1,6 @@
 runner:
   phpmd:
-    cmd: phpmd . checkstyle phpmd.ruleset.xml --exclude 'cache/*,vendor/*,stubs/*' --baseline-file phpmd.baseline.xml
+    cmd: ./vendor/bin/phpmd . checkstyle phpmd.ruleset.xml --exclude 'cache/*,vendor/*,stubs/*' --baseline-file phpmd.baseline.xml
     name: phpmd
     format: checkstyle
     level: warning
@@ -12,7 +12,7 @@ runner:
     level: warning
 
   psalm:
-    cmd: psalm --config=psalm.xml --no-progress --use-baseline=psalm-baseline.xml --output-format=checkstyle
+    cmd: ./vendor/bin/psalm --config=psalm.xml --no-progress --use-baseline=psalm-baseline.xml --output-format=checkstyle
     format: checkstyle
     name: psalm
     level: warning
