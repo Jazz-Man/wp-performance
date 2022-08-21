@@ -19,7 +19,7 @@ class NavMenuCache implements AutoloadInterface {
      * @return false|mixed|string
      */
     public function buildWpNavMenu(?string $output, $args) {
-        $menu = wp_get_nav_menu_object($args->menu);
+        $menu = wp_get_nav_menu_object((string) $args->menu);
 
         if (false === $menu) {
             return $output;
