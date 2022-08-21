@@ -16,9 +16,9 @@
         "classmap-authoritative": true,
         "apcu-autoloader": true,
         "allow-plugins": {
-            "composer/installers": false,
-            "roots/wordpress-core-installer": false,
-            "phpstan/extension-installer": false
+            "composer/installers": true,
+            "roots/wordpress-core-installer": true,
+            "phpstan/extension-installer": true
         }
     },
     "require": {
