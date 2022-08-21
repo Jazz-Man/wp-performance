@@ -2,7 +2,6 @@
 
 namespace JazzMan\Performance\Optimization;
 
-use _WP_Dependency;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Site;
 
@@ -75,7 +74,7 @@ class Enqueue implements AutoloadInterface {
             $file = self::prepareScriptFilePath($scriptSrc);
 
             if (!empty($file)) {
-                $fileMap = sprintf('%s.map', (string) $file);
+                $fileMap = sprintf('%s.map', $file);
 
                 $timestamp = is_readable($fileMap) ? $fileMap : $file;
 
@@ -98,19 +97,19 @@ class Enqueue implements AutoloadInterface {
         $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
 
         foreach (array_keys($registered) as $handle) {
-            if (0 === strpos($handle, 'jquery-effects-')) {
+            if (0 === strpos((string) $handle, 'jquery-effects-')) {
                 $isCore = 'jquery-effects-core' === $handle;
 
                 $newUrl = sprintf(
                     '%s/ui/effect%s.min.js',
                     $jsdelivrUrl,
-                    $isCore ? '' : str_replace('jquery-effects-', '-', $handle)
+                    $isCore ? '' : str_replace('jquery-effects-', '-', (string) $handle)
                 );
 
-                self::deregisterScript($handle, $newUrl);
+                self::deregisterScript((string) $handle, $newUrl);
             }
 
-            if (0 === strpos($handle, 'jquery-ui-')) {
+            if (0 === strpos((string) $handle, 'jquery-ui-')) {
                 switch ($handle) {
                     case 'jquery-ui-core':
                         $newUrl = sprintf('%s/ui/core.min.js', $jsdelivrUrl);
@@ -126,13 +125,13 @@ class Enqueue implements AutoloadInterface {
                         $newUrl = sprintf(
                             '%s/ui/widgets/%s.min.js',
                             $jsdelivrUrl,
-                            str_replace('jquery-ui-', '', $handle)
+                            str_replace('jquery-ui-', '', (string) $handle)
                         );
 
                         break;
                 }
 
-                self::deregisterScript($handle, $newUrl);
+                self::deregisterScript((string) $handle, $newUrl);
             }
         }
 
@@ -189,7 +188,6 @@ class Enqueue implements AutoloadInterface {
      * @return bool|string
      */
     private static function prepareScriptFilePath(string $scriptSrc) {
-        /** @var bool|string $rootDir */
         $rootDir = app_locate_root_dir();
 
         if (empty($rootDir)) {
@@ -198,7 +196,7 @@ class Enqueue implements AutoloadInterface {
 
         $path = ltrim((string) parse_url($scriptSrc, PHP_URL_PATH), '/');
 
-        $file = sprintf('%s/%s', (string) $rootDir, self::fixMultiSitePath($path));
+        $file = sprintf('%s/%s', $rootDir, self::fixMultiSitePath($path));
 
         return is_readable($file) ? $file : false;
     }
@@ -214,7 +212,7 @@ class Enqueue implements AutoloadInterface {
             $blogDetails = get_blog_details(null, false);
         }
 
-        if (!($blogDetails instanceof WP_Site)) {
+        if (!$blogDetails instanceof WP_Site) {
             return $path;
         }
 
