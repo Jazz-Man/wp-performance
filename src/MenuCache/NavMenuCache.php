@@ -80,7 +80,7 @@ class NavMenuCache implements AutoloadInterface {
 
         $wrapId = $this->getMenuWrapId($menu, $args);
 
-        $wrapClass = $args->menu_class ?: '';
+        $wrapClass = !empty($args->menu_class) ? (string) $args->menu_class : '';
 
         $items = (string) apply_filters('wp_nav_menu_items', $items, $args);
 
