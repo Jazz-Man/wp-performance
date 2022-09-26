@@ -27,7 +27,8 @@
         "jazzman/autoload-interface": "^0.3.1",
         "jazzman/custom-post-type": "^2.3",
         "jazzman/wp-app-config": "^2.3",
-        "jazzman/wp-db-pdo": "^0.1.4"
+        "jazzman/wp-db-pdo": "^0.1.4",
+        "jazzman/wp-duplicate-post": "^1.0"
     },
     "require-dev": {
         "jazzman/php-cs-fixer-rules": "^0.1.2",
