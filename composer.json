@@ -50,11 +50,6 @@
             "src/helper.php"
         ]
     },
-    "autoload-dev": {
-        "psr-4": {
-            "JazzMan\\PerformanceStub\\":"stubs"
-        }
-    },
     "extra": {
         "installer-paths": {
             "vendor/wp/wp-content/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
