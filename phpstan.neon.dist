@@ -13,10 +13,5 @@ parameters:
 	    - cache
 	    - .php-cs-fixer.php
 	    - rector.php
-	stubFiles:
-	    - stubs/NavMenuArgs.php
-	    - stubs/MenuItem.php
 	paths:
 	    - src
-	ignoreErrors:
-	    - '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'

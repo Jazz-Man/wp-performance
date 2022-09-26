@@ -1,6 +1,6 @@
 runner:
   phpmd:
-    cmd: ./vendor/bin/phpmd . checkstyle phpmd.ruleset.xml --exclude 'cache/*,vendor/*,stubs/*' --baseline-file phpmd.baseline.xml
+    cmd: ./vendor/bin/phpmd . checkstyle phpmd.ruleset.xml --exclude 'cache/*,vendor/*' --baseline-file phpmd.baseline.xml
     name: phpmd
     format: checkstyle
     level: warning

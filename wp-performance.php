@@ -12,7 +12,6 @@
  * Update URI:          https://github.com/Jazz-Man/wp-performance.
  */
 
-use JazzMan\Performance\MenuCache\NavMenuCache;
 use JazzMan\Performance\Optimization\CleanUp;
 use JazzMan\Performance\Optimization\Enqueue;
 use JazzMan\Performance\Optimization\LastPostModified;
@@ -32,7 +31,6 @@ if (function_exists('app_autoload_classes')) {
     app_autoload_classes(
         [
             Cache::class,
-            NavMenuCache::class,
             WPBlocks::class,
             PostGuid::class,
             ResourceHints::class,
