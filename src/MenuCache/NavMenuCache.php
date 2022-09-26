@@ -7,6 +7,9 @@ use JazzMan\PerformanceStub\MenuItem;
 use JazzMan\PerformanceStub\NavMenuArgs;
 use WP_Term;
 
+/**
+ * @deprecated
+ */
 class NavMenuCache implements AutoloadInterface {
     public function load(): void {
         add_filter('wp_nav_menu_args', [__CLASS__, 'setMenuFallbackParams']);

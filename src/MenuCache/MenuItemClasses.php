@@ -12,6 +12,9 @@ use WP_Taxonomy;
 use WP_Term;
 use WP_User;
 
+/**
+ * @deprecated
+ */
 class MenuItemClasses {
     private WP_Rewrite $wpRewrite;
 

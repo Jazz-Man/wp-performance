@@ -7,6 +7,7 @@ use Walker_Nav_Menu;
 use WP_Term;
 
 /**
+ * @deprecated
  * Class NavMenuArgs.
  *
  * @SuppressWarnings(PHPMD)

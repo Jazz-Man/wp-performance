@@ -19,6 +19,9 @@ use WP_Post_Type;
 use WP_Taxonomy;
 use WP_Term;
 
+/**
+ * @deprecated
+ */
 class MenuItems {
     /**
      * @return MenuItem[]|\stdClass[]

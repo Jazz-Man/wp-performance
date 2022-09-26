@@ -141,6 +141,7 @@ if (!function_exists('app_get_attachment_image')) {
 
 if (!function_exists('app_get_term_link')) {
     /**
+     * @deprecated
      * @return false|string
      */
     function app_get_term_link(int $termId, string $termTaxonomy) {
@@ -231,6 +232,7 @@ if (!function_exists('app_get_term_link')) {
 
 if (!function_exists('app_term_link_filter')) {
     /**
+     * @deprecated
      * @param \WP_Term $term
      */
     function app_term_link_filter(WP_Term $term, string $termlink): string {
@@ -247,6 +249,8 @@ if (!function_exists('app_term_link_filter')) {
 if (!function_exists('app_get_taxonomy_ancestors')) {
     /**
      * @param array<array-key, mixed> ...$args PDO fetch options
+     *
+     * @deprecated
      *
      * @return array<string,int|string>|false
      */
@@ -307,6 +311,7 @@ if (!function_exists('app_get_taxonomy_ancestors')) {
 
 if (!function_exists('app_term_get_all_children')) {
     /**
+     * @deprecated
      * @return false|int[]
      */
     function app_term_get_all_children(int $termId) {

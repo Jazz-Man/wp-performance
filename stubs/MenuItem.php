@@ -7,6 +7,8 @@ use stdClass;
 /**
  * Class MenuItem.
  *
+ * @deprecated
+ *
  * @SuppressWarnings(PHPMD)
  */
 class MenuItem extends stdClass {
