@@ -25,7 +25,6 @@ use JazzMan\Performance\Optimization\WPQuery;
 use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\Sanitize;
 use JazzMan\Performance\Utils\Cache;
-use JazzMan\Performance\Utils\DuplicatePost;
 use JazzMan\Performance\Utils\ResourceHints;
 use JazzMan\Performance\Utils\WPBlocks;
 
@@ -47,7 +46,6 @@ if (function_exists('app_autoload_classes')) {
             ContactFormSpamTester::class,
             CleanUp::class,
             Enqueue::class,
-            DuplicatePost::class,
         ]
     );
 }
