@@ -8,6 +8,7 @@ use WP_Post;
 
 /**
  * Class DuplicatePost.
+ * @deprecated
  */
 class DuplicatePost implements AutoloadInterface {
     private static string $action = 'duplicate_post_as_draft';
