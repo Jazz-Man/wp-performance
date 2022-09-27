@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="src/App.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/TermCount.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>
