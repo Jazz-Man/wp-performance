@@ -5,6 +5,11 @@ on:
       - master
       - develop
   pull_request:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   reviewdog:
@@ -18,9 +23,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 7.4
-          extensions: igbinary
           coverage: none
-#          tools: phpmd, psalm
+          tools: phpmd, psalm, phpstan
 
       - name: Get composer cache directory
         id: composer-cache

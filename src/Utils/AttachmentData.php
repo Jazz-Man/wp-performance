@@ -98,9 +98,9 @@ class AttachmentData {
     }
 
     /**
-     * @throws InvalidArgumentException
-     *
      * @return array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string}
+     *
+     * @throws InvalidArgumentException
      */
     private function getAttachmentFromDb(int $attachmentId = 0): array {
         global $wpdb;
