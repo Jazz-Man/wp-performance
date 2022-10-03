@@ -1,6 +1,11 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:mediaLibraryMonthsWithFiles\\(\\) should return array\\<stdClass\\> but returns array\\|false\\.$#"
+			count: 1
+			path: src/Optimization/Media.php
+
+		-
 			message: "#^Property WP_Taxonomy\\:\\:\\$update_count_callback \\(callable\\) in empty\\(\\) is not falsy\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
@@ -16,17 +21,7 @@ parameters:
 			path: src/Security/Sanitize.php
 
 		-
-			message: "#^Parameter \\#2 \\$options of method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) expects array\\<string, string\\>, array\\<string, bool\\> given\\.$#"
-			count: 1
-			path: src/Utils/WPBlocks.php
-
-		-
 			message: "#^Parameter \\#5 \\$callback of function add_menu_page expects callable\\(\\)\\: mixed, '' given\\.$#"
 			count: 1
 			path: src/Utils/WPBlocks.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of method PDOStatement\\:\\:fetchAll\\(\\) expects \\(callable\\(\\)\\: mixed\\)\\|int\\|string, array given\\.$#"
-			count: 1
-			path: src/helper.php
 

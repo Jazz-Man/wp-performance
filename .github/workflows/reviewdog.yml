@@ -20,7 +20,7 @@ jobs:
           php-version: 7.4
           extensions: igbinary
           coverage: none
-#          tools: phpmd, psalm
+          tools: phpmd, psalm, phpstan
 
       - name: Get composer cache directory
         id: composer-cache

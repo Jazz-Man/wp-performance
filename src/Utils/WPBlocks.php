@@ -19,12 +19,8 @@ class WPBlocks implements AutoloadInterface {
         $this->postType = $customPostType->post_type;
 
         $customPostType->setColumns([
-            'cb' => '<input type="checkbox" />',
-            'title' => __('Title'),
             'post_id' => __('Block ID'),
             'post_name' => __('Block Slug'),
-            'block_category' => __('Category'),
-            'date' => __('Date'),
         ]);
 
         $customPostType->setPopulateColumns('post_name', static function (string $column, WP_Post $post): void {
