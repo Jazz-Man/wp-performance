@@ -10,9 +10,9 @@ runner:
     format: checkstyle
     name: phpstan
     level: warning
-
-#  psalm:
-#    cmd: psalm --config=psalm.xml --no-progress --use-baseline=psalm-baseline.xml --output-format=checkstyle
-#    format: checkstyle
-#    name: psalm
-#    level: warning
+#
+  psalm:
+    cmd: psalm --config=psalm.xml --no-progress --use-baseline=psalm-baseline.xml --output-format=checkstyle
+    format: checkstyle
+    name: psalm
+    level: warning
