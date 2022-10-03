@@ -139,34 +139,6 @@ if (!function_exists('app_get_attachment_image')) {
     }
 }
 
-if (!function_exists('app_get_wp_block')) {
-    /**
-     * @return false|\WP_Post
-     */
-    function app_get_wp_block(string $postName) {
-        $cacheKey = sprintf('wp_block_%s', $postName);
-
-        /** @var false|\WP_Post $result */
-        $result = wp_cache_get($cacheKey, Cache::CACHE_GROUP);
-
-        if (false === $result) {
-            /** @var \WP_Post[] $posts */
-            $posts = get_posts([
-                'post_type' => 'wp_block',
-                'numberposts' => 1,
-                'name' => $postName,
-            ]);
-
-            if (!empty($posts)) {
-                $result = reset($posts);
-                wp_cache_set($cacheKey, $result, Cache::CACHE_GROUP);
-            }
-        }
-
-        return $result;
-    }
-}
-
 if (!function_exists('app_attachment_url_to_postid')) {
     /**
      * @return false|int

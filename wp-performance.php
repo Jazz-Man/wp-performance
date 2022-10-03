@@ -25,13 +25,11 @@ use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\Sanitize;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\ResourceHints;
-use JazzMan\Performance\Utils\WPBlocks;
 
 if (function_exists('app_autoload_classes')) {
     app_autoload_classes(
         [
             Cache::class,
-            WPBlocks::class,
             PostGuid::class,
             ResourceHints::class,
             Update::class,
