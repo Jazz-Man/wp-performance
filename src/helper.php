@@ -1,7 +1,6 @@
 <?php
 
 use JazzMan\Performance\Utils\AttachmentData;
-use JazzMan\Performance\Utils\Cache;
 
 if (!function_exists('app_get_image_data_array')) {
     /**
