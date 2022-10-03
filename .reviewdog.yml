@@ -5,12 +5,12 @@ runner:
     format: checkstyle
     level: warning
 
-#  phpstan:
-#    cmd: phpstan --error-format=checkstyle
-#    format: checkstyle
-#    name: phpstan
-#    level: warning
-#
+  phpstan:
+    cmd: phpstan --error-format=checkstyle
+    format: checkstyle
+    name: phpstan
+    level: warning
+
 #  psalm:
 #    cmd: psalm --config=psalm.xml --no-progress --use-baseline=psalm-baseline.xml --output-format=checkstyle
 #    format: checkstyle
