@@ -2,10 +2,6 @@
 
 namespace JazzMan\Performance\Utils;
 
-use Exception;
-use InvalidArgumentException;
-use PDO;
-
 class AttachmentData {
     /**
      * @var string
@@ -48,7 +44,7 @@ class AttachmentData {
     private ?int $attachmentHeight = 0;
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(int $attachmentId = 0) {
         $attachment = $this->getAttachmentFromDb($attachmentId);
@@ -58,7 +54,7 @@ class AttachmentData {
         }
 
         $this->fullJpegUrl = app_upload_url($attachment['fullUrl']);
-        $this->imageAlt = !empty($attachment['imageAlt']) ? $attachment['imageAlt'] : null;
+        $this->imageAlt = empty($attachment['imageAlt']) ? null : $attachment['imageAlt'];
     }
 
     /**
@@ -82,7 +78,7 @@ class AttachmentData {
          */
         $data = maybe_unserialize($metadata);
 
-        $this->imgFile = !empty($data['file']) ? $data['file'] : null;
+        $this->imgFile = empty($data['file']) ? null : $data['file'];
 
         if (!empty($data['sizes'])) {
             $this->attachmentSizes = $data['sizes'];
@@ -100,7 +96,7 @@ class AttachmentData {
     /**
      * @return array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string}
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     private function getAttachmentFromDb(int $attachmentId = 0): array {
         global $wpdb;
@@ -136,18 +132,18 @@ class AttachmentData {
                 ]);
 
                 /** @var array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string}|false $attachment */
-                $attachment = $pdoStatement->fetch(PDO::FETCH_ASSOC);
+                $attachment = $pdoStatement->fetch(\PDO::FETCH_ASSOC);
 
                 if (!empty($attachment)) {
                     wp_cache_set($cacheKey, $attachment, Cache::CACHE_GROUP);
                 }
-            } catch (Exception $exception) {
+            } catch (\Exception $exception) {
                 app_error_log($exception, __METHOD__);
             }
         }
 
         if (empty($attachment)) {
-            throw new InvalidArgumentException(sprintf('Invalid image ID, "%d" given.', $attachmentId));
+            throw new \InvalidArgumentException(sprintf('Invalid image ID, "%d" given.', $attachmentId));
         }
 
         /* @var array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string} $attachment */
@@ -188,7 +184,7 @@ class AttachmentData {
             $sizeArray['height'] = $sizes['height'];
         }
 
-        $sizeArray['sizes'] = !empty($sizeArray['width']) ? sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']) : false;
+        $sizeArray['sizes'] = empty($sizeArray['width']) ? false : sprintf('(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width']);
 
         if ($addDirData && !empty($this->imgFile)) {
             $dirname = _wp_get_attachment_relative_path($this->imgFile);
@@ -249,7 +245,11 @@ class AttachmentData {
      * @return array<array-key, array{url: string, descriptor: string, value: int}>|false
      */
     private function calculateImageSecretSources(array $sizeData) {
-        if (empty($sizeData['dirname']) || empty($sizeData['image_baseurl'])) {
+        if (empty($sizeData['dirname'])) {
+            return false;
+        }
+
+        if (empty($sizeData['image_baseurl'])) {
             return false;
         }
 
@@ -269,46 +269,47 @@ class AttachmentData {
         $srcMatched = false;
 
         if (!empty($this->attachmentSizes)) {
-            foreach ($this->attachmentSizes as $image) {
+            foreach ($this->attachmentSizes as $attachmentSize) {
                 $isSrc = false;
 
                 /** @var null|array<string,int|string> $image */
-                if (!\is_array($image)) {
+                if (!\is_array($attachmentSize)) {
                     continue;
                 }
 
                 // If the file name is part of the `src`, we've confirmed a match.
-                if (!$srcMatched && false !== strpos((string) $sizeData['src'], $dirname.$image['file'])) {
+                if (!$srcMatched && false !== strpos((string) $sizeData['src'], $dirname.$attachmentSize['file'])) {
                     $srcMatched = true;
                     $isSrc = true;
                 }
 
-                if ($isImageEdited && !strpos((string) $image['file'], $imageEditHash[0])) {
+                if ($isImageEdited && !strpos((string) $attachmentSize['file'], $imageEditHash[0])) {
                     continue;
                 }
 
-                if ($maxSrcsetImageWidth && (int) $image['width'] > $maxSrcsetImageWidth && !$isSrc) {
+                if ($maxSrcsetImageWidth && (int) $attachmentSize['width'] > $maxSrcsetImageWidth && !$isSrc) {
                     continue;
                 }
 
                 // If the image dimensions are within 1px of the expected size, use it.
-                if (wp_image_matches_ratio((int) $sizeData['width'], (int) $sizeData['height'], (int) $image['width'], (int) $image['height'])) {
+                if (wp_image_matches_ratio((int) $sizeData['width'], (int) $sizeData['height'], (int) $attachmentSize['width'], (int) $attachmentSize['height'])) {
                     // Add the URL, descriptor, and value to the sources array to be returned.
                     $source = [
-                        'url' => $sizeData['image_baseurl'].$image['file'],
+                        'url' => $sizeData['image_baseurl'].$attachmentSize['file'],
                         'descriptor' => 'w',
-                        'value' => (int) $image['width'],
+                        'value' => (int) $attachmentSize['width'],
                     ];
 
                     // The 'src' image has to be the first in the 'srcset', because of a bug in iOS8. See #35030.
                     if ($isSrc) {
-                        $sources = array_merge([$image['width'] => $source], $sources);
+                        $sources = array_merge([$attachmentSize['width'] => $source], $sources);
                     } else {
-                        $sources[$image['width']] = $source;
+                        $sources[$attachmentSize['width']] = $source;
                     }
                 }
             }
         }
+
         // Only return a 'srcset' value if there is more than one source.
         if (!$srcMatched) {
             return false;

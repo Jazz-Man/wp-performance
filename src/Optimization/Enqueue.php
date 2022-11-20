@@ -3,27 +3,26 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use WP_Site;
 
 /**
  * Class Enqueue.
  */
 class Enqueue implements AutoloadInterface {
     public function load(): void {
-        add_action('wp_enqueue_scripts', [__CLASS__, 'jsToFooter']);
-        add_action('wp_enqueue_scripts', [__CLASS__, 'jqueryFromCdn']);
-        add_filter('style_loader_tag', [__CLASS__, 'addAsyncStyle'], 10, 4);
-        add_filter('script_loader_tag', [__CLASS__, 'addAsyncScript'], 10, 2);
+        add_action('wp_enqueue_scripts', [self::class, 'jsToFooter']);
+        add_action('wp_enqueue_scripts', [self::class, 'jqueryFromCdn']);
+        add_filter('style_loader_tag', [self::class, 'addAsyncStyle'], 10, 4);
+        add_filter('script_loader_tag', [self::class, 'addAsyncScript'], 10, 2);
 
         if (!is_admin()) {
-            add_filter('script_loader_src', [__CLASS__, 'setScriptVersion'], 15, 2);
-            add_filter('style_loader_src', [__CLASS__, 'setScriptVersion'], 15, 2);
+            add_filter('script_loader_src', [self::class, 'setScriptVersion'], 15, 2);
+            add_filter('style_loader_src', [self::class, 'setScriptVersion'], 15, 2);
         }
     }
 
     public static function addAsyncStyle(string $tag, string $handle, string $href, string $media): string {
         if ('print' === $media) {
-            $tag = sprintf(
+            return sprintf(
                 '<link rel="%s" id="%s-css" href="%s" media="%s" onload="this.media=\'all\'; this.onload=null;" />',
                 'stylesheet',
                 $handle,
@@ -212,7 +211,7 @@ class Enqueue implements AutoloadInterface {
             $blogDetails = get_blog_details(null, false);
         }
 
-        if (!$blogDetails instanceof WP_Site) {
+        if (!$blogDetails instanceof \WP_Site) {
             return $path;
         }
 

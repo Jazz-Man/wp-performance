@@ -25,13 +25,13 @@ class Sanitize implements AutoloadInterface {
         // Get path and basename
         $fileInfo = pathinfo($fileName);
 
-        $fileExt = !empty($fileInfo['extension']) ? '.'.strtolower($fileInfo['extension']) : '';
+        $fileExt = empty($fileInfo['extension']) ? '' : '.'.strtolower($fileInfo['extension']);
 
         // Trim beginning and ending seperators
         $fileName = app_string_slugify($fileInfo['filename']).$fileExt;
 
         if ('.' !== $fileInfo['dirname']) {
-            $fileName = $fileInfo['dirname'].'/'.$fileName;
+            return $fileInfo['dirname'].'/'.$fileName;
         }
 
         // Return full path
@@ -43,7 +43,7 @@ class Sanitize implements AutoloadInterface {
             /** @var false|string $email */
             $email = filter_var($sanitizedEmail, FILTER_SANITIZE_EMAIL);
 
-            return !empty($email) ? $email : $sanitizedEmail;
+            return empty($email) ? $sanitizedEmail : $email;
         }
 
         return $sanitizedEmail;

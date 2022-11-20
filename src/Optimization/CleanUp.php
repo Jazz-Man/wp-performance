@@ -9,12 +9,11 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
  */
 class CleanUp implements AutoloadInterface {
     public function load(): void {
-        add_action('init', [__CLASS__, 'headCleanup']);
+        add_action('init', [self::class, 'headCleanup']);
         // Remove the WordPress version from RSS feeds
         add_filter('the_generator', '__return_false');
-        add_filter('xmlrpc_enabled', '__return_false');
 
-        add_filter('language_attributes', [__CLASS__, 'languageAttributes']);
+        add_filter('language_attributes', [self::class, 'languageAttributes']);
 
         /*
          * Wrap embedded media as suggested by Readability.
@@ -27,11 +26,8 @@ class CleanUp implements AutoloadInterface {
 
         // Don't return the default description in the RSS feed if it hasn't been changed.
         add_filter('get_bloginfo_rss', static fn (string $bloginfo): string => ('Just another WordPress site' === $bloginfo) ? '' : $bloginfo);
-        add_filter('xmlrpc_methods', [__CLASS__, 'filterXmlrpcMethod']);
-        add_filter('wp_headers', [__CLASS__, 'filterHeaders']);
-        add_filter('rewrite_rules_array', [__CLASS__, 'filterRewrites']);
-        add_filter('bloginfo_url', [__CLASS__, 'killPingbackUrl'], 10, 2);
-        add_action('xmlrpc_call', [__CLASS__, 'killXmlrpc']);
+
+        self::protectXmlrpc();
     }
 
     public static function headCleanup(): void {
@@ -67,68 +63,83 @@ class CleanUp implements AutoloadInterface {
         return app_add_attr_to_el($attributes);
     }
 
-    /**
-     * Disable pingback XMLRPC method.
-     *
-     * @param array<string,string> $methods
-     *
-     * @return array<string,string>
-     */
-    public static function filterXmlrpcMethod(array $methods): array {
-        unset($methods['pingback.ping'], $methods['pingback.extensions.getPingbacks']);
+    private static function protectXmlrpc(): void {
+        add_filter('xmlrpc_enabled', '__return_false');
+        add_filter('pre_update_option_enable_xmlrpc', '__return_false');
+        add_filter('pre_option_enable_xmlrpc', '__return_zero');
+        add_filter('pings_open', '__return_false', 10, 2);
 
-        return $methods;
-    }
+        $disableMethods = [
+            'pingback.ping',
+            'pingback.extensions.getPingbacks',
+            'wp.getUsersBlogs',
+            'system.multicall',
+            'system.listMethods',
+            'system.getCapabilities',
+        ];
 
-    /**
-     * Remove pingback header.
-     *
-     * @param array<string,string> $headers
-     *
-     * @return array<string,string>
-     */
-    public static function filterHeaders(array $headers): array {
-        if (isset($headers['X-Pingback'])) {
-            unset($headers['X-Pingback']);
-        }
-
-        return $headers;
-    }
-
-    /**
-     * Kill trackback rewrite rule.
-     *
-     * @param array<string,string> $rules
-     *
-     * @return array<string,string>
-     */
-    public static function filterRewrites(array $rules): array {
-        foreach (array_keys($rules) as $rule) {
-            if (preg_match('#trackback\/\?\$$#i', $rule)) {
-                unset($rules[$rule]);
+        /**
+         * Disable XMLRPC call.
+         */
+        add_action('xmlrpc_call', static function (string $action) use ($disableMethods): void {
+            if (\in_array($action, $disableMethods, true)) {
+                wp_die(
+                    sprintf('%s are not supported', $action),
+                    'Not Allowed!',
+                    ['response' => 403]
+                );
             }
-        }
+        });
 
-        return $rules;
+        /**
+         * Disable pingback XMLRPC method.
+         */
+        add_filter('xmlrpc_methods', static function (array $methods) use ($disableMethods): array {
+            foreach ($disableMethods as $disableMethod) {
+                if (!empty($methods[$disableMethod])) {
+                    unset($methods[$disableMethod]);
+                }
+            }
+
+            return $methods;
+        });
+
+        add_filter('bloginfo_url', static fn (string $output, string $show): string => 'pingback_url' === $show ? '' : $output, 10, 2);
+
+        /**
+         * Remove pingback header.
+         */
+        add_filter('wp_headers', static function (array $headers): array {
+            if (isset($headers['X-Pingback'])) {
+                unset($headers['X-Pingback']);
+            }
+
+            return $headers;
+        });
+
+        add_filter('register_post_type_args', static function (array $args): array {
+            if (!empty($args['_builtin']) && !empty($args['supports'])) {
+                $args['supports'] = array_merge(array_diff($args['supports'], ['trackbacks']));
+            }
+
+            return $args;
+        }, PHP_INT_MAX);
+
+        /**
+         * Kill trackback rewrite rule.
+         */
+        add_filter('rewrite_rules_array', static function (array $rules): array {
+            foreach (array_keys($rules) as $rule) {
+                if (preg_match('#trackback\/\?\$$#i', (string) $rule)) {
+                    unset($rules[$rule]);
+                }
+            }
+
+            return $rules;
+        });
     }
 
-    /**
-     * Kill bloginfo('pingback_url').
-     */
-    public static function killPingbackUrl(string $output, string $show): string {
-        return 'pingback_url' === $show ? '' : $output;
-    }
-
-    /**
-     * Disable XMLRPC call.
-     */
-    public static function killXmlrpc(string $action): void {
-        if ('pingback.ping' === $action) {
-            wp_die('Pingbacks are not supported', 'Not Allowed!', ['response' => 403]);
-        }
-    }
-
-    /**
+	/**
      * Originally from http://wpengineer.com/1438/wordpress-header/.
      */
     private static function cleanupWpHead(): void {

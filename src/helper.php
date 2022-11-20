@@ -186,7 +186,7 @@ if (!function_exists('app_attachment_url_to_postid')) {
 if (!function_exists('app_make_link_relative')) {
     function app_make_link_relative(string $link): string {
         if (app_is_current_host($link)) {
-            $link = wp_make_link_relative($link);
+            return wp_make_link_relative($link);
         }
 
         return $link;

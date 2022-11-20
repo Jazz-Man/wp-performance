@@ -4,9 +4,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
-use PDO;
 use stdClass;
-use WP_Comment;
 
 /**
  * Class Media.
@@ -37,7 +35,7 @@ class Media implements AutoloadInterface {
         // resize image on the fly
         add_filter('wp_get_attachment_image_src', [__CLASS__, 'resizeImageOnTheFly'], 10, 3);
 
-        add_action('pre_get_posts', function (): void {
+        add_action('pre_get_posts', static function (): void {
             remove_filter('posts_clauses', '_filter_query_attachment_filenames');
         });
 
@@ -89,11 +87,11 @@ class Media implements AutoloadInterface {
      * Replace all instances of gravatar with a local image file
      * to remove the call to remote service.
      *
-     * @param string                $avatar    image tag for the user's avatar
-     * @param int|string|WP_Comment $idOrEmail a user ID, email address, or comment object
-     * @param int                   $size      square avatar width and height in pixels to retrieve
-     * @param string                $default   URL to a default image to use if no avatar is available
-     * @param string                $alt       alternative text to use in the avatar image tag
+     * @param string                 $avatar    image tag for the user's avatar
+     * @param int|string|\WP_Comment $idOrEmail a user ID, email address, or comment object
+     * @param int                    $size      square avatar width and height in pixels to retrieve
+     * @param string                 $default   URL to a default image to use if no avatar is available
+     * @param string                 $alt       alternative text to use in the avatar image tag
      *
      * @return string `<img>` tag for the user's avatar
      *
@@ -141,7 +139,7 @@ class Media implements AutoloadInterface {
         }
 
         // Grab the cache to see if it needs updating
-        /** @var false|stdClass[] $mediaMonths */
+        /** @var false|\stdClass[] $mediaMonths */
         $mediaMonths = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (!empty($mediaMonths)) {
@@ -162,14 +160,14 @@ class Media implements AutoloadInterface {
     /**
      * @param null|mixed $months
      *
-     * @return stdClass[]
+     * @return \stdClass[]
      *
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
      */
     public static function mediaLibraryMonthsWithFiles($months = null): array {
         global $wpdb;
 
-        /** @var false|stdClass[] $months */
+        /** @var false|\stdClass[] $months */
         $months = wp_cache_get('wpcom_media_months_array', Cache::CACHE_GROUP);
 
         if (false === $months) {
@@ -188,7 +186,7 @@ class Media implements AutoloadInterface {
 
             $pdoStatement->execute();
 
-            $months = $pdoStatement->fetchAll(PDO::FETCH_OBJ);
+            $months = $pdoStatement->fetchAll(\PDO::FETCH_OBJ);
 
             wp_cache_set('wpcom_media_months_array', $months, Cache::CACHE_GROUP);
         }
@@ -332,11 +330,13 @@ class Media implements AutoloadInterface {
                 continue;
             }
 
-            if (!empty($size['height']) && (int) $size['height'] !== $height) {
-                continue;
+            if (empty($size['height'])) {
+                return true;
             }
 
-            return true;
+            if ((int) $size['height'] === $height) {
+                return true;
+            }
         }
 
         return false;
