@@ -1,6 +1,11 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Callback expects 0 parameters, \\$accepted_args is set to 2\\.$#"
+			count: 1
+			path: src/Optimization/CleanUp.php
+
+		-
 			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:mediaLibraryMonthsWithFiles\\(\\) should return array\\<stdClass\\> but returns array\\|false\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
@@ -16,7 +21,12 @@ parameters:
 			path: src/Optimization/Update.php
 
 		-
-			message: "#^Offset 'dirname' does not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#"
+			message: "#^Offset 'dirname' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#"
 			count: 1
 			path: src/Security/Sanitize.php
+
+		-
+			message: "#^Variable \\$image in PHPDoc tag @var does not exist\\.$#"
+			count: 1
+			path: src/Utils/AttachmentData.php
 

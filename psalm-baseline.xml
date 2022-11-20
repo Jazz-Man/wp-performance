@@ -6,7 +6,6 @@
     </MixedArgumentTypeCoercion>
     <MixedReturnTypeCoercion occurrences="2">
       <code>$months</code>
-      <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
   </file>
 </files>

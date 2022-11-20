@@ -26,9 +26,7 @@
         "composer/installers": "^1|^2",
         "jazzman/autoload-interface": "^0.3.1",
         "jazzman/wp-app-config": "^2.3",
-        "jazzman/wp-db-pdo": "^0.1.4",
-        "jazzman/wp-duplicate-post": "^1.0",
-        "jazzman/wp-nav-menu-cache": "^0.1.5"
+        "jazzman/wp-db-pdo": "^0.1.4"
     },
     "require-dev": {
         "jazzman/php-cs-fixer-rules": "^0.1.3",
