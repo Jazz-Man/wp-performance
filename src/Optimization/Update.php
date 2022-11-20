@@ -387,20 +387,20 @@ class Update implements AutoloadInterface {
         return $availableLanguages;
     }
 
-    private static function preSiteTransientUpdateThemes(): object {
+    private static function preSiteTransientUpdateThemes(): \stdClass {
         global $wp_version;
 
-        /** @var null|\WP_Theme[] $themesList */
-        static $themesList;
+        /** @var null|\WP_Theme[] $themes */
+        static $themes;
 
-        if (null === $themesList) {
-            $themesList = wp_get_themes();
+        if (null === $themes) {
+            $themes = wp_get_themes();
         }
 
         $data = [];
 
         // Build my theme data array.
-        foreach ($themesList as $theme) {
+        foreach ($themes as $theme) {
             $data[$theme->get_stylesheet()] = $theme->get('Version');
         }
 
@@ -412,7 +412,7 @@ class Update implements AutoloadInterface {
         ];
     }
 
-    private static function preSiteTransientUpdatePlugins(): object {
+    private static function preSiteTransientUpdatePlugins(): \stdClass {
         global $wp_version;
 
         /** @var null|array<string,array<string,string>> $pluginsList */

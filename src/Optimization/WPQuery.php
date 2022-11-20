@@ -2,11 +2,8 @@
 
 namespace JazzMan\Performance\Optimization;
 
-use Exception;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
-use PDO;
-use WP_Query;
 
 /**
  * Class WP_Query.
@@ -25,9 +22,11 @@ class WPQuery implements AutoloadInterface {
     private ?string $queryHash = null;
 
     public function load(): void {
-        add_action('save_post', [$this, 'flushFoundRowsCach']);
+        add_action('save_post', static function (): void {
+            wp_cache_set(self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP);
+        });
 
-        add_filter('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
+        add_action('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
         add_filter('posts_clauses_request', [$this, 'postsClausesRequest'], 10, 2);
     }
 
@@ -36,7 +35,7 @@ class WPQuery implements AutoloadInterface {
      *
      * @return array<string,string>
      */
-    public function postsClausesRequest(array $clauses, WP_Query $wpQuery): array {
+    public function postsClausesRequest(array $clauses, \WP_Query $wpQuery): array {
         global $wpdb;
 
         if ($wpQuery->is_main_query()) {
@@ -46,6 +45,8 @@ class WPQuery implements AutoloadInterface {
         $limit = absint($wpQuery->get('posts_per_page'));
 
         $this->invalidateFoundPostsCache();
+
+        /** @var bool|int[] $postIds */
         $postIds = $this->getFoundPostsCache();
 
         if (!empty($postIds)) {
@@ -68,10 +69,10 @@ class WPQuery implements AutoloadInterface {
                 $pdoStatement->execute();
 
                 /** @var int[] $postIds */
-                $postIds = $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
+                $postIds = $pdoStatement->fetchAll(\PDO::FETCH_COLUMN);
 
                 $this->setFoundPostsCache($postIds);
-            } catch (Exception $exception) {
+            } catch (\Exception $exception) {
                 app_error_log($exception, __METHOD__);
             }
         }
@@ -88,7 +89,7 @@ class WPQuery implements AutoloadInterface {
         return $clauses;
     }
 
-    public function setQueryParams(WP_Query $wpQuery): void {
+    public function setQueryParams(\WP_Query $wpQuery): void {
         if (!$wpQuery->is_main_query()) {
             $limit = absint($wpQuery->get('posts_per_page'));
 
@@ -103,6 +104,7 @@ class WPQuery implements AutoloadInterface {
             $this->queryHash = md5(serialize($wpQuery->query_vars));
 
             if ('rand' === $orderby) {
+                /** @var bool|int[] $postIds */
                 $postIds = $this->getFoundPostsCache();
 
                 if (!empty($postIds)) {
@@ -119,7 +121,7 @@ class WPQuery implements AutoloadInterface {
 
                     if (!empty($wpQuery->query_vars['post__in'])) {
                         /** @var int[] $postIn */
-                        $postIn = $wpQuery->query_vars['post__in'];
+                        $postIn = $wpQuery->get('post__in');
 
                         shuffle($postIn);
 
@@ -132,16 +134,13 @@ class WPQuery implements AutoloadInterface {
         }
     }
 
-    public function flushFoundRowsCach(int $postId): void {
-        wp_cache_set(self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP);
-    }
-
     private function invalidateFoundPostsCache(): void {
         $globalInvalidateTime = $this->getInvalidateTime();
 
         if (empty($globalInvalidateTime)) {
             return;
         }
+
         $timeFoundPosts = $this->getTimeFoundPosts();
 
         if (empty($timeFoundPosts)) {
@@ -192,17 +191,10 @@ class WPQuery implements AutoloadInterface {
     }
 
     /**
-     * @return bool|int[]
+     * @return mixed
      */
     private function getFoundPostsCache() {
-        /** @var bool|int[] $postIds */
-        $postIds = wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
-
-        if (false === $postIds) {
-            return false;
-        }
-
-        return $postIds;
+        return wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
     }
 
     /**

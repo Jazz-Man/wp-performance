@@ -94,22 +94,22 @@ class CleanUp implements AutoloadInterface {
         /**
          * Disable pingback XMLRPC method.
          */
-        add_filter('xmlrpc_methods', function (array $methods) use ($disableMethods): array {
-            foreach ($disableMethods as $method) {
-                if (!empty($methods[$method])) {
-                    unset($methods[$method]);
+        add_filter('xmlrpc_methods', static function (array $methods) use ($disableMethods): array {
+            foreach ($disableMethods as $disableMethod) {
+                if (!empty($methods[$disableMethod])) {
+                    unset($methods[$disableMethod]);
                 }
             }
 
             return $methods;
         });
 
-        add_filter('bloginfo_url', fn (string $output, string $show): string => 'pingback_url' === $show ? '' : $output, 10, 2);
+        add_filter('bloginfo_url', static fn (string $output, string $show): string => 'pingback_url' === $show ? '' : $output, 10, 2);
 
         /**
          * Remove pingback header.
          */
-        add_filter('wp_headers', function (array $headers): array {
+        add_filter('wp_headers', static function (array $headers): array {
             if (isset($headers['X-Pingback'])) {
                 unset($headers['X-Pingback']);
             }
@@ -117,11 +117,9 @@ class CleanUp implements AutoloadInterface {
             return $headers;
         });
 
-        add_filter('register_post_type_args', function (array $args): array {
-            if (!empty($args['_builtin'])) {
-                if (!empty($args['supports'])) {
-                    $args['supports'] = array_merge(array_diff($args['supports'], ['trackbacks']));
-                }
+        add_filter('register_post_type_args', static function (array $args): array {
+            if (!empty($args['_builtin']) && !empty($args['supports'])) {
+                $args['supports'] = array_merge(array_diff($args['supports'], ['trackbacks']));
             }
 
             return $args;
@@ -130,7 +128,7 @@ class CleanUp implements AutoloadInterface {
         /**
          * Kill trackback rewrite rule.
          */
-        add_filter('rewrite_rules_array', function (array $rules): array {
+        add_filter('rewrite_rules_array', static function (array $rules): array {
             foreach (array_keys($rules) as $rule) {
                 if (preg_match('#trackback\/\?\$$#i', (string) $rule)) {
                     unset($rules[$rule]);
@@ -141,7 +139,7 @@ class CleanUp implements AutoloadInterface {
         });
     }
 
-    /**
+	/**
      * Originally from http://wpengineer.com/1438/wordpress-header/.
      */
     private static function cleanupWpHead(): void {
