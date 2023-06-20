@@ -1,0 +1,3 @@
+includes:
+    - phar://vendor/rector/vendor/phpstan/phpstan.phar/conf/bleedingEdge.neon
+    - phpstan.neon.dist
