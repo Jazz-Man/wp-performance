@@ -7,13 +7,25 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 /**
  * Class Sanitizer.
  */
-class Sanitize implements AutoloadInterface {
-    public function load(): void {
-        // Remove accents from all uploaded files
+final class Sanitize implements AutoloadInterface {
 
-        add_filter('sanitize_html_class', 'app_string_slugify');
-        add_filter('sanitize_file_name', [__CLASS__, 'sanitizeFilename']);
-        add_filter('sanitize_email', [__CLASS__, 'sanitizeEmail']);
+    public function load(): void {
+
+        // Edit and update terms
+        add_filter( 'edit_term_slug', 'app_string_slugify' );
+        add_filter( 'pre_term_slug', 'app_string_slugify' );
+        add_filter( 'term_slug_rss', 'app_string_slugify' );
+
+        // Edit and update post
+        add_filter( 'pre_post_name', 'app_string_slugify' );
+        add_filter( 'edit_post_name', 'app_string_slugify' );
+
+        add_filter( 'sanitize_html_class', 'app_string_slugify' );
+
+        add_filter( 'sanitize_email', self::sanitizeEmail( ... ) );
+
+        // Remove accents from all uploaded files
+        add_filter( 'sanitize_file_name', self::sanitizeFilename( ... ) );
     }
 
     /**
@@ -21,16 +33,16 @@ class Sanitize implements AutoloadInterface {
      *
      * @param string $fileName - any filename with absolute path
      */
-    public static function sanitizeFilename(string $fileName): string {
+    public static function sanitizeFilename( string $fileName ): string {
         // Get path and basename
-        $fileInfo = pathinfo($fileName);
+        $fileInfo = pathinfo( $fileName );
 
-        $fileExt = empty($fileInfo['extension']) ? '' : '.'.strtolower($fileInfo['extension']);
+        $fileExt = empty( $fileInfo['extension'] ) ? '' : '.'.strtolower( $fileInfo['extension'] );
 
         // Trim beginning and ending seperators
-        $fileName = app_string_slugify($fileInfo['filename']).$fileExt;
+        $fileName = app_string_slugify( $fileInfo['filename'] ).$fileExt;
 
-        if ('.' !== $fileInfo['dirname']) {
+        if ( ! empty( $fileInfo['dirname'] ) && '.' !== $fileInfo['dirname'] ) {
             return $fileInfo['dirname'].'/'.$fileName;
         }
 
@@ -38,12 +50,12 @@ class Sanitize implements AutoloadInterface {
         return $fileName;
     }
 
-    public static function sanitizeEmail(string $sanitizedEmail): string {
-        if (!empty($sanitizedEmail) && filter_var($sanitizedEmail, FILTER_VALIDATE_EMAIL)) {
+    public static function sanitizeEmail( string $sanitizedEmail ): string {
+        if ( ! empty( $sanitizedEmail ) && filter_var( $sanitizedEmail, FILTER_VALIDATE_EMAIL ) ) {
             /** @var false|string $email */
-            $email = filter_var($sanitizedEmail, FILTER_SANITIZE_EMAIL);
+            $email = filter_var( $sanitizedEmail, FILTER_SANITIZE_EMAIL );
 
-            return empty($email) ? $sanitizedEmail : $email;
+            return empty( $email ) ? $sanitizedEmail : $email;
         }
 
         return $sanitizedEmail;
