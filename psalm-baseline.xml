@@ -1,8 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="5.13.1@086b94371304750d1c673315321a55d15fc59015">
+  <file src="src/Optimization/CleanUp.php">
+    <MixedArgument>
+      <code><![CDATA[$args['supports']]]></code>
+    </MixedArgument>
+  </file>
   <file src="src/Optimization/Media.php">
     <MixedReturnTypeCoercion>
       <code>$months</code>
+      <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
+    <PossiblyInvalidArrayAccess>
+      <code>$image[0]</code>
+    </PossiblyInvalidArrayAccess>
+    <PossiblyInvalidArrayAssignment>
+      <code>$image[1]</code>
+      <code>$image[1]</code>
+      <code>$image[2]</code>
+      <code>$image[2]</code>
+    </PossiblyInvalidArrayAssignment>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(int) $size['height']]]></code>
+      <code><![CDATA[(int) $size['width']]]></code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Optimization/Update.php">
+    <InvalidReturnStatement>
+      <code>$availableLanguages</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType>
+      <code><![CDATA[array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}>]]></code>
+    </InvalidReturnType>
+    <LessSpecificReturnStatement>
+      <code><![CDATA[(object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+            'checked' => $data,
+        ]]]></code>
+      <code><![CDATA[(object) [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+            'checked' => $data,
+        ]]]></code>
+    </LessSpecificReturnStatement>
+    <MoreSpecificReturnType>
+      <code>stdClass</code>
+      <code>stdClass</code>
+    </MoreSpecificReturnType>
+  </file>
+  <file src="src/Utils/AttachmentData.php">
+    <DocblockTypeContradiction>
+      <code>\is_array( $attachmentSize )</code>
+    </DocblockTypeContradiction>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(int) $attachmentSize['height']]]></code>
+      <code><![CDATA[(int) $attachmentSize['width']]]></code>
+      <code><![CDATA[(int) $attachmentSize['width']]]></code>
+      <code><![CDATA[(int) $attachmentSize['width']]]></code>
+      <code><![CDATA[(string) $attachmentSize['file']]]></code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="wp-performance.php">
+    <UndefinedClass>
+      <code>ContactFormSpamTester</code>
+    </UndefinedClass>
   </file>
 </files>

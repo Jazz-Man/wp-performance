@@ -69,11 +69,10 @@
         "update-baseline": [
             "@init-baseline-phpmd",
             "@baseline-phpstan",
-            "@update-baseline-psalm"
+            "@init-baseline-psalm"
         ],
         "init-baseline-phpmd": "@phpmd --generate-baseline",
         "init-baseline-psalm": "@psalm --set-baseline=psalm-baseline.xml",
-        "update-baseline-psalm": "@psalm --update-baseline=psalm-baseline.xml",
         "baseline-phpstan": "@phpstan --generate-baseline=phpstan-baseline.neon",
         "phpstan": "phpstan --no-progress",
         "phpmd": "phpmd . text phpmd.ruleset.xml --exclude 'cache/*,vendor/*'",
