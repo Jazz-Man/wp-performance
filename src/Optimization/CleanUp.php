@@ -87,7 +87,7 @@ final class CleanUp implements AutoloadInterface {
                 wp_die(
                     sprintf( '%s are not supported', $action ),
                     'Not Allowed!',
-                    ['response' => 403]
+                    [ 'response' => 403 ]
                 );
             }
         } );
@@ -97,8 +97,8 @@ final class CleanUp implements AutoloadInterface {
          */
         add_filter( 'xmlrpc_methods', static function ( array $methods ) use ( $disableMethods ): array {
             foreach ( $disableMethods as $disableMethod ) {
-                if ( ! empty( $methods[$disableMethod] ) ) {
-                    unset( $methods[$disableMethod] );
+                if ( ! empty( $methods[ $disableMethod ] ) ) {
+                    unset( $methods[ $disableMethod ] );
                 }
             }
 
@@ -120,7 +120,7 @@ final class CleanUp implements AutoloadInterface {
 
         add_filter( 'register_post_type_args', static function ( array $args ): array {
             if ( ! empty( $args['_builtin'] ) && ! empty( $args['supports'] ) ) {
-                $args['supports'] = array_merge( array_diff( $args['supports'], ['trackbacks'] ) );
+                $args['supports'] = array_merge( array_diff( $args['supports'], [ 'trackbacks' ] ) );
             }
 
             return $args;
@@ -132,7 +132,7 @@ final class CleanUp implements AutoloadInterface {
         add_filter( 'rewrite_rules_array', static function ( array $rules ): array {
             foreach ( array_keys( $rules ) as $rule ) {
                 if ( preg_match( '#trackback\/\?\$$#i', (string) $rule ) ) {
-                    unset( $rules[$rule] );
+                    unset( $rules[ $rule ] );
                 }
             }
 

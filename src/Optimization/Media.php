@@ -37,9 +37,9 @@ final class Media implements AutoloadInterface {
         add_filter( 'wp_check_filetype_and_ext', self::fixMimeTypeSvg( ... ), 75, 3 );
         add_filter( 'wp_get_attachment_image_src', self::fixSvgSizeAttributes( ... ), 10, 3 );
 
-        add_filter( 'wp_update_attachment_metadata', self::svg_meta_data( ... ), 10, 2 );
-        add_filter( 'wp_get_attachment_metadata', self::svg_meta_data( ... ), 10, 2 );
-        add_filter( 'wp_generate_attachment_metadata', self::svg_meta_data( ... ), 10, 2 );
+        add_filter( 'wp_update_attachment_metadata', self::svgMetaData( ... ), 10, 2 );
+        add_filter( 'wp_get_attachment_metadata', self::svgMetaData( ... ), 10, 2 );
+        add_filter( 'wp_generate_attachment_metadata', self::svgMetaData( ... ), 10, 2 );
 
         // resize image on the fly
         add_filter( 'wp_get_attachment_image_src', self::resizeImageOnTheFly( ... ), 10, 3 );
@@ -65,8 +65,13 @@ final class Media implements AutoloadInterface {
         }
     }
 
-    public static function svg_meta_data( array $metadata, int $attachment_id ): array {
-        $wpPost = get_post( $attachment_id );
+    /**
+     * @param array<string,mixed> $metadata
+     *
+     * @return array<string,mixed>
+     */
+    public static function svgMetaData( array $metadata, int|string $attachmentId ): array {
+        $wpPost = get_post( (int) $attachmentId );
 
         if ( ! $wpPost instanceof WP_Post ) {
             return $metadata;
@@ -76,76 +81,7 @@ final class Media implements AutoloadInterface {
             return $metadata;
         }
 
-        if ( empty( $metadata ) || empty( $metadata['width'] ) || empty( $metadata['height'] ) ) {
-            $file = get_attached_file( $attachment_id );
-
-            if ( ! empty( $file ) && ! is_readable( $file ) ) {
-                return $metadata;
-            }
-
-            $xml = simplexml_load_file( (string) $file );
-
-            if ( ! $xml instanceof SimpleXMLElement ) {
-                return $metadata;
-            }
-
-            $attr = $xml->attributes();
-
-            if ( ! $attr instanceof SimpleXMLElement ) {
-                return $metadata;
-            }
-
-            if ( ! ( (bool) $attr->count() ) ) {
-                return $metadata;
-            }
-
-            $get_xml_property = static function ( string $property, ?SimpleXMLElement $object ): false|string {
-                if ( ! $object instanceof SimpleXMLElement ) {
-                    return false;
-                }
-
-                if ( ! property_exists( $object, $property ) ) {
-                    return false;
-                }
-
-                if ( $object->{$property} instanceof SimpleXMLElement ) {
-                    return (string) $object->{$property};
-                }
-
-                return false;
-            };
-
-            if ( ! $get_xml_property( 'viewBox', $attr ) ) {
-                return $metadata;
-            }
-
-            $view_box = explode( ' ', (string) $attr->viewBox );
-
-            if ( empty( $view_box ) ) {
-                return $metadata;
-            }
-
-            $has_size = 4 === \count( $view_box );
-
-            $get_size = static function ( string $property ) use ( $attr, $get_xml_property ): ?int {
-                /** @var string[]|null $value */
-                $value = [];
-
-                if ( $get_xml_property( $property, $attr ) ) {
-                    preg_match( '/\d+/', (string) $attr->{$property}, $value );
-                }
-
-                return empty( $value ) ? null : (int) $value[0];
-            };
-
-            $width = $get_size( 'width' );
-            $height = $get_size( 'height' );
-
-            $metadata['width'] = $width ?: ( $has_size ? (int) $view_box[2] : null );
-            $metadata['height'] = $height ?: ( $has_size ? (int) $view_box[3] : null );
-        }
-
-        return $metadata;
+        return self::prepareSvgImageData( $metadata, $attachmentId );
     }
 
     /**
@@ -190,7 +126,7 @@ final class Media implements AutoloadInterface {
      *
      * @psalm-suppress MixedArgument
      */
-    public static function replaceGravatar( string $avatar, $idOrEmail, int $size, string $default, string $alt ): string {
+    public static function replaceGravatar( string $avatar, mixed $idOrEmail, int $size, string $default, string $alt ): string {
         // Bail if disabled.
         if ( ! app_is_enabled_wp_performance() ) {
             return $avatar;
@@ -221,33 +157,6 @@ final class Media implements AutoloadInterface {
         // Remove images.
         // Send back the list.
         return (string) preg_replace( '#<img([^>]+)> #i', '', $avatarList );
-    }
-
-    /**
-     * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L39
-     */
-    public function setMediaMonthsCache( int $postId ): void {
-        if ( app_is_wp_importing() ) {
-            return;
-        }
-
-        // Grab the cache to see if it needs updating
-        /** @var false|stdClass[] $mediaMonths */
-        $mediaMonths = wp_cache_get( 'wpcom_media_months_array', Cache::CACHE_GROUP );
-
-        if ( ! empty( $mediaMonths ) ) {
-            $cachedLatestYear = empty( $mediaMonths[0]->year ) ? '' : (string) $mediaMonths[0]->year;
-            $cachedLatestMonth = empty( $mediaMonths[0]->month ) ? '' : (string) $mediaMonths[0]->month;
-
-            // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
-            $latestYear = get_the_time( 'Y', $postId ) === $cachedLatestYear;
-            $latestMonth = get_the_time( 'n', $postId ) === $cachedLatestMonth;
-
-            if ( ! $latestYear || ! $latestMonth ) {
-                // the new attachment is not in the same month/year as the data in our cache
-                wp_cache_delete( 'wpcom_media_months_array', Cache::CACHE_GROUP );
-            }
-        }
     }
 
     /**
@@ -330,7 +239,7 @@ final class Media implements AutoloadInterface {
      *
      * @return array<array-key,bool|int|string>|bool
      */
-    public static function fixSvgSizeAttributes( $image, int $attachmentId, $size ): array|bool {
+    public static function fixSvgSizeAttributes( array|bool $image, int|string $attachmentId, array|string $size ): array|bool {
         if ( is_admin() ) {
             return $image;
         }
@@ -358,11 +267,11 @@ final class Media implements AutoloadInterface {
      * @param array<string,mixed>|false $image
      * @param int[]|string              $size
      *
-     * @return array<int|string, mixed>|array<string, mixed>|bool
+     * @return array<int|string, mixed>|bool
      *
      * @psalm-return array<int|string, mixed>|false
      */
-    public static function resizeImageOnTheFly( $image, int $attachmentId, $size ) {
+    public static function resizeImageOnTheFly( array|bool $image, int|string $attachmentId, array|string $size ): array|bool {
         if ( is_admin() ) {
             return $image;
         }
@@ -371,7 +280,7 @@ final class Media implements AutoloadInterface {
             return $image;
         }
 
-        $meta = wp_get_attachment_metadata( $attachmentId );
+        $meta = wp_get_attachment_metadata( (int) $attachmentId );
 
         if ( empty( $meta ) ) {
             return $image;
@@ -401,7 +310,7 @@ final class Media implements AutoloadInterface {
         if ( ! empty( $resized ) ) {
             $metaSizeKey = sprintf( 'resized-%dx%d', $resized['width'], $resized['height'] );
             $meta['sizes'][ $metaSizeKey ] = $resized;
-            wp_update_attachment_metadata( $attachmentId, $meta );
+            wp_update_attachment_metadata( (int) $attachmentId, $meta );
 
             /** @var array{0:string,1:int,2:int,3:bool} $image */
             $image = (array) $image;
@@ -415,10 +324,117 @@ final class Media implements AutoloadInterface {
     }
 
     /**
-     * @param array<array-key,array<string,int|string>> $sizes
+     * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L39
      */
+    public function setMediaMonthsCache( int $postId ): void {
+        if ( app_is_wp_importing() ) {
+            return;
+        }
+
+        // Grab the cache to see if it needs updating
+        /** @var false|stdClass[] $mediaMonths */
+        $mediaMonths = wp_cache_get( 'wpcom_media_months_array', Cache::CACHE_GROUP );
+
+        if ( ! empty( $mediaMonths ) ) {
+            $cachedLatestYear = empty( $mediaMonths[0]->year ) ? '' : (string) $mediaMonths[0]->year;
+            $cachedLatestMonth = empty( $mediaMonths[0]->month ) ? '' : (string) $mediaMonths[0]->month;
+
+            // If the transient exists, and the attachment uploaded doesn't match the first (latest) month or year in the transient, lets clear it.
+            $latestYear = get_the_time( 'Y', $postId ) === $cachedLatestYear;
+            $latestMonth = get_the_time( 'n', $postId ) === $cachedLatestMonth;
+
+            if ( ! $latestYear || ! $latestMonth ) {
+                // the new attachment is not in the same month/year as the data in our cache
+                wp_cache_delete( 'wpcom_media_months_array', Cache::CACHE_GROUP );
+            }
+        }
+    }
+
+    /**
+     * @param array<string,mixed> $metadata
+     *
+     * @return array<string,mixed>
+     */
+    private static function prepareSvgImageData( array $metadata, int|string $attachmentId ): array {
+
+        if ( empty( $metadata ) || empty( $metadata['width'] ) || empty( $metadata['height'] ) ) {
+            $file = get_attached_file( (int) $attachmentId );
+
+            if ( ! empty( $file ) && ! is_readable( $file ) ) {
+                return $metadata;
+            }
+
+            $xml = simplexml_load_file( (string) $file );
+
+            if ( ! $xml instanceof SimpleXMLElement ) {
+                return $metadata;
+            }
+
+            $attr = $xml->attributes();
+
+            if ( ! $attr instanceof SimpleXMLElement ) {
+                return $metadata;
+            }
+
+            if ( ! ( (bool) $attr->count() ) ) {
+                return $metadata;
+            }
+
+            if ( ! self::getXmlProperty( 'viewBox', $attr ) ) {
+                return $metadata;
+            }
+
+            /** @var array<array-key,string> $viewBox */
+            $viewBox = explode( ' ', (string) $attr->viewBox );
+
+            if ( empty( $viewBox ) ) {
+                return $metadata;
+            }
+
+            $hasSize = 4 === \count( $viewBox );
+
+            $width = self::getSvgXmlSize( 'width', $attr );
+            $height = self::getSvgXmlSize( 'height', $attr );
+
+            $metadata['width'] = $width ?: ( $hasSize ? (int) $viewBox[2] : null );
+            $metadata['height'] = $height ?: ( $hasSize ? (int) $viewBox[3] : null );
+        }
+
+        return $metadata;
+    }
+
+    private static function getXmlProperty( string $property, ?SimpleXMLElement $object ): bool|string {
+        if ( ! $object instanceof SimpleXMLElement ) {
+            return false;
+        }
+
+        if ( ! property_exists( $object, $property ) ) {
+            return false;
+        }
+
+        if ( $object->{$property} instanceof SimpleXMLElement ) {
+            return (string) $object->{$property};
+        }
+
+        return false;
+    }
+
+    private static function getSvgXmlSize( string $property, ?SimpleXMLElement $object ): ?int {
+        /** @var string[]|null $value */
+        $value = [];
+
+        if ( self::getXmlProperty( $property, $object ) ) {
+            preg_match( '/\d+/', (string) $object->{$property}, $value );
+        }
+
+        return empty( $value ) ? null : (int) $value[0];
+    }
+
     private static function isImageSizesExist( array $sizes, int $width, int $height ): bool {
-        foreach ( $sizes as $size ) {
+
+		/** @var array{width?: int, height?: int} $size */
+
+		foreach ( $sizes as $size ) {
             if ( ! empty( $size['width'] ) && (int) $size['width'] !== $width ) {
                 continue;
             }

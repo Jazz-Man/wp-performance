@@ -52,7 +52,7 @@ final class LastPostModified implements AutoloadInterface {
         /** @var false|string $lastPostModified */
         $lastPostModified = self::getLastPostModified( $timezone, $postType );
 
-        return false === $lastPostModified ? $boolean : (string) $lastPostModified;
+        return false === $lastPostModified ? $boolean : $lastPostModified;
     }
 
     private static function isLocked( string $postType ): bool {
