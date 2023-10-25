@@ -2,18 +2,18 @@
 <psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://getpsalm.org/schema/config"
        xsi:schemaLocation="https://getpsalm.org/schema/config"
-       cacheDirectory="cache/psalm"
        serializer="igbinary"
        errorBaseline="psalm-baseline.xml"
        errorLevel="1"
-       phpVersion="7.4"
+       phpVersion="8.2"
        autoloader="vendor/szepeviktor/phpstan-wordpress/bootstrap.php"
+       findUnusedBaselineEntry="true"
 >
     <projectFiles>
         <directory name="src"/>
+        <file name="wp-performance.php"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="cache"/>
             <file name="rector.php"/>
             <file name=".php-cs-fixer.php"/>
         </ignoreFiles>
@@ -45,10 +45,15 @@
                 <file name="src/Optimization/Update.php"/>
             </errorLevel>
         </MissingFile>
+        <DuplicateFunction>
+            <errorLevel type="suppress">
+                <file name="src/helper.php"/>
+            </errorLevel>
+        </DuplicateFunction>
     </issueHandlers>
 
     <stubs>
-        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php" preloadClasses="true"/>
     </stubs>
     <globals>
         <var name="wpdb" type="\wpdb"/>
@@ -57,4 +62,7 @@
         <var name="wp_version" type="string"/>
         <var name="ABSPATH" type="string"/>
     </globals>
+    <enableExtensions>
+        <extension name="pdo"/>
+    </enableExtensions>
 </psalm>

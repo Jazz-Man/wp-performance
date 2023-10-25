@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.x-dev@">
+<files psalm-version="5.13.1@086b94371304750d1c673315321a55d15fc59015">
   <file src="src/Optimization/Media.php">
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$meta['sizes']</code>
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$meta['sizes']]]></code>
     </MixedArgumentTypeCoercion>
-    <MixedReturnTypeCoercion occurrences="2">
+    <MixedReturnTypeCoercion>
       <code>$months</code>
     </MixedReturnTypeCoercion>
   </file>
