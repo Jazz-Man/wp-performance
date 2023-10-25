@@ -16,17 +16,7 @@ parameters:
 			path: src/Optimization/Media.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:svg_meta_data\\(\\) has parameter \\$metadata with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:svg_meta_data\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Variable \\$view_box in empty\\(\\) always exists and is not falsy\\.$#"
+			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:isImageSizesExist\\(\\) has parameter \\$sizes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Optimization/Media.php
 

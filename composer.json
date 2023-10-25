@@ -67,12 +67,11 @@
             "@php-cs-fixer"
         ],
         "update-baseline": [
-            "@update-baseline-phpmd",
+            "@init-baseline-phpmd",
             "@baseline-phpstan",
             "@update-baseline-psalm"
         ],
         "init-baseline-phpmd": "@phpmd --generate-baseline",
-        "update-baseline-phpmd": "@phpmd --update-baseline",
         "init-baseline-psalm": "@psalm --set-baseline=psalm-baseline.xml",
         "update-baseline-psalm": "@psalm --update-baseline=psalm-baseline.xml",
         "baseline-phpstan": "@phpstan --generate-baseline=phpstan-baseline.neon",
