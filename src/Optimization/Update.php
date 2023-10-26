@@ -3,6 +3,7 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use JetBrains\PhpStorm\ObjectShape;
 use stdClass;
 use WP_Theme;
 
@@ -343,9 +344,7 @@ final class Update implements AutoloadInterface {
     }
 
     /**
-     *    Returns installed languages instead of all possibly available languages.
-     *
-     * @return array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}>
+     * Returns installed languages instead of all possibly available languages.
      */
     public static function availableTranslations(): array {
         // Call the global WP version.
@@ -379,11 +378,15 @@ final class Update implements AutoloadInterface {
             $availableLanguages[ $language ] = [ ...$settings, ...$coreLanguges[ $language ] ];
         }
 
-        /* @var array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}> $availableLanguages */
-
         return $availableLanguages;
     }
 
+    #[ObjectShape( [
+        'last_checked' => 'int',
+        'updates' => 'array',
+        'version_checked' => 'string',
+        'checked' => 'array<string,string>',
+    ] )]
     private static function preSiteTransientUpdateThemes(): stdClass {
         global $wp_version;
 
@@ -394,6 +397,12 @@ final class Update implements AutoloadInterface {
             $themes = wp_get_themes();
         }
 
+        $update = new stdClass();
+        $update->last_checked = time();
+        $update->updates = [];
+        $update->version_checked = $wp_version;
+
+        /** @var array<string,string> $data */
         $data = [];
 
         // Build my theme data array.
@@ -401,23 +410,22 @@ final class Update implements AutoloadInterface {
             $data[ $theme->get_stylesheet() ] = $theme->get( 'Version' );
         }
 
-        return (object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-            'checked' => $data,
-        ];
+        $update->checked = $data;
+
+        return $update;
     }
 
+    #[ObjectShape( [
+        'last_checked' => 'int',
+        'updates' => 'array',
+        'version_checked' => 'string',
+        'checked' => 'array<string,string>',
+    ] )]
     private static function preSiteTransientUpdatePlugins(): stdClass {
         global $wp_version;
 
         /** @var array<string,array<string,string>>|null $pluginsList */
         static $pluginsList;
-
-        // Set a blank data array.
-        /** @var array<string,string> $data */
-        $data = [];
 
         if ( null === $pluginsList ) {
             // Add our plugin file if we don't have it.
@@ -429,6 +437,18 @@ final class Update implements AutoloadInterface {
             $pluginsList = get_plugins();
         }
 
+        $update = new stdClass();
+        $update->last_checked = time();
+        $update->updates = [];
+        $update->version_checked = $wp_version;
+
+        /**
+         * Set a blank data array.
+         *
+         * @var array<string,string> $data
+         */
+        $data = [];
+
         // Build my plugin data array.
         foreach ( $pluginsList as $file => $plugin ) {
             if ( ! empty( $plugin['Version'] ) ) {
@@ -436,18 +456,15 @@ final class Update implements AutoloadInterface {
             }
         }
 
-        return (object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-            'checked' => $data,
-        ];
+        $update->checked = $data;
+
+        return $update;
     }
 
     /**
      * Contains a predefined list of all 4.6 version languages so that we can deduce available languages from languages folder.
      *
-     * @return array<string,array<string,string>>
+     * @return array<string,array{english_name:string, native_name: string}>
      */
     private static function coreBlockerGetLanguages(): array {
         return [

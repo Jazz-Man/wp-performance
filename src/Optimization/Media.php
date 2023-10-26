@@ -234,10 +234,10 @@ final class Media implements AutoloadInterface {
     }
 
     /**
-     * @param array<array-key,bool|int|string>|bool $image
-     * @param int[]|string                          $size
+     * @param array{string,int,int,bool}|bool $image
+     * @param int[]|string                    $size
      *
-     * @return array<array-key,bool|int|string>|bool
+     * @return array{string,int,int,bool}|bool
      */
     public static function fixSvgSizeAttributes( array|bool $image, int|string $attachmentId, array|string $size ): array|bool {
         if ( is_admin() ) {
@@ -248,7 +248,8 @@ final class Media implements AutoloadInterface {
             return $image;
         }
 
-        $fileExt = pathinfo( (string) $image[0], PATHINFO_EXTENSION );
+        /** @var array{string,int,int,bool} $image */
+        $fileExt = pathinfo( $image[0], PATHINFO_EXTENSION );
 
         if ( 'svg' === $fileExt ) {
             $image[1] = 60;
@@ -264,12 +265,10 @@ final class Media implements AutoloadInterface {
     }
 
     /**
-     * @param array<string,mixed>|false $image
-     * @param int[]|string              $size
+     * @param array{string,int,int,bool}|false $image
+     * @param array<int,int>|string            $size
      *
-     * @return array<int|string, mixed>|bool
-     *
-     * @psalm-return array<int|string, mixed>|false
+     * @return array{string,int,int,bool}|bool
      */
     public static function resizeImageOnTheFly( array|bool $image, int|string $attachmentId, array|string $size ): array|bool {
         if ( is_admin() ) {
@@ -280,6 +279,8 @@ final class Media implements AutoloadInterface {
             return $image;
         }
 
+        /** @var array{file: string, sizes: mixed}|false  $meta
+         */
         $meta = wp_get_attachment_metadata( (int) $attachmentId );
 
         if ( empty( $meta ) ) {
@@ -297,24 +298,35 @@ final class Media implements AutoloadInterface {
 
         $imageBaseUrl = sprintf( '%s/%s', $upload['baseurl'], $imageDirname );
 
-        [ $width, $height ] = $size;
+        /** @var array<array-key,array{width?: int|string, height?: int|string}>|false $sizes */
+        $sizes = ! empty( $meta['sizes'] ) ? (array) $meta['sizes'] : false;
 
-        if ( ! empty( $meta['sizes'] ) && self::isImageSizesExist( $meta['sizes'], $width, $height ) ) {
+        if ( empty( $sizes ) ) {
             return $image;
         }
 
-        // Generate new size
-        /** @var array{path:string, file:string, width:int, height:int, 'mime-type':string}|false $resized */
+        [ $width, $height ] = $size;
+
+        if ( self::isImageSizesExist( $sizes, $width, $height ) ) {
+            return $image;
+        }
+
+        /**
+         * Generate new size.
+         *
+         * @var array{path:string, file:string, width:int, height:int}|false $resized
+         */
         $resized = image_make_intermediate_size( $filePath, $width, $height, true );
 
         if ( ! empty( $resized ) ) {
             $metaSizeKey = sprintf( 'resized-%dx%d', $resized['width'], $resized['height'] );
+
+            /** @var array{sizes:array<string,mixed>} $meta */
             $meta['sizes'][ $metaSizeKey ] = $resized;
+
             wp_update_attachment_metadata( (int) $attachmentId, $meta );
 
-            /** @var array{0:string,1:int,2:int,3:bool} $image */
-            $image = (array) $image;
-
+            /** @var array{string,int,int,bool} $image */
             $image[0] = sprintf( '%s/%s', $imageBaseUrl, $resized['file'] );
             $image[1] = $resized['width'];
             $image[2] = $resized['height'];
@@ -430,11 +442,12 @@ final class Media implements AutoloadInterface {
         return empty( $value ) ? null : (int) $value[0];
     }
 
+    /**
+     * @param array<array-key,array{width?: int|string, height?: int|string}> $sizes
+     */
     private static function isImageSizesExist( array $sizes, int $width, int $height ): bool {
 
-		/** @var array{width?: int, height?: int} $size */
-
-		foreach ( $sizes as $size ) {
+        foreach ( $sizes as $size ) {
             if ( ! empty( $size['width'] ) && (int) $size['width'] !== $width ) {
                 continue;
             }
