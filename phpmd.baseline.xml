@@ -3,6 +3,7 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/CleanUp.php" method="protectXmlrpc"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/CleanUp.php" method="protectXmlrpc"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/Optimization/Media.php"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/Media.php" method="resizeImageOnTheFly"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/Media.php" method="prepareSvgImageData"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/Media.php" method="prepareSvgImageData"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/TermCount.php"/>

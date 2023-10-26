@@ -10,19 +10,6 @@
       <code>$months</code>
       <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
-    <PossiblyInvalidArrayAccess>
-      <code>$image[0]</code>
-    </PossiblyInvalidArrayAccess>
-    <PossiblyInvalidArrayAssignment>
-      <code>$image[1]</code>
-      <code>$image[1]</code>
-      <code>$image[2]</code>
-      <code>$image[2]</code>
-    </PossiblyInvalidArrayAssignment>
-    <RedundantCastGivenDocblockType>
-      <code><![CDATA[(int) $size['height']]]></code>
-      <code><![CDATA[(int) $size['width']]]></code>
-    </RedundantCastGivenDocblockType>
   </file>
   <file src="src/Optimization/Update.php">
     <InvalidReturnStatement>
@@ -61,10 +48,5 @@
       <code><![CDATA[(int) $attachmentSize['width']]]></code>
       <code><![CDATA[(string) $attachmentSize['file']]]></code>
     </RedundantCastGivenDocblockType>
-  </file>
-  <file src="wp-performance.php">
-    <UndefinedClass>
-      <code>ContactFormSpamTester</code>
-    </UndefinedClass>
   </file>
 </files>

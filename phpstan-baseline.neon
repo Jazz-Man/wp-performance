@@ -6,21 +6,6 @@ parameters:
 			path: src/Optimization/CleanUp.php
 
 		-
-			message: "#^Cannot access offset 0 on non\\-empty\\-array\\<bool\\|int\\|string\\>\\|true\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Cannot access offset 1 on non\\-empty\\-array\\<bool\\|int\\|string\\>\\|true\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Media\\:\\:isImageSizesExist\\(\\) has parameter \\$sizes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Optimization/Media.php
-
-		-
 			message: "#^Property WP_Taxonomy\\:\\:\\$update_count_callback \\(callable\\) in empty\\(\\) is not falsy\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
