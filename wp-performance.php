@@ -21,7 +21,6 @@ use JazzMan\Performance\Optimization\PostMeta;
 use JazzMan\Performance\Optimization\TermCount;
 use JazzMan\Performance\Optimization\Update;
 use JazzMan\Performance\Optimization\WPQuery;
-use JazzMan\Performance\Security\ContactFormSpamTester;
 use JazzMan\Performance\Security\Sanitize;
 use JazzMan\Performance\Utils\Cache;
 use JazzMan\Performance\Utils\ResourceHints;
@@ -39,7 +38,6 @@ if (function_exists('app_autoload_classes')) {
             LastPostModified::class,
             TermCount::class,
             Sanitize::class,
-            ContactFormSpamTester::class,
             CleanUp::class,
             Enqueue::class,
         ]

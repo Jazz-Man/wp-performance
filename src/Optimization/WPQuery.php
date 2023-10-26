@@ -2,16 +2,20 @@
 
 namespace JazzMan\Performance\Optimization;
 
+use Exception;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
+use PDO;
+use WP_Query;
 
 /**
  * Class WP_Query.
  */
-class WPQuery implements AutoloadInterface {
+final class WPQuery implements AutoloadInterface {
+
     /**
-     * @var string
-     */
+         * @var string
+         */
     public const INVALIDATE_TIME_KEY = 'invalidate-time';
 
     /**
@@ -22,12 +26,12 @@ class WPQuery implements AutoloadInterface {
     private ?string $queryHash = null;
 
     public function load(): void {
-        add_action('save_post', static function (): void {
-            wp_cache_set(self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP);
-        });
+        add_action( 'save_post', static function (): void {
+            wp_cache_set( self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP );
+        } );
 
-        add_action('pre_get_posts', [$this, 'setQueryParams'], 10, 1);
-        add_filter('posts_clauses_request', [$this, 'postsClausesRequest'], 10, 2);
+        add_action( 'pre_get_posts', $this->setQueryParams( ... ), 10, 1 );
+        add_filter( 'posts_clauses_request', $this->postsClausesRequest( ... ), 10, 2 );
     }
 
     /**
@@ -35,21 +39,21 @@ class WPQuery implements AutoloadInterface {
      *
      * @return array<string,string>
      */
-    public function postsClausesRequest(array $clauses, \WP_Query $wpQuery): array {
+    public function postsClausesRequest( array $clauses, WP_Query $wpQuery ): array {
         global $wpdb;
 
-        if ($wpQuery->is_main_query()) {
+        if ( $wpQuery->is_main_query() ) {
             return $clauses;
         }
 
-        $limit = absint($wpQuery->get('posts_per_page'));
+        $limit = absint( $wpQuery->get( 'posts_per_page' ) );
 
         $this->invalidateFoundPostsCache();
 
         /** @var bool|int[] $postIds */
         $postIds = $this->getFoundPostsCache();
 
-        if (!empty($postIds)) {
+        if ( ! empty( $postIds ) ) {
             try {
                 $pdo = app_db_pdo();
 
@@ -69,66 +73,66 @@ class WPQuery implements AutoloadInterface {
                 $pdoStatement->execute();
 
                 /** @var int[] $postIds */
-                $postIds = $pdoStatement->fetchAll(\PDO::FETCH_COLUMN);
+                $postIds = $pdoStatement->fetchAll( PDO::FETCH_COLUMN );
 
-                $this->setFoundPostsCache($postIds);
-            } catch (\Exception $exception) {
-                app_error_log($exception, __METHOD__);
+                $this->setFoundPostsCache( $postIds );
+            } catch ( Exception $exception ) {
+                app_error_log( $exception, __METHOD__ );
             }
         }
 
-        if (!empty($postIds)) {
+        if ( ! empty( $postIds ) ) {
             /** @var int[] $postIds */
-            $wpQuery->found_posts = \count($postIds);
+            $wpQuery->found_posts = \count( $postIds );
 
-            if (!empty($clauses['limits'])) {
-                $wpQuery->max_num_pages = (int) ceil($wpQuery->found_posts / $limit);
+            if ( ! empty( $clauses['limits'] ) ) {
+                $wpQuery->max_num_pages = (int) ceil( $wpQuery->found_posts / $limit );
             }
         }
 
         return $clauses;
     }
 
-    public function setQueryParams(\WP_Query $wpQuery): void {
-        if (!$wpQuery->is_main_query()) {
-            $limit = absint($wpQuery->get('posts_per_page'));
+    public function setQueryParams( WP_Query $wpQuery ): void {
+        if ( ! $wpQuery->is_main_query() ) {
+            $limit = absint( $wpQuery->get( 'posts_per_page' ) );
 
             /** @var false|string $orderby */
-            $orderby = $wpQuery->get('orderby', false);
+            $orderby = $wpQuery->get( 'orderby', false );
 
-            $wpQuery->set('no_found_rows', true);
-            $wpQuery->set('showposts', null);
-            $wpQuery->set('posts_per_archive_page', null);
-            $wpQuery->set('ignore_sticky_posts', true);
+            $wpQuery->set( 'no_found_rows', true );
+            $wpQuery->set( 'showposts', null );
+            $wpQuery->set( 'posts_per_archive_page', null );
+            $wpQuery->set( 'ignore_sticky_posts', true );
 
-            $this->queryHash = md5(serialize($wpQuery->query_vars));
+            $this->queryHash = md5( serialize( $wpQuery->query_vars ) );
 
-            if ('rand' === $orderby) {
+            if ( 'rand' === $orderby ) {
                 /** @var bool|int[] $postIds */
                 $postIds = $this->getFoundPostsCache();
 
-                if (!empty($postIds)) {
-                    if (empty($wpQuery->get('post__in'))) {
+                if ( ! empty( $postIds ) ) {
+                    if ( empty( $wpQuery->get( 'post__in' ) ) ) {
                         /** @var int[] $postIds */
-                        shuffle($postIds);
+                        shuffle( $postIds );
 
-                        if ($limit > 0) {
-                            $postIds = \array_slice($postIds, 0, $limit);
+                        if ( 0 < $limit ) {
+                            $postIds = \array_slice( $postIds, 0, $limit );
                         }
 
-                        $wpQuery->set('post__in', $postIds);
+                        $wpQuery->set( 'post__in', $postIds );
                     }
 
-                    if (!empty($wpQuery->query_vars['post__in'])) {
+                    if ( ! empty( $wpQuery->query_vars['post__in'] ) ) {
                         /** @var int[] $postIn */
-                        $postIn = $wpQuery->get('post__in');
+                        $postIn = $wpQuery->get( 'post__in' );
 
-                        shuffle($postIn);
+                        shuffle( $postIn );
 
-                        $wpQuery->set('post__in', $postIn);
+                        $wpQuery->set( 'post__in', $postIn );
                     }
 
-                    $wpQuery->set('orderby', 'post__in');
+                    $wpQuery->set( 'orderby', 'post__in' );
                 }
             }
         }
@@ -137,19 +141,19 @@ class WPQuery implements AutoloadInterface {
     private function invalidateFoundPostsCache(): void {
         $globalInvalidateTime = $this->getInvalidateTime();
 
-        if (empty($globalInvalidateTime)) {
+        if ( empty( $globalInvalidateTime ) ) {
             return;
         }
 
         $timeFoundPosts = $this->getTimeFoundPosts();
 
-        if (empty($timeFoundPosts)) {
+        if ( empty( $timeFoundPosts ) ) {
             return;
         }
 
-        if ($timeFoundPosts < $globalInvalidateTime) {
-            wp_cache_delete($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
-            wp_cache_delete($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
+        if ( $timeFoundPosts < $globalInvalidateTime ) {
+            wp_cache_delete( $this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP );
+            wp_cache_delete( $this->generateFoundPostCacheKey( true ), Cache::QUERY_CACHE_GROUP );
         }
     }
 
@@ -158,9 +162,9 @@ class WPQuery implements AutoloadInterface {
      */
     private function getInvalidateTime() {
         /** @var false|int $time */
-        $time = wp_cache_get(self::INVALIDATE_TIME_KEY, Cache::QUERY_CACHE_GROUP);
+        $time = wp_cache_get( self::INVALIDATE_TIME_KEY, Cache::QUERY_CACHE_GROUP );
 
-        if (!$time) {
+        if ( ! $time ) {
             return false;
         }
 
@@ -172,16 +176,16 @@ class WPQuery implements AutoloadInterface {
      */
     private function getTimeFoundPosts() {
         /** @var false|int $time */
-        $time = wp_cache_get($this->generateFoundPostCacheKey(true), Cache::QUERY_CACHE_GROUP);
+        $time = wp_cache_get( $this->generateFoundPostCacheKey( true ), Cache::QUERY_CACHE_GROUP );
 
-        if (!$time) {
+        if ( ! $time ) {
             return false;
         }
 
         return $time;
     }
 
-    private function generateFoundPostCacheKey(bool $addTime = false): string {
+    private function generateFoundPostCacheKey( bool $addTime = false ): string {
         return sprintf(
             '%s%s-%s',
             $addTime ? 'time-' : '',
@@ -190,18 +194,15 @@ class WPQuery implements AutoloadInterface {
         );
     }
 
-    /**
-     * @return mixed
-     */
-    private function getFoundPostsCache() {
-        return wp_cache_get($this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP);
+    private function getFoundPostsCache(): mixed {
+        return wp_cache_get( $this->generateFoundPostCacheKey(), Cache::QUERY_CACHE_GROUP );
     }
 
     /**
      * @param int[] $postIds
      */
-    private function setFoundPostsCache(array $postIds): void {
-        wp_cache_set($this->generateFoundPostCacheKey(), $postIds, Cache::QUERY_CACHE_GROUP);
-        wp_cache_set($this->generateFoundPostCacheKey(true), time(), Cache::QUERY_CACHE_GROUP);
+    private function setFoundPostsCache( array $postIds ): void {
+        wp_cache_set( $this->generateFoundPostCacheKey(), $postIds, Cache::QUERY_CACHE_GROUP );
+        wp_cache_set( $this->generateFoundPostCacheKey( true ), time(), Cache::QUERY_CACHE_GROUP );
     }
 }

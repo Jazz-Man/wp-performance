@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.x-dev@">
+<files psalm-version="5.13.1@086b94371304750d1c673315321a55d15fc59015">
+  <file src="src/Optimization/CleanUp.php">
+    <MixedArgument>
+      <code><![CDATA[$args['supports']]]></code>
+    </MixedArgument>
+  </file>
   <file src="src/Optimization/Media.php">
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$meta['sizes']</code>
-    </MixedArgumentTypeCoercion>
-    <MixedReturnTypeCoercion occurrences="2">
+    <MixedReturnTypeCoercion>
       <code>$months</code>
+      <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
+  </file>
+  <file src="src/Optimization/Update.php">
+    <InvalidReturnStatement>
+      <code><![CDATA[match ( $curentAction ) {
+            'pre_site_transient_update_themes' => self::preSiteTransientUpdateThemes(),
+            'pre_site_transient_update_core' => (object) [
+                'last_checked' => time(),
+                'updates' => [],
+                'version_checked' => $wp_version,
+            ],
+            'pre_site_transient_update_plugins' => self::preSiteTransientUpdatePlugins(),
+            default => $transient,
+        }]]></code>
+    </InvalidReturnStatement>
+    <InvalidReturnType>
+      <code><![CDATA[bool|object{last_checked:int, updates:array<never, never>, version_checked:string, checked:array<string, string>}]]></code>
+    </InvalidReturnType>
+  </file>
+  <file src="src/Utils/AttachmentData.php">
+    <DocblockTypeContradiction>
+      <code>\is_array( $attachmentSize )</code>
+    </DocblockTypeContradiction>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(int) $attachmentSize['height']]]></code>
+      <code><![CDATA[(int) $attachmentSize['width']]]></code>
+      <code><![CDATA[(int) $attachmentSize['width']]]></code>
+      <code><![CDATA[(int) $attachmentSize['width']]]></code>
+      <code><![CDATA[(string) $attachmentSize['file']]]></code>
+    </RedundantCastGivenDocblockType>
   </file>
 </files>

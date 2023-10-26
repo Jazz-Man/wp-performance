@@ -45,4 +45,3 @@ Temporary Items
 /.php[_|-]cs*.cache
 /cache/
 !.github/
-phpstan.neon
