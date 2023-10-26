@@ -13,29 +13,20 @@
   </file>
   <file src="src/Optimization/Update.php">
     <InvalidReturnStatement>
-      <code>$availableLanguages</code>
+      <code><![CDATA[match ( $curentAction ) {
+            'pre_site_transient_update_themes' => self::preSiteTransientUpdateThemes(),
+            'pre_site_transient_update_core' => (object) [
+                'last_checked' => time(),
+                'updates' => [],
+                'version_checked' => $wp_version,
+            ],
+            'pre_site_transient_update_plugins' => self::preSiteTransientUpdatePlugins(),
+            default => $transient,
+        }]]></code>
     </InvalidReturnStatement>
     <InvalidReturnType>
-      <code><![CDATA[array<string, array{language: string, iso: array{0: string}|string, version: string, updated: string, strings: array{continue: string}|string, package: string}>]]></code>
+      <code><![CDATA[bool|object{last_checked:int, updates:array<never, never>, version_checked:string, checked:array<string, string>}]]></code>
     </InvalidReturnType>
-    <LessSpecificReturnStatement>
-      <code><![CDATA[(object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-            'checked' => $data,
-        ]]]></code>
-      <code><![CDATA[(object) [
-            'last_checked' => time(),
-            'updates' => [],
-            'version_checked' => $wp_version,
-            'checked' => $data,
-        ]]]></code>
-    </LessSpecificReturnStatement>
-    <MoreSpecificReturnType>
-      <code>stdClass</code>
-      <code>stdClass</code>
-    </MoreSpecificReturnType>
   </file>
   <file src="src/Utils/AttachmentData.php">
     <DocblockTypeContradiction>
