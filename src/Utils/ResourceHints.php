@@ -124,14 +124,12 @@ final class ResourceHints implements AutoloadInterface {
                     continue;
                 }
 
-                $hintUrl = app_make_link_relative( $hintUrl );
-
                 if ( isset( $uniqueUrls[ $hintUrl ] ) ) {
                     continue;
                 }
 
-                $atts['rel'] = $relationType;
                 $atts['href'] = $hintUrl;
+                $atts['rel'] = $relationType;
 
                 $uniqueUrls[ $hintUrl ] = $atts;
             }
