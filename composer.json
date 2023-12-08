@@ -29,7 +29,7 @@
         "jazzman/wp-db-pdo": "^0.1.5"
     },
     "require-dev": {
-        "jazzman/php-cs-fixer-rules": "^0.2.0",
+        "jazzman/php-cs-fixer-rules": "^0.2.1",
         "jetbrains/phpstorm-attributes": "@dev",
         "php-stubs/wordpress-stubs": "^6.3",
         "phpstan/extension-installer": "^1.3",
