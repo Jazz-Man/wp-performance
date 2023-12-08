@@ -155,6 +155,7 @@ final class TermCount implements AutoloadInterface {
      * @param string $transitionType transition type (increment or decrement)
      */
     private function handleTermRelationshipChange( int $objectId, array $termTaxIds, string $taxonomy, string $transitionType ): void {
+        /** @var WP_Post|null $wpPost */
         $wpPost = get_post( $objectId );
 
         if ( ! $wpPost || ! is_object_in_taxonomy( $wpPost->post_type, $taxonomy ) ) {
@@ -200,7 +201,7 @@ final class TermCount implements AutoloadInterface {
         }
 
         // Respect if a taxonomy has a callback override.
-        if ( ! empty( $taxonomyObj->update_count_callback ) ) {
+        if ( isset( $taxonomyObj->update_count_callback ) && \is_callable( $taxonomyObj->update_count_callback ) ) {
             \call_user_func( $taxonomyObj->update_count_callback, $termTaxIds, $taxonomyObj );
         }
 

@@ -274,7 +274,6 @@ final class AttachmentData {
             foreach ( $this->attachmentSizes as $attachmentSize ) {
                 $isSrc = false;
 
-                /** @var array<string,int|string>|null $image */
                 if ( ! \is_array( $attachmentSize ) ) {
                     continue;
                 }

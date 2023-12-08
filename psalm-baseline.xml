@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.13.1@086b94371304750d1c673315321a55d15fc59015">
+<files psalm-version="5.15.0@5c774aca4746caf3d239d9c8cadb9f882ca29352">
   <file src="src/Optimization/CleanUp.php">
     <MixedArgument>
       <code><![CDATA[$args['supports']]]></code>
@@ -11,22 +11,11 @@
       <code>stdClass[]</code>
     </MixedReturnTypeCoercion>
   </file>
-  <file src="src/Optimization/Update.php">
-    <InvalidReturnStatement>
-      <code><![CDATA[match ( $curentAction ) {
-            'pre_site_transient_update_themes' => self::preSiteTransientUpdateThemes(),
-            'pre_site_transient_update_core' => (object) [
-                'last_checked' => time(),
-                'updates' => [],
-                'version_checked' => $wp_version,
-            ],
-            'pre_site_transient_update_plugins' => self::preSiteTransientUpdatePlugins(),
-            default => $transient,
-        }]]></code>
-    </InvalidReturnStatement>
-    <InvalidReturnType>
-      <code><![CDATA[bool|object{last_checked:int, updates:array<never, never>, version_checked:string, checked:array<string, string>}]]></code>
-    </InvalidReturnType>
+  <file src="src/Optimization/TermCount.php">
+    <RedundantConditionGivenDocblockType>
+      <code><![CDATA[isset( $taxonomyObj->update_count_callback )]]></code>
+      <code><![CDATA[isset( $taxonomyObj->update_count_callback ) && \is_callable( $taxonomyObj->update_count_callback )]]></code>
+    </RedundantConditionGivenDocblockType>
   </file>
   <file src="src/Utils/AttachmentData.php">
     <DocblockTypeContradiction>
