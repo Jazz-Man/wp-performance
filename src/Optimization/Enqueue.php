@@ -87,7 +87,7 @@ final class Enqueue implements AutoloadInterface {
             $scriptSrc = remove_query_arg( 'ver', $scriptSrc );
         }
 
-        return app_make_link_relative( $scriptSrc );
+        return $scriptSrc;
     }
 
     public static function jqueryFromCdn(): void {
