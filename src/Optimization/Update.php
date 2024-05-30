@@ -3,7 +3,6 @@
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use stdClass;
 use WP_Theme;
 
 /**
@@ -288,7 +287,7 @@ final class Update implements AutoloadInterface {
      *
      * @return bool|object the modified output with our information
      *
-     * @psalm-return bool|object{last_checked:int, updates:array<never, never>, version_checked:string, checked:array<string, string>}
+     * @psalm-return bool|object
      */
     public static function lastCheckedCore( bool $transient = false ): bool|object {
         global $wp_version;
@@ -318,7 +317,7 @@ final class Update implements AutoloadInterface {
      *
      * @psalm-return array<string, mixed>|object{last_checked:int, translations:array<never, never>, response:array<never, never>, checked:array<string>}
      */
-    public static function removePluginUpdates( array|object|null $current ): array|object|null {
+    public static function removePluginUpdates( array|object|null $current ): array|object {
         if ( ! $current ) {
             $current = [
                 'last_checked' => time(),
@@ -342,7 +341,7 @@ final class Update implements AutoloadInterface {
     /**
      * Returns installed languages instead of all possibly available languages.
      *
-     * @return array<string, array{language: string, iso: list<string>, version: string, updated: string, strings: array<string,string>, package: string, english_name: string, native_name:string}>
+     * @return array<string, non-empty-array<'english_name'|'iso'|'language'|'native_name'|'package'|'strings'|'updated'|'version', array{continue: string}|array{string}|string>>
      */
     public static function availableTranslations(): array {
         /**
@@ -383,7 +382,7 @@ final class Update implements AutoloadInterface {
         return $availableLanguages;
     }
 
-    private static function preSiteTransientUpdateThemes(): stdClass {
+    private static function preSiteTransientUpdateThemes(): object {
         global $wp_version;
 
         /** @var WP_Theme[]|null $themes */
@@ -393,10 +392,11 @@ final class Update implements AutoloadInterface {
             $themes = wp_get_themes();
         }
 
-        $update = new stdClass();
-        $update->last_checked = time();
-        $update->updates = [];
-        $update->version_checked = $wp_version;
+        $update = [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+        ];
 
         /** @var array<string,string> $data */
         $data = [];
@@ -406,12 +406,12 @@ final class Update implements AutoloadInterface {
             $data[ $theme->get_stylesheet() ] = $theme->get( 'Version' );
         }
 
-        $update->checked = $data;
+        $update['checked'] = $data;
 
-        return $update;
+        return (object) $update;
     }
 
-    private static function preSiteTransientUpdatePlugins(): stdClass {
+    private static function preSiteTransientUpdatePlugins(): object {
         global $wp_version;
 
         /** @var array<string,array<string,string>>|null $pluginsList */
@@ -427,10 +427,11 @@ final class Update implements AutoloadInterface {
             $pluginsList = get_plugins();
         }
 
-        $update = new stdClass();
-        $update->last_checked = time();
-        $update->updates = [];
-        $update->version_checked = $wp_version;
+        $update = [
+            'last_checked' => time(),
+            'updates' => [],
+            'version_checked' => $wp_version,
+        ];
 
         /**
          * Set a blank data array.
@@ -446,9 +447,9 @@ final class Update implements AutoloadInterface {
             }
         }
 
-        $update->checked = $data;
+        $update['checked'] = $data;
 
-        return $update;
+        return (object) $update;
     }
 
     /**

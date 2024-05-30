@@ -83,7 +83,7 @@ final class Enqueue implements AutoloadInterface {
                     'ver' => filemtime( (string) $timestamp ),
                 ], $scriptSrc );
             }
-        } elseif ( strpos( $scriptSrc, '?ver=' ) ) {
+        } elseif ( str_contains( $scriptSrc, '?ver=' ) ) {
             $scriptSrc = remove_query_arg( 'ver', $scriptSrc );
         }
 
@@ -148,7 +148,7 @@ final class Enqueue implements AutoloadInterface {
             wp_dequeue_script( $jsLib->handle );
             wp_deregister_script( $jsLib->handle );
 
-            if ( ! empty( $newUrl ) ) {
+            if ( null !== $newUrl ) {
                 /** @var callable $function */
                 $function = $enqueue ? 'wp_enqueue_script' : 'wp_register_script';
 
@@ -166,7 +166,7 @@ final class Enqueue implements AutoloadInterface {
             wp_dequeue_style( $cssLib->handle );
             wp_deregister_style( $cssLib->handle );
 
-            if ( ! empty( $newUrl ) ) {
+            if ( null !== $newUrl ) {
                 /** @var callable $function */
                 $function = $enqueue ? 'wp_enqueue_style' : 'wp_register_style';
                 $function( $cssLib->handle, $newUrl, $cssLib->deps, $cssLib->ver );

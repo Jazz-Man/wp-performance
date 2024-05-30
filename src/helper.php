@@ -150,19 +150,36 @@ if ( ! function_exists( 'app_attachment_url_to_postid' ) ) {
      * @return false|int
      */
     function app_attachment_url_to_postid( string $url ): bool|int {
-        if ( ! app_is_current_host( $url ) ) {
+        global $wpdb;
+
+        if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
             return false;
         }
 
-        global $wpdb;
+        $filetype = wp_check_filetype( $url );
 
-        $uploadDir = wp_upload_dir();
+        if ( empty( $filetype['ext'] ) ) {
+            return false;
+        }
 
-        $siteUrl = (object) parse_url( $uploadDir['url'] );
-        $imagePath = (object) parse_url( $url );
+        $relative_url = wp_make_link_relative( $url );
 
-        if ( (string) $imagePath->scheme !== (string) $siteUrl->scheme ) {
-            $url = str_replace( (string) $imagePath->scheme, (string) $siteUrl->scheme, $url );
+        $old_basename = basename( $url );
+
+        /**
+         * removed image size from name.
+         */
+        $new_basename = (string) preg_replace( "/-\\d+x\\d+\\.{$filetype['ext']}/", ".{$filetype['ext']}", $old_basename );
+
+        if ( empty( $new_basename ) ) {
+            return false;
+        }
+
+        
+        $guid_url = str_replace( $old_basename, $new_basename, $relative_url );
+
+        if ( empty( $guid_url ) ) {
+            return false;
         }
 
         try {
@@ -180,11 +197,12 @@ if ( ! function_exists( 'app_attachment_url_to_postid' ) ) {
             );
 
             $pdoStatement->execute( [
-                'guid' => esc_url_raw( $url ),
+                'guid' => esc_url_raw( home_url( $guid_url ) ),
             ] );
 
             return (int) $pdoStatement->fetchColumn();
-        } catch ( Exception ) {
+
+        } catch ( Exception $exception ) {
             return false;
         }
     }

@@ -6,17 +6,17 @@ parameters:
 			path: src/Optimization/CleanUp.php
 
 		-
-			message: "#^Property WP_Taxonomy\\:\\:\\$update_count_callback \\(callable\\) in empty\\(\\) is not falsy\\.$#"
+			message: "#^Property WP_Taxonomy\\:\\:\\$update_count_callback \\(callable\\) in isset\\(\\) is not nullable\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Update\\:\\:availableTranslations\\(\\) should return array\\<string, array\\{language\\: string, iso\\: list\\<string\\>, version\\: string, updated\\: string, strings\\: array\\<string, string\\>, package\\: string, english_name\\: string, native_name\\: string\\}\\> but returns array\\<string, non\\-empty\\-array\\<'english_name'\\|'iso'\\|'language'\\|'native_name'\\|'package'\\|'strings'\\|'updated'\\|'version', array\\{continue\\: string\\}\\|array\\{string\\}\\|string\\>\\>\\.$#"
+			message: "#^Right side of && is always true\\.$#"
 			count: 1
-			path: src/Optimization/Update.php
+			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Method JazzMan\\\\Performance\\\\Optimization\\\\Update\\:\\:lastCheckedCore\\(\\) should return bool\\|object\\{last_checked\\: int, updates\\: array, version_checked\\: string, checked\\: array\\<string, string\\>\\} but returns bool\\|stdClass\\.$#"
+			message: "#^Filter callback return statement is missing\\.$#"
 			count: 1
 			path: src/Optimization/Update.php
 
@@ -30,8 +30,5 @@ parameters:
 			count: 1
 			path: src/Utils/AttachmentData.php
 
-		-
-			message: "#^Variable \\$image in PHPDoc tag @var does not exist\\.$#"
-			count: 1
-			path: src/Utils/AttachmentData.php
+
 

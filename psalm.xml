@@ -8,6 +8,7 @@
        phpVersion="8.2"
        autoloader="vendor/szepeviktor/phpstan-wordpress/bootstrap.php"
        findUnusedBaselineEntry="true"
+       findUnusedCode="false"
 >
     <projectFiles>
         <directory name="src"/>
@@ -62,7 +63,4 @@
         <var name="wp_version" type="string"/>
         <var name="ABSPATH" type="string"/>
     </globals>
-    <enableExtensions>
-        <extension name="pdo"/>
-    </enableExtensions>
 </psalm>
