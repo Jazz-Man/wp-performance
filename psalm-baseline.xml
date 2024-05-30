@@ -1,25 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.15.0@5c774aca4746caf3d239d9c8cadb9f882ca29352">
-  <file src="src/Optimization/CleanUp.php">
-    <MixedArgument>
-      <code><![CDATA[$args['supports']]]></code>
-    </MixedArgument>
+<files psalm-version="5.24.0@462c80e31c34e58cc4f750c656be3927e80e550e">
+  <file src="src/Optimization/Enqueue.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[empty( $file )]]></code>
+      <code><![CDATA[empty( $rootDir )]]></code>
+    </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Optimization/Media.php">
     <MixedReturnTypeCoercion>
-      <code>$months</code>
-      <code>stdClass[]</code>
+      <code><![CDATA[$months]]></code>
+      <code><![CDATA[stdClass[]]]></code>
     </MixedReturnTypeCoercion>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! self::getXmlProperty( 'viewBox', $attr )]]></code>
+      <code><![CDATA[$height]]></code>
+      <code><![CDATA[$width]]></code>
+      <code><![CDATA[empty( $data['ext'] )]]></code>
+      <code><![CDATA[empty( $file )]]></code>
+      <code><![CDATA[empty( $imageAlt )]]></code>
+      <code><![CDATA[empty( $mediaMonths )]]></code>
+      <code><![CDATA[empty( $postarr['file'] )]]></code>
+      <code><![CDATA[empty( $size['height'] )]]></code>
+      <code><![CDATA[empty( $size['width'] )]]></code>
+      <code><![CDATA[empty( $sizes )]]></code>
+      <code><![CDATA[empty( $url['extension'] )]]></code>
+      <code><![CDATA[empty( $value )]]></code>
+      <code><![CDATA[self::getXmlProperty( $property, $object )]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="src/Optimization/PostGuid.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[empty( $guid )]]></code>
+    </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Optimization/TermCount.php">
     <RedundantConditionGivenDocblockType>
       <code><![CDATA[isset( $taxonomyObj->update_count_callback )]]></code>
       <code><![CDATA[isset( $taxonomyObj->update_count_callback ) && \is_callable( $taxonomyObj->update_count_callback )]]></code>
     </RedundantConditionGivenDocblockType>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $transitionType]]></code>
+      <code><![CDATA[empty( $termIds )]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="src/Optimization/Update.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $current]]></code>
+      <code><![CDATA[empty( $plugin['Version'] )]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="src/Optimization/WPQuery.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $time]]></code>
+      <code><![CDATA[! $time]]></code>
+      <code><![CDATA[$this->queryHash]]></code>
+      <code><![CDATA[empty( $clauses['limits'] )]]></code>
+      <code><![CDATA[empty( $globalInvalidateTime )]]></code>
+      <code><![CDATA[empty( $postIds )]]></code>
+      <code><![CDATA[empty( $postIds )]]></code>
+      <code><![CDATA[empty( $postIds )]]></code>
+      <code><![CDATA[empty( $timeFoundPosts )]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="src/Security/Sanitize.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[empty( $email )]]></code>
+      <code><![CDATA[empty( $fileInfo['dirname'] )]]></code>
+      <code><![CDATA[empty( $fileInfo['extension'] )]]></code>
+    </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Utils/AttachmentData.php">
     <DocblockTypeContradiction>
-      <code>\is_array( $attachmentSize )</code>
+      <code><![CDATA[\is_array( $attachmentSize )]]></code>
     </DocblockTypeContradiction>
     <RedundantCastGivenDocblockType>
       <code><![CDATA[(int) $attachmentSize['height']]]></code>
@@ -28,5 +80,39 @@
       <code><![CDATA[(int) $attachmentSize['width']]]></code>
       <code><![CDATA[(string) $attachmentSize['file']]]></code>
     </RedundantCastGivenDocblockType>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! strpos( (string) $attachmentSize['file'], $imageEditHash[0] )]]></code>
+      <code><![CDATA[empty( $attachment['imageAlt'] )]]></code>
+      <code><![CDATA[empty( $attachment['metadata'] )]]></code>
+      <code><![CDATA[empty( $data['file'] )]]></code>
+      <code><![CDATA[empty( $data['height'] )]]></code>
+      <code><![CDATA[empty( $data['sizes'] )]]></code>
+      <code><![CDATA[empty( $data['width'] )]]></code>
+      <code><![CDATA[empty( $sizeArray['width'] )]]></code>
+      <code><![CDATA[empty( $sizeData['dirname'] )]]></code>
+      <code><![CDATA[empty( $sizeData['dirname'] )]]></code>
+      <code><![CDATA[empty( $sizeData['image_baseurl'] )]]></code>
+      <code><![CDATA[empty( $sizeData['image_baseurl'] )]]></code>
+      <code><![CDATA[empty( $sources )]]></code>
+      <code><![CDATA[empty( $this->attachmentSizes )]]></code>
+      <code><![CDATA[empty( $this->attachmentSizes )]]></code>
+      <code><![CDATA[empty( $this->imgFile )]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="src/helper.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $attributes['loading']]]></code>
+      <code><![CDATA[empty( $alt )]]></code>
+      <code><![CDATA[empty( $attributes['sizes'] )]]></code>
+      <code><![CDATA[empty( $attributes['srcset'] )]]></code>
+      <code><![CDATA[empty( $filetype['ext'] )]]></code>
+      <code><![CDATA[empty( $image['alt'] )]]></code>
+      <code><![CDATA[empty( $image['height'] )]]></code>
+      <code><![CDATA[empty( $image['sizes'] )]]></code>
+      <code><![CDATA[empty( $image['srcset'] )]]></code>
+      <code><![CDATA[empty( $image['url'] )]]></code>
+      <code><![CDATA[empty( $image['width'] )]]></code>
+      <code><![CDATA[empty( $imgAlt )]]></code>
+    </RiskyTruthyFalsyComparison>
   </file>
 </files>

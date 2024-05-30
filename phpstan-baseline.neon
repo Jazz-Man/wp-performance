@@ -16,6 +16,11 @@ parameters:
 			path: src/Optimization/TermCount.php
 
 		-
+			message: "#^Filter callback return statement is missing\\.$#"
+			count: 1
+			path: src/Optimization/Update.php
+
+		-
 			message: "#^PHPDoc tag @var with type array\\<int\\> is not subtype of native type mixed\\.$#"
 			count: 2
 			path: src/Optimization/WPQuery.php
@@ -24,4 +29,6 @@ parameters:
 			message: "#^Call to function is_array\\(\\) with array\\{file\\: string, width\\: int, height\\: int, mime\\-type\\: string\\} will always evaluate to true\\.$#"
 			count: 1
 			path: src/Utils/AttachmentData.php
+
+
 
