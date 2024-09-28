@@ -182,7 +182,7 @@ final class Media implements AutoloadInterface {
                       month( post_date ) as month
                     from {$wpdb->posts}
                     where post_type = 'attachment'
-                    order by post_date desc
+                    order by year desc
                     SQL
             );
 
