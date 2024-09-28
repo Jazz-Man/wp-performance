@@ -317,7 +317,7 @@ final class Update implements AutoloadInterface {
      *
      * @psalm-return array<string, mixed>|object{last_checked:int, translations:array<never, never>, response:array<never, never>, checked:array<string>}
      */
-    public static function removePluginUpdates( array|object|null $current ): array|object {
+    public static function removePluginUpdates( mixed $current ): array|object {
         if ( ! $current ) {
             $current = [
                 'last_checked' => time(),
