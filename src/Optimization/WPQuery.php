@@ -14,8 +14,8 @@ use WP_Query;
 final class WPQuery implements AutoloadInterface {
 
     /**
-         * @var string
-         */
+     * @var string
+     */
     public const INVALIDATE_TIME_KEY = 'invalidate-time';
 
     /**
@@ -59,7 +59,7 @@ final class WPQuery implements AutoloadInterface {
 
                 /** @noinspection SqlConstantCondition */
                 $pdoStatement = $pdo->prepare(
-                    sprintf(
+                    \sprintf(
                         'select %s.ID from %s %s where 1=1 %s group by %s.ID order by %s.post_date',
                         $wpdb->posts,
                         $wpdb->posts,
@@ -160,7 +160,7 @@ final class WPQuery implements AutoloadInterface {
     /**
      * @return false|int
      */
-    private function getInvalidateTime() {
+    private function getInvalidateTime(): bool|int {
         /** @var false|int $time */
         $time = wp_cache_get( self::INVALIDATE_TIME_KEY, Cache::QUERY_CACHE_GROUP );
 
@@ -174,7 +174,7 @@ final class WPQuery implements AutoloadInterface {
     /**
      * @return false|int
      */
-    private function getTimeFoundPosts() {
+    private function getTimeFoundPosts(): bool|int {
         /** @var false|int $time */
         $time = wp_cache_get( $this->generateFoundPostCacheKey( true ), Cache::QUERY_CACHE_GROUP );
 
@@ -186,7 +186,7 @@ final class WPQuery implements AutoloadInterface {
     }
 
     private function generateFoundPostCacheKey( bool $addTime = false ): string {
-        return sprintf(
+        return \sprintf(
             '%s%s-%s',
             $addTime ? 'time-' : '',
             self::FOUND_POSTS_KEY,

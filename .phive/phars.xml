@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phive xmlns="https://phar.io/phive">
+  <phar name="phpmd" version="^2.15.0" installed="2.15.0" location="../../home/codespace/.local/bin/phpmd" copy="false"/>
+  <phar name="phpstan" version="^1.12.5" installed="1.12.5" location="../../home/codespace/.local/bin/phpstan" copy="false"/>
+  <phar name="psalm" version="^5.26.1" installed="5.26.1" location="../../home/codespace/.local/bin/psalm" copy="false"/>
+  <phar name="php-cs-fixer" version="^3.64.0" installed="3.64.0" location="../../home/codespace/.local/bin/php-cs-fixer" copy="false"/>
+</phive>

@@ -175,7 +175,6 @@ if ( ! function_exists( 'app_attachment_url_to_postid' ) ) {
             return false;
         }
 
-        
         $guid_url = str_replace( $old_basename, $new_basename, $relative_url );
 
         if ( empty( $guid_url ) ) {

@@ -18,6 +18,6 @@ final class Cache implements AutoloadInterface {
     }
 
     public static function resetAttachmentCache( int $postId ): void {
-        wp_cache_delete( sprintf( 'attachment_image_%d', $postId ), self::CACHE_GROUP );
+        wp_cache_delete( \sprintf( 'attachment_image_%d', $postId ), self::CACHE_GROUP );
     }
 }
