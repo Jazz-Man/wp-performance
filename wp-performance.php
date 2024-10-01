@@ -23,14 +23,12 @@ use JazzMan\Performance\Optimization\Update;
 use JazzMan\Performance\Optimization\WPQuery;
 use JazzMan\Performance\Security\Sanitize;
 use JazzMan\Performance\Utils\Cache;
-use JazzMan\Performance\Utils\ResourceHints;
 
-if (function_exists('app_autoload_classes')) {
+if ( function_exists( 'app_autoload_classes' ) ) {
     app_autoload_classes(
         [
             Cache::class,
             PostGuid::class,
-            ResourceHints::class,
             Update::class,
             Media::class,
             WPQuery::class,
