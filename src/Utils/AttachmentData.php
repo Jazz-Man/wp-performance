@@ -36,7 +36,7 @@ final class AttachmentData {
     private readonly string $fullJpegUrl;
 
     /**
-     * @var null|array<string,array{file: string, width: int, height: int, mime-type: string}>
+     * @var array<string,array{file: string, width: int, height: int, mime-type: string}>|null
      */
     private ?array $attachmentSizes = null;
 
@@ -63,7 +63,7 @@ final class AttachmentData {
     }
 
     /**
-     * @return array<string,boolean|int|string>
+     * @return array<string,bool|int|string>
      */
     public function getUrl( string $attachmentSize = self::SIZE_FULL ): array {
         $sizeArray = $this->getSizeArray( $attachmentSize, false );
@@ -104,7 +104,7 @@ final class AttachmentData {
     private function getAttachmentFromDb( int|string $attachmentId = 0 ): array {
         global $wpdb;
 
-        $cacheKey = sprintf( 'attachment_image_%d', (int) $attachmentId );
+        $cacheKey = \sprintf( 'attachment_image_%d', (int) $attachmentId );
 
         /** @var array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string}|false $attachment */
         $attachment = wp_cache_get( $cacheKey, Cache::CACHE_GROUP );
@@ -148,7 +148,7 @@ final class AttachmentData {
         }
 
         if ( empty( $attachment ) ) {
-            throw new InvalidArgumentException( sprintf( 'Invalid image ID, "%d" given.', $attachmentId ) );
+            throw new InvalidArgumentException( \sprintf( 'Invalid image ID, "%d" given.', $attachmentId ) );
         }
 
         /* @var array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string} $attachment */
@@ -171,7 +171,7 @@ final class AttachmentData {
     }
 
     /**
-     * @return array<string,boolean|int|string>
+     * @return array<string,bool|int|string>
      */
     private function getSizeArray( string $attachmentSize = self::SIZE_FULL, bool $addDirData = true ): array {
         /** @var array<string,int|string> $sizeArray */
@@ -189,7 +189,7 @@ final class AttachmentData {
             $sizeArray['height'] = $sizes['height'];
         }
 
-        $sizeArray['sizes'] = empty( $sizeArray['width'] ) ? false : sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width'] );
+        $sizeArray['sizes'] = empty( $sizeArray['width'] ) ? false : \sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $sizeArray['width'] );
 
         if ( $addDirData && ! empty( $this->imgFile ) ) {
             $dirname = _wp_get_attachment_relative_path( $this->imgFile );
@@ -235,14 +235,14 @@ final class AttachmentData {
         $srcset = [];
 
         foreach ( $sources as $source ) {
-            $srcset[] = sprintf( '%s %d%s', $source['url'], $source['value'], $source['descriptor'] );
+            $srcset[] = \sprintf( '%s %d%s', $source['url'], $source['value'], $source['descriptor'] );
         }
 
         return implode( ', ', $srcset );
     }
 
     /**
-     * @param array<string,boolean|int|string> $sizeData
+     * @param array<string,bool|int|string> $sizeData
      *
      * @return array<array-key, array{url: string, descriptor: string, value: int}>|false
      */

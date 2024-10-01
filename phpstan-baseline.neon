@@ -6,6 +6,11 @@ parameters:
 			path: src/Optimization/CleanUp.php
 
 		-
+			message: "#^Constant WPINC not found\\.$#"
+			count: 1
+			path: src/Optimization/Enqueue.php
+
+		-
 			message: "#^Property WP_Taxonomy\\:\\:\\$update_count_callback \\(callable\\) in isset\\(\\) is not nullable\\.$#"
 			count: 1
 			path: src/Optimization/TermCount.php
@@ -16,7 +21,7 @@ parameters:
 			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Filter callback return statement is missing\\.$#"
+			message: "#^Path in require_once\\(\\) \"\\./wp\\-admin/includes/plugin\\.php\" is not a file or it does not exist\\.$#"
 			count: 1
 			path: src/Optimization/Update.php
 
@@ -26,7 +31,22 @@ parameters:
 			path: src/Optimization/WPQuery.php
 
 		-
+			message: "#^Parameter \\#1 \\$maybeint of function absint expects array\\|bool\\|float\\|int\\|resource\\|string\\|null, mixed given\\.$#"
+			count: 2
+			path: src/Optimization/WPQuery.php
+
+		-
 			message: "#^Call to function is_array\\(\\) with array\\{file\\: string, width\\: int, height\\: int, mime\\-type\\: string\\} will always evaluate to true\\.$#"
+			count: 1
+			path: src/Utils/AttachmentData.php
+
+		-
+			message: "#^Property JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:\\$attachmentHeight \\(int\\|null\\) is never assigned null so it can be removed from the property type\\.$#"
+			count: 1
+			path: src/Utils/AttachmentData.php
+
+		-
+			message: "#^Property JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:\\$attachmentWidth \\(int\\|null\\) is never assigned null so it can be removed from the property type\\.$#"
 			count: 1
 			path: src/Utils/AttachmentData.php
 
