@@ -63,7 +63,7 @@ final class LastPostModified implements AutoloadInterface {
     }
 
     private static function getLockName( string $postType ): string {
-        return sprintf( '%s_%s_lock', self::OPTION_PREFIX, $postType );
+        return \sprintf( '%s_%s_lock', self::OPTION_PREFIX, $postType );
     }
 
     private static function bumpLastPostModified( WP_Post $wpPost ): void {
@@ -78,7 +78,7 @@ final class LastPostModified implements AutoloadInterface {
     }
 
     private static function getOptionName( string $timezone, string $postType ): string {
-        return sprintf( '%s_%s_%s', self::OPTION_PREFIX, strtolower( $timezone ), $postType );
+        return \sprintf( '%s_%s_%s', self::OPTION_PREFIX, strtolower( $timezone ), $postType );
     }
 
     private static function getLastPostModified( string $timezone, string $postType ): mixed {

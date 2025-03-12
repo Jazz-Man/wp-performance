@@ -19,7 +19,7 @@ final class Update implements AutoloadInterface {
 
         // Remove bulk action for updating themes/plugins.
         foreach ( [ 'plugins', 'themes', 'plugins-network', 'themes-network' ] as $bulkAction ) {
-            add_filter( sprintf( 'bulk_actions-%s', $bulkAction ), self::removeBulkActions( ... ) );
+            add_filter( \sprintf( 'bulk_actions-%s', $bulkAction ), self::removeBulkActions( ... ) );
         }
 
         // Admin UI items.
@@ -58,7 +58,7 @@ final class Update implements AutoloadInterface {
         $siteTransients = [ 'themes', 'plugins', 'core' ];
 
         foreach ( $siteTransients as $siteTransient ) {
-            add_filter( sprintf( 'pre_site_transient_update_%s', $siteTransient ), self::lastCheckedCore( ... ) );
+            add_filter( \sprintf( 'pre_site_transient_update_%s', $siteTransient ), self::lastCheckedCore( ... ) );
         }
 
         add_filter( 'site_transient_update_plugins', self::removePluginUpdates( ... ) );
@@ -369,7 +369,7 @@ final class Update implements AutoloadInterface {
                 'strings' => [
                     'continue' => __( 'Continue' ),
                 ],
-                'package' => sprintf(
+                'package' => \sprintf(
                     'https://downloads.wordpress.org/translation/core/%s/%s.zip',
                     esc_attr( $wp_version ),
                     esc_attr( $language )

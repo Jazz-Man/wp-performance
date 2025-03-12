@@ -14,7 +14,6 @@ final class Enqueue implements AutoloadInterface {
         add_action( 'wp_enqueue_scripts', self::jsToFooter( ... ) );
         add_action( 'wp_enqueue_scripts', self::jqueryFromCdn( ... ) );
         add_filter( 'style_loader_tag', self::addAsyncStyle( ... ), 10, 4 );
-        add_filter( 'script_loader_tag', self::addAsyncScript( ... ), 10, 2 );
 
         if ( ! is_admin() ) {
             add_filter( 'script_loader_src', self::setScriptVersion( ... ), 15, 2 );
@@ -31,34 +30,6 @@ final class Enqueue implements AutoloadInterface {
                 $href,
                 $media
             );
-        }
-
-        return $tag;
-    }
-
-    public static function addAsyncScript( string $tag, string $handle ): string {
-        if ( is_admin() ) {
-            return $tag;
-        }
-
-        $methods = [
-            'async' => ['polyfill.io'],
-            'defer' => ['google-recaptcha'],
-        ];
-
-        foreach ( $methods as $method => $handlers ) {
-            /** @var string[] $validHandlers */
-            $validHandlers = apply_filters( "app_{$method}_scripts_handlers", $handlers );
-
-            if ( empty( $validHandlers ) ) {
-                continue;
-            }
-
-            if ( ! \in_array( $handle, $validHandlers, true ) ) {
-                continue;
-            }
-
-            $tag = str_replace( ' src', " {$method} src", $tag );
         }
 
         return $tag;
@@ -97,57 +68,47 @@ final class Enqueue implements AutoloadInterface {
     public static function jqueryFromCdn(): void {
         $registered = wp_scripts()->registered;
 
+        $suffix = SCRIPT_DEBUG ? '' : '.min';
+
         $jqCore = $registered['jquery-core'];
 
-        $jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1';
-
-        foreach ( array_keys( $registered ) as $handle ) {
-            if ( str_starts_with( (string) $handle, 'jquery-effects-' ) ) {
-                $isCore = 'jquery-effects-core' === $handle;
-
-                $newUrl = \sprintf(
-                    '%s/ui/effect%s.min.js',
-                    $jsdelivrUrl,
-                    $isCore ? '' : str_replace( 'jquery-effects-', '-', (string) $handle )
-                );
-
-                self::deregisterScript( (string) $handle, $newUrl );
-            }
-
-            if ( str_starts_with( (string) $handle, 'jquery-ui-' ) ) {
-                $newUrl = match ( $handle ) {
-                    'jquery-ui-core' => \sprintf( '%s/ui/core.min.js', $jsdelivrUrl ),
-                    'jquery-ui-widget' => \sprintf( '%s/ui/widget.min.js', $jsdelivrUrl ),
-                    default => \sprintf(
-                        '%s/ui/widgets/%s.min.js',
-                        $jsdelivrUrl,
-                        str_replace( 'jquery-ui-', '', (string) $handle )
-                    ),
-                };
-
-                self::deregisterScript( (string) $handle, $newUrl );
-            }
-        }
+        $jqUiCore = $registered['jquery-ui-core'];
+        $jqMigrate = $registered['jquery-migrate'];
 
         $jqVer = trim( (string) $jqCore->ver, '-wp' );
+        $jqUiVer = trim( (string) $jqUiCore->ver, '-wp' );
+        $jqMigrateVer = trim( (string) $jqMigrate->ver, '-wp' );
 
-        self::deregisterScript( $jqCore->handle, \sprintf( 'https://code.jquery.com/jquery-%s.min.js', esc_attr( $jqVer ) ) );
-        self::deregisterScript( 'jquery' );
+        foreach ( $registered as $handle => $dependency ) {
 
-        wp_register_script( 'jquery', false, [$jqCore->handle], $jqVer, true );
-    }
+            if ( empty( $dependency->src ) ) {
+                continue;
+            }
 
-    public static function jsToFooter(): void {
-        remove_action( 'wp_head', 'wp_print_scripts' );
-        remove_action( 'wp_head', 'wp_print_head_scripts', 9 );
-        remove_action( 'wp_head', 'wp_enqueue_scripts', 1 );
+            if ( ! str_contains( $dependency->src, '/'.WPINC.'/' ) ) {
+                continue;
+            }
+
+            $isJqueryUiCore = str_starts_with( (string) $handle, 'jquery-effects-' ) || str_starts_with( (string) $handle, 'jquery-ui-' );
+
+            if ( ! $isJqueryUiCore ) {
+                continue;
+            }
+
+            $dependency->src = false;
+        }
+
+        self::deregisterScript( $jqCore->handle, \sprintf( 'https://cdn.jsdelivr.net/npm/jquery@%s/dist/jquery%s.js', esc_attr( $jqVer ), $suffix ) );
+        self::deregisterScript( $jqMigrate->handle, \sprintf( 'https://cdn.jsdelivr.net/npm/jquery-migrate@%s/dist/jquery-migrate%s.js', esc_attr( $jqMigrateVer ), $suffix ) );
+        self::deregisterScript( $jqUiCore->handle, \sprintf( 'https://cdn.jsdelivr.net/npm/jquery-ui-dist@%s/jquery-ui%s.js', esc_attr( $jqUiVer ), $suffix ) );
+
     }
 
     public static function deregisterScript( string $handle, ?string $newUrl = null, bool $enqueue = false ): void {
         $registered = wp_scripts()->registered;
 
-        if ( ! empty( $registered[$handle] ) ) {
-            $jsLib = $registered[$handle];
+        if ( ! empty( $registered[ $handle ] ) ) {
+            $jsLib = $registered[ $handle ];
 
             wp_dequeue_script( $jsLib->handle );
             wp_deregister_script( $jsLib->handle );
@@ -164,8 +125,8 @@ final class Enqueue implements AutoloadInterface {
     public static function deregisterStyle( string $handle, ?string $newUrl = null, bool $enqueue = false ): void {
         $registered = wp_styles()->registered;
 
-        if ( ! empty( $registered[$handle] ) ) {
-            $cssLib = $registered[$handle];
+        if ( ! empty( $registered[ $handle ] ) ) {
+            $cssLib = $registered[ $handle ];
 
             wp_dequeue_style( $cssLib->handle );
             wp_deregister_style( $cssLib->handle );
@@ -176,6 +137,12 @@ final class Enqueue implements AutoloadInterface {
                 $function( $cssLib->handle, $newUrl, $cssLib->deps, $cssLib->ver );
             }
         }
+    }
+
+    private static function jsToFooter(): void {
+        remove_action( 'wp_head', 'wp_print_scripts' );
+        remove_action( 'wp_head', 'wp_print_head_scripts', 9 );
+        remove_action( 'wp_head', 'wp_enqueue_scripts', 1 );
     }
 
     private static function prepareScriptFilePath( string $scriptSrc ): bool|string {

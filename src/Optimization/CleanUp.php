@@ -85,7 +85,7 @@ final class CleanUp implements AutoloadInterface {
         add_action( 'xmlrpc_call', static function ( string $action ) use ( $disableMethods ): void {
             if ( \in_array( $action, $disableMethods, true ) ) {
                 wp_die(
-                    sprintf( '%s are not supported', $action ),
+                    \sprintf( '%s are not supported', $action ),
                     'Not Allowed!',
                     [ 'response' => 403 ]
                 );

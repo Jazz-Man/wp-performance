@@ -93,7 +93,7 @@ final class Media implements AutoloadInterface {
     public static function setAttachmentTitle( array $data, array $postarr ): array {
         if ( ! empty( $postarr['file'] ) ) {
             $url = pathinfo( $postarr['file'] );
-            $extension = empty( $url['extension'] ) ? '' : sprintf( '.%s', $url['extension'] );
+            $extension = empty( $url['extension'] ) ? '' : \sprintf( '.%s', $url['extension'] );
 
             $title = rtrim( $data['post_title'], $extension );
 
@@ -133,7 +133,7 @@ final class Media implements AutoloadInterface {
         }
 
         // Return the avatar.
-        return sprintf(
+        return \sprintf(
             '<img alt="%1$s" src="%2$s" class="avatar avatar-%3$s photo" height="%3$s" width="%3$s" style="background:#eee;" />',
             esc_attr( $alt ),
             'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
@@ -160,13 +160,11 @@ final class Media implements AutoloadInterface {
     }
 
     /**
-     * @param mixed|null $months
-     *
      * @return stdClass[]
      *
      * @see https://github.com/Automattic/vip-go-mu-plugins-built/blob/master/performance/vip-tweaks.php#L65
      */
-    public static function mediaLibraryMonthsWithFiles( $months = null ): array {
+    public static function mediaLibraryMonthsWithFiles( mixed $months = null ): array {
         global $wpdb;
 
         /** @var false|stdClass[] $months */
@@ -279,7 +277,7 @@ final class Media implements AutoloadInterface {
             return $image;
         }
 
-        /** @var array{file: string, sizes: mixed}|false  $meta
+        /** @var array{file: string, sizes: mixed}|false $meta
          */
         $meta = wp_get_attachment_metadata( (int) $attachmentId );
 
@@ -288,7 +286,7 @@ final class Media implements AutoloadInterface {
         }
 
         $upload = wp_upload_dir();
-        $filePath = sprintf( '%s/%s', $upload['basedir'], $meta['file'] );
+        $filePath = \sprintf( '%s/%s', $upload['basedir'], $meta['file'] );
 
         if ( ! file_exists( $filePath ) ) {
             return $image;
@@ -296,7 +294,7 @@ final class Media implements AutoloadInterface {
 
         $imageDirname = pathinfo( $filePath, PATHINFO_DIRNAME );
 
-        $imageBaseUrl = sprintf( '%s/%s', $upload['baseurl'], $imageDirname );
+        $imageBaseUrl = \sprintf( '%s/%s', $upload['baseurl'], $imageDirname );
 
         /** @var array<array-key,array{width?: int|string, height?: int|string}>|false $sizes */
         $sizes = ! empty( $meta['sizes'] ) ? (array) $meta['sizes'] : false;
@@ -319,7 +317,7 @@ final class Media implements AutoloadInterface {
         $resized = image_make_intermediate_size( $filePath, $width, $height, true );
 
         if ( ! empty( $resized ) ) {
-            $metaSizeKey = sprintf( 'resized-%dx%d', $resized['width'], $resized['height'] );
+            $metaSizeKey = \sprintf( 'resized-%dx%d', $resized['width'], $resized['height'] );
 
             /** @var array{sizes:array<string,mixed>} $meta */
             $meta['sizes'][ $metaSizeKey ] = $resized;
@@ -327,7 +325,7 @@ final class Media implements AutoloadInterface {
             wp_update_attachment_metadata( (int) $attachmentId, $meta );
 
             /** @var array{string,int,int,bool} $image */
-            $image[0] = sprintf( '%s/%s', $imageBaseUrl, $resized['file'] );
+            $image[0] = \sprintf( '%s/%s', $imageBaseUrl, $resized['file'] );
             $image[1] = $resized['width'];
             $image[2] = $resized['height'];
         }

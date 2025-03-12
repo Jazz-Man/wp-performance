@@ -141,7 +141,7 @@ final class TermCount implements AutoloadInterface {
             return;
         }
 
-        if ( sprintf( 'edit-%s', $taxonomy ) === $screen->id ) {
+        if ( \sprintf( 'edit-%s', $taxonomy ) === $screen->id ) {
             wp_update_term_count_now( [ $termTaxId ], $taxonomy );
         }
     }
@@ -230,7 +230,7 @@ final class TermCount implements AutoloadInterface {
         $isIncrement = 'increment' === $transitionType;
 
         $wpdb->query(
-            sprintf(
+            \sprintf(
                 'update %s as tt set tt.count = tt.count %s 1 where tt.term_taxonomy_id in %s %s',
                 $wpdb->term_taxonomy,
                 $isIncrement ? '+' : '-',
