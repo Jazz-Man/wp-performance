@@ -68,6 +68,7 @@ final class Enqueue implements AutoloadInterface {
     public static function jqueryFromCdn(): void {
         $registered = wp_scripts()->registered;
 
+        /** @psalm-suppress TypeDoesNotContainType */
         $suffix = SCRIPT_DEBUG ? '' : '.min';
 
         $jqCore = $registered['jquery-core'];
@@ -85,6 +86,7 @@ final class Enqueue implements AutoloadInterface {
                 continue;
             }
 
+            /** @psalm-suppress UndefinedConstant */
             if ( ! str_contains( $dependency->src, '/'.WPINC.'/' ) ) {
                 continue;
             }

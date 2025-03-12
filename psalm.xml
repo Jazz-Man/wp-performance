@@ -20,39 +20,6 @@
         </ignoreFiles>
     </projectFiles>
 
-    <issueHandlers>
-        <TooManyArguments>
-            <errorLevel type="suppress">
-                <referencedFunction name="apply_filters"/>
-            </errorLevel>
-        </TooManyArguments>
-        <MissingClosureParamType>
-            <errorLevel type="suppress">
-                <directory name="src"/>
-            </errorLevel>
-        </MissingClosureParamType>
-        <MixedReturnStatement>
-            <errorLevel type="suppress">
-                <file name="src/helper.php"/>
-            </errorLevel>
-        </MixedReturnStatement>
-        <MixedArgumentTypeCoercion>
-            <errorLevel type="suppress">
-                <file name="src/Optimization/Update.php"/>
-            </errorLevel>
-        </MixedArgumentTypeCoercion>
-        <MissingFile>
-            <errorLevel type="suppress">
-                <file name="src/Optimization/Update.php"/>
-            </errorLevel>
-        </MissingFile>
-        <DuplicateFunction>
-            <errorLevel type="suppress">
-                <file name="src/helper.php"/>
-            </errorLevel>
-        </DuplicateFunction>
-    </issueHandlers>
-
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php" preloadClasses="true"/>
     </stubs>
@@ -62,5 +29,7 @@
         <var name="wp_rewrite" type="\WP_Rewrite"/>
         <var name="wp_version" type="string"/>
         <var name="ABSPATH" type="string"/>
+        <var name="WPINC" type="string"/>
+        <var name="SCRIPT_DEBUG" type="boolean"/>
     </globals>
 </psalm>

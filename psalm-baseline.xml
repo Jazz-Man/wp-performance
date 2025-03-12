@@ -13,6 +13,7 @@
       <code><![CDATA[$file]]></code>
     </PossiblyInvalidOperand>
     <RiskyTruthyFalsyComparison>
+      <code><![CDATA[empty( $dependency->src )]]></code>
       <code><![CDATA[empty( $file )]]></code>
       <code><![CDATA[empty( $rootDir )]]></code>
     </RiskyTruthyFalsyComparison>
@@ -155,11 +156,6 @@
     </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Utils/Cache.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
-  </file>
-  <file src="src/Utils/ResourceHints.php">
     <MissingOverrideAttribute>
       <code><![CDATA[public function load(): void {]]></code>
     </MissingOverrideAttribute>

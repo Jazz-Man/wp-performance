@@ -420,6 +420,7 @@ final class Update implements AutoloadInterface {
         if ( null === $pluginsList ) {
             // Add our plugin file if we don't have it.
             if ( ! \function_exists( 'get_plugins' ) ) {
+                /** @psalm-suppress MissingFile */
                 require_once ABSPATH.'wp-admin/includes/plugin.php';
             }
 
