@@ -16,17 +16,27 @@ parameters:
 			path: src/Optimization/TermCount.php
 
 		-
-			message: "#^Filter callback return statement is missing\\.$#"
+			message: "#^Path in require_once\\(\\) \"\\./wp\\-admin/includes/plugin\\.php\" is not a file or it does not exist\\.$#"
 			count: 1
 			path: src/Optimization/Update.php
 
 		-
-			message: "#^PHPDoc tag @var with type array\\<int\\> is not subtype of native type mixed\\.$#"
+			message: "#^Parameter \\#1 \\$maybeint of function absint expects array\\|bool\\|float\\|int\\|resource\\|string\\|null, mixed given\\.$#"
 			count: 2
 			path: src/Optimization/WPQuery.php
 
 		-
 			message: "#^Call to function is_array\\(\\) with array\\{file\\: string, width\\: int, height\\: int, mime\\-type\\: string\\} will always evaluate to true\\.$#"
+			count: 1
+			path: src/Utils/AttachmentData.php
+
+		-
+			message: "#^Property JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:\\$attachmentHeight \\(int\\|null\\) is never assigned null so it can be removed from the property type\\.$#"
+			count: 1
+			path: src/Utils/AttachmentData.php
+
+		-
+			message: "#^Property JazzMan\\\\Performance\\\\Utils\\\\AttachmentData\\:\\:\\$attachmentWidth \\(int\\|null\\) is never assigned null so it can be removed from the property type\\.$#"
 			count: 1
 			path: src/Utils/AttachmentData.php
 
