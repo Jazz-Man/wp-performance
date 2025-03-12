@@ -24,7 +24,7 @@ final class Enqueue implements AutoloadInterface {
 
     public static function addAsyncStyle( string $tag, string $handle, string $href, string $media ): string {
         if ( 'print' === $media ) {
-            return sprintf(
+            return \sprintf(
                 '<link rel="%s" id="%s-css" href="%s" media="%s" onload="this.media=\'all\'; this.onload=null;" />',
                 'stylesheet',
                 $handle,
@@ -71,23 +71,27 @@ final class Enqueue implements AutoloadInterface {
 
         $addVersion = (bool) apply_filters( 'enqueue_add_script_version', true, $handle );
 
-        if ( $addVersion && app_is_current_host( $scriptSrc ) ) {
-            $file = self::prepareScriptFilePath( $scriptSrc );
-
-            if ( ! empty( $file ) ) {
-                $fileMap = $file.'.map';
-
-                $timestamp = is_readable( $fileMap ) ? $fileMap : $file;
-
-                $scriptSrc = add_query_arg( [
-                    'ver' => filemtime( (string) $timestamp ),
-                ], $scriptSrc );
-            }
-        } elseif ( str_contains( $scriptSrc, '?ver=' ) ) {
-            $scriptSrc = remove_query_arg( 'ver', $scriptSrc );
+        if ( ! $addVersion ) {
+            return $scriptSrc;
         }
 
-        return $scriptSrc;
+        if ( ! app_is_current_host( $scriptSrc ) ) {
+            return $scriptSrc;
+        }
+
+        $file = self::prepareScriptFilePath( $scriptSrc );
+
+        if ( empty( $file ) ) {
+            return $scriptSrc;
+        }
+
+        $fileMap = $file.'.map';
+
+        $filePath = is_readable( $fileMap ) ? $fileMap : $file;
+
+        return add_query_arg( [
+            'ver' => hash_file( 'sha256', (string) $filePath ),
+        ], $scriptSrc );
     }
 
     public static function jqueryFromCdn(): void {
@@ -101,7 +105,7 @@ final class Enqueue implements AutoloadInterface {
             if ( str_starts_with( (string) $handle, 'jquery-effects-' ) ) {
                 $isCore = 'jquery-effects-core' === $handle;
 
-                $newUrl = sprintf(
+                $newUrl = \sprintf(
                     '%s/ui/effect%s.min.js',
                     $jsdelivrUrl,
                     $isCore ? '' : str_replace( 'jquery-effects-', '-', (string) $handle )
@@ -112,9 +116,9 @@ final class Enqueue implements AutoloadInterface {
 
             if ( str_starts_with( (string) $handle, 'jquery-ui-' ) ) {
                 $newUrl = match ( $handle ) {
-                    'jquery-ui-core' => sprintf( '%s/ui/core.min.js', $jsdelivrUrl ),
-                    'jquery-ui-widget' => sprintf( '%s/ui/widget.min.js', $jsdelivrUrl ),
-                    default => sprintf(
+                    'jquery-ui-core' => \sprintf( '%s/ui/core.min.js', $jsdelivrUrl ),
+                    'jquery-ui-widget' => \sprintf( '%s/ui/widget.min.js', $jsdelivrUrl ),
+                    default => \sprintf(
                         '%s/ui/widgets/%s.min.js',
                         $jsdelivrUrl,
                         str_replace( 'jquery-ui-', '', (string) $handle )
@@ -127,7 +131,7 @@ final class Enqueue implements AutoloadInterface {
 
         $jqVer = trim( (string) $jqCore->ver, '-wp' );
 
-        self::deregisterScript( $jqCore->handle, sprintf( 'https://code.jquery.com/jquery-%s.min.js', esc_attr( $jqVer ) ) );
+        self::deregisterScript( $jqCore->handle, \sprintf( 'https://code.jquery.com/jquery-%s.min.js', esc_attr( $jqVer ) ) );
         self::deregisterScript( 'jquery' );
 
         wp_register_script( 'jquery', false, [$jqCore->handle], $jqVer, true );
@@ -183,7 +187,7 @@ final class Enqueue implements AutoloadInterface {
 
         $path = ltrim( (string) parse_url( $scriptSrc, PHP_URL_PATH ), '/' );
 
-        $file = sprintf( '%s/%s', $rootDir, self::fixMultiSitePath( $path ) );
+        $file = \sprintf( '%s/%s', $rootDir, self::fixMultiSitePath( $path ) );
 
         return is_readable( $file ) ? $file : false;
     }
