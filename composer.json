@@ -33,7 +33,7 @@
         "jetbrains/phpstorm-attributes": "^1.2",
         "php-stubs/wordpress-stubs": "^6.7",
         "phpstan/extension-installer": "^1.4",
-        "rector/rector": "^1.2",
+        "rector/rector": "^2.2",
         "roave/security-advisories": "@dev",
         "roots/wordpress": "^6.7",
         "szepeviktor/phpstan-wordpress": "^1.3"
