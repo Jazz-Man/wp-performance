@@ -99,20 +99,9 @@ WP Performance is a comprehensive must-use plugin that:
 
 ## Installation
 
-### Via Composer (Recommended)
-
 ```bash
 composer require jazzman/wp-performance
 ```
-
-The package installs to `wp-content/mu-plugins/wp-performance/` automatically.
-
-### Manual Installation
-
-1. Download the latest release
-2. Upload to `wp-content/mu-plugins/wp-performance/`
-3. Ensure `wp-performance.php` is in the mu-plugins root
-4. Plugin activates automatically
 
 ## Dependencies
 
@@ -126,43 +115,7 @@ All dependencies are installed automatically via Composer.
 
 ## Configuration
 
-### Zero Configuration
-
-The plugin works out-of-the-box with sensible defaults for most sites.
-
-### Advanced Configuration
-
-For fine-grained control, use WordPress filters:
-
-```php
-// Customize which features to disable
-add_filter('wp_performance_disable_emojis', '__return_false'); // Keep emojis
-add_filter('wp_performance_disable_xmlrpc', '__return_true');  // Disable XML-RPC
-
-// Media optimization
-add_filter('wp_performance_disable_image_sizes', function() {
-    return ['medium_large', 'large']; // Disable specific sizes
-});
-
-// Update check intervals
-add_filter('wp_performance_update_check_interval', function() {
-    return 24; // Check once per day (default: never)
-});
-```
-
-## Performance Impact
-
-Real-world metrics from production sites:
-
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **HTTP Requests** | 45 | 22 | 51% reduction |
-| **Page Load Time** | 3.2s | 1.8s | 44% faster |
-| **Database Queries** | 87 | 52 | 40% fewer queries |
-| **Memory Usage** | 42MB | 28MB | 33% reduction |
-| **TTFB** | 850ms | 480ms | 43% faster |
-
-*Metrics vary based on site configuration and hosting.*
+The plugin works out-of-the-box with sensible defaults for most sites. No configuration needed.
 
 ## Architecture
 
@@ -183,34 +136,6 @@ src/
 ├── Security/              # Security hardening modules
 │   └── Sanitize.php      # Input sanitization
 └── Utils/                 # Utility classes
-```
-
-### Autoloading
-
-PSR-4 autoloading with namespace `JazzMan\Performance`:
-
-```php
-use JazzMan\Performance\Optimization\CleanUp;
-use JazzMan\Performance\Security\Sanitize;
-```
-
-## Quality Standards
-
-### Comprehensive Static Analysis
-
-```bash
-# PHPStan (max level)
-composer phpstan
-
-# Psalm (strict mode)
-composer psalm
-
-# PHP Mess Detector
-composer phpmd
-
-# Code style
-composer cs-check
-composer cs-fix
 ```
 
 ### Quality Tools
@@ -236,40 +161,6 @@ GitHub Actions workflows for:
 - **WordPress**: 6.0+
 - **Composer**: For installation and autoloading
 
-## FAQ
-
-**Q: Will this break my site?**  
-A: No. The plugin only removes unnecessary features. If you need a disabled feature, it can be re-enabled via filters.
-
-**Q: Is it compatible with caching plugins?**  
-A: Yes. WP Performance works alongside WP Rocket, W3 Total Cache, WP Super Cache, and other caching solutions.
-
-**Q: Does it work with page builders?**  
-A: Yes. Compatible with Elementor, Beaver Builder, Divi, and other page builders.
-
-**Q: Can I use it with other performance plugins?**  
-A: Yes, but some features may overlap. Test carefully to avoid conflicts.
-
-**Q: What about multisite?**  
-A: Fully compatible. Install as network-wide must-use plugin.
-
-**Q: Performance on shared hosting?**  
-A: Works great on shared hosting. Reduced database queries = lower server load.
-
-## Troubleshooting
-
-**Issue: Features I need are disabled**  
-**Solution:** Use filters to re-enable specific features (see Configuration section)
-
-**Issue: Conflicts with another plugin**  
-**Solution:** Disable specific modules via filters, or deactivate conflicting plugin
-
-**Issue: Images not generating**  
-**Solution:** Adjust `wp_performance_disable_image_sizes` filter
-
-**Issue: Plugin updates not showing**  
-**Solution:** Update checks are disabled by design. Use Composer or manual updates.
-
 ## Why This Plugin Exists
 
 After years of WordPress development across hundreds of sites, I identified common performance bottlenecks:
@@ -290,31 +181,6 @@ Part of the **jazzman WordPress ecosystem**:
 - [`jazzman/wp-lscache`](https://github.com/Jazz-Man/wp-lscache) - LiteSpeed cache integration
 - [`jazzman/wp-geoip`](https://github.com/Jazz-Man/wp-geoip) - GeoIP functionality
 
-## Benchmarks
-
-Tested on a standard WordPress installation with WooCommerce:
-
-### Query Reduction
-```
-Before: 287 queries in 0.45s
-After:  156 queries in 0.28s
-Result: 45% fewer queries, 38% faster
-```
-
-### HTTP Request Reduction
-```
-Before: 52 HTTP requests
-After:  23 HTTP requests
-Result: 56% fewer requests
-```
-
-### Memory Usage
-```
-Before: 48MB peak memory
-After:  31MB peak memory
-Result: 35% less memory
-```
-
 ## Contributing
 
 Found a bug? Have a feature request? Contributions welcome!
@@ -326,21 +192,6 @@ Found a bug? Have a feature request? Contributions welcome!
 5. Push to branch (`git push origin feature/amazing`)
 6. Open Pull Request
 
-## Security
-
-**Security vulnerabilities:** Please email vsokolyk@gmail.com directly rather than opening a public issue.
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Author
-
-**Vasyl Sokolyk**
-- GitHub: [@Jazz-Man](https://github.com/Jazz-Man)
-- LinkedIn: [vasyl5](https://www.linkedin.com/in/vasyl5/)
-- Email: vsokolyk@gmail.com
-
 ---
 
 ## Support
@@ -348,8 +199,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ⭐ **If WP Performance improved your site, please star the repo!**
 
 💬 **Questions?** Open an issue on GitHub
-
-🔧 **Need custom development?** Contact me directly
 
 ---
 
