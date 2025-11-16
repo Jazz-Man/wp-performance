@@ -82,7 +82,7 @@ if ( ! function_exists( 'app_get_attachment_image_url' ) ) {
             }
 
             return $image['url'];
-        } catch ( Exception ) {
+        } catch ( \Exception ) {
             return false;
         }
     }
@@ -99,7 +99,7 @@ if ( ! function_exists( 'app_get_attachment_image' ) ) {
 
         if ( empty( $image ) ) {
             /** @var string $size */
-            $exception = new Exception( sprintf( 'Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size ) );
+            $exception = new \Exception( sprintf( 'Image not fount: attachment_id "%d", size "%s"', $attachmentId, $size ) );
             app_error_log( $exception, 'app_get_attachment_image' );
 
             return '';
