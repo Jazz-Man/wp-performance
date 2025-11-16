@@ -48,4 +48,4 @@ jobs:
       - name: Reviewdog GitHub Check
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
-        run: reviewdog -reporter=github-check -filter-mode=nofilter -fail-on-error
+        run: reviewdog -reporter=github-check -filter-mode=nofilter -fail-level=error
