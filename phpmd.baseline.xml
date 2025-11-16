@@ -1,17 +1,52 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/CleanUp.php" method="protectXmlrpc"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/CleanUp.php" method="protectXmlrpc"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/CleanUp.php" method="protectXmlrpc"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/CleanUp.php" method="cleanupWpHead"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Enqueue.php" method="jsToFooter"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Enqueue.php" method="prepareScriptFilePath"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Enqueue.php" method="fixMultiSitePath"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/LastPostModified.php" method="isLocked"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/LastPostModified.php" method="getLockName"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/LastPostModified.php" method="bumpLastPostModified"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/LastPostModified.php" method="getOptionName"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/LastPostModified.php" method="getLastPostModified"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/Optimization/Media.php"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/Media.php" method="resizeImageOnTheFly"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Media.php" method="prepareSvgImageData"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/Media.php" method="prepareSvgImageData"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/Media.php" method="prepareSvgImageData"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Media.php" method="getXmlProperty"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Media.php" method="getSvgXmlSize"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Media.php" method="isImageSizesExist"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateField" file="src/Optimization/TermCount.php"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/TermCount.php" method="handleTermRelationshipChange"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Optimization/TermCount.php"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Optimization/TermCount.php" method="quickUpdateTermsCount"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/TermCount.php" method="transitionType"/>
   <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="src/Optimization/Update.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="src/Optimization/Update.php"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Update.php" method="preSiteTransientUpdateThemes"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Update.php" method="preSiteTransientUpdatePlugins"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/Update.php" method="coreBlockerGetLanguages"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateField" file="src/Optimization/WPQuery.php"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/WPQuery.php" method="invalidateFoundPostsCache"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/WPQuery.php" method="getInvalidateTime"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/WPQuery.php" method="getTimeFoundPosts"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/WPQuery.php" method="generateFoundPostCacheKey"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/WPQuery.php" method="getFoundPostsCache"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Optimization/WPQuery.php" method="setFoundPostsCache"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/Utils/AttachmentData.php"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateField" file="src/Utils/AttachmentData.php"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Utils/AttachmentData.php" method="readImgMetadata"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Utils/AttachmentData.php" method="getAttachmentFromDb"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Utils/AttachmentData.php" method="getAttachmentSizes"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Utils/AttachmentData.php" method="getSizeArray"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Utils/AttachmentData.php" method="getImageSrcset"/>
+  <violation rule="PHPMD\Rule\UnusedPrivateMethod" file="src/Utils/AttachmentData.php" method="calculateImageSecretSources"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Utils/AttachmentData.php" method="calculateImageSecretSources"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Utils/AttachmentData.php" method="calculateImageSecretSources"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/Utils/AttachmentData.php"/>
