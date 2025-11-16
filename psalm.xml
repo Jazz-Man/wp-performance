@@ -4,8 +4,7 @@
        xsi:schemaLocation="https://getpsalm.org/schema/config"
        errorBaseline="psalm-baseline.xml"
        errorLevel="1"
-       phpVersion="8.2"
-       autoloader="vendor/szepeviktor/phpstan-wordpress/bootstrap.php"
+       phpVersion="8.4"
        findUnusedBaselineEntry="true"
        findUnusedCode="false"
 >
@@ -18,17 +17,9 @@
             <file name=".php-cs-fixer.php"/>
         </ignoreFiles>
     </projectFiles>
-
-    <stubs>
-        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php" preloadClasses="true"/>
-    </stubs>
-    <globals>
-        <var name="wpdb" type="\wpdb"/>
-        <var name="wp_query" type="\WP_Query"/>
-        <var name="wp_rewrite" type="\WP_Rewrite"/>
-        <var name="wp_version" type="string"/>
-        <var name="ABSPATH" type="string"/>
-        <var name="WPINC" type="string"/>
-        <var name="SCRIPT_DEBUG" type="boolean"/>
-    </globals>
+<plugins>
+    <pluginClass class="PsalmWordPress\Plugin">
+        <requireAllParams value="true" />
+    </pluginClass>
+</plugins>
 </psalm>
