@@ -31,6 +31,11 @@ parameters:
 			path: src/Optimization/WPQuery.php
 
 		-
+			message: "#^Parameter \\#1 \\$maybeint of function absint expects array\\|bool\\|float\\|int\\|resource\\|string\\|null, mixed given\\.$#"
+			count: 2
+			path: src/Optimization/WPQuery.php
+
+		-
 			message: "#^Call to function is_array\\(\\) with array\\{file\\: string, width\\: int, height\\: int, mime\\-type\\: string\\} will always evaluate to true\\.$#"
 			count: 1
 			path: src/Utils/AttachmentData.php

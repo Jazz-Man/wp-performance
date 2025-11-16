@@ -16,9 +16,9 @@
         "classmap-authoritative": true,
         "apcu-autoloader": true,
         "allow-plugins": {
-            "roots/wordpress-core-installer": true,
+            "composer/installers": true,
             "phpstan/extension-installer": true,
-            "composer/installers": true
+            "roots/wordpress-core-installer": true
         }
     },
     "require": {
@@ -31,7 +31,9 @@
     "require-dev": {
         "jazzman/php-cs-fixer-rules": "^0.2.1",
         "jetbrains/phpstorm-attributes": "^1.2",
+        "pdepend/pdepend": "3.x-dev",
         "php-stubs/wordpress-stubs": "^6.7",
+        "phpmd/phpmd": "3.x-dev",
         "phpstan/extension-installer": "^1.4",
         "rector/rector": "^1.2",
         "roave/security-advisories": "@dev",

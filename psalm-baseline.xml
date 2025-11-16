@@ -1,32 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="6.8.9@e856423a5dc38d65e56b5792750c557277afe393">
-  <file src="src/Optimization/CleanUp.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
-  </file>
+<files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
   <file src="src/Optimization/Enqueue.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
-    <PossiblyInvalidOperand>
-      <code><![CDATA[$file]]></code>
-    </PossiblyInvalidOperand>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[empty( $dependency->src )]]></code>
       <code><![CDATA[empty( $file )]]></code>
       <code><![CDATA[empty( $rootDir )]]></code>
     </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="src/Optimization/LastPostModified.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
+    <TypeDoesNotContainType>
+      <code><![CDATA[SCRIPT_DEBUG]]></code>
+    </TypeDoesNotContainType>
+    <UndefinedConstant>
+      <code><![CDATA[WPINC]]></code>
+    </UndefinedConstant>
   </file>
   <file src="src/Optimization/Media.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
     <MixedReturnTypeCoercion>
       <code><![CDATA[$months]]></code>
       <code><![CDATA[stdClass[]]]></code>
@@ -49,22 +36,11 @@
     </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Optimization/PostGuid.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[empty( $guid )]]></code>
     </RiskyTruthyFalsyComparison>
   </file>
-  <file src="src/Optimization/PostMeta.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
-  </file>
   <file src="src/Optimization/TermCount.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
     <RedundantConditionGivenDocblockType>
       <code><![CDATA[isset( $taxonomyObj->update_count_callback )]]></code>
       <code><![CDATA[isset( $taxonomyObj->update_count_callback ) && \is_callable( $taxonomyObj->update_count_callback )]]></code>
@@ -75,18 +51,12 @@
     </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Optimization/Update.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[! $current]]></code>
       <code><![CDATA[empty( $plugin['Version'] )]]></code>
     </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Optimization/WPQuery.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
     <MixedArgument>
       <code><![CDATA[$limit]]></code>
       <code><![CDATA[$wpQuery->found_posts / $limit]]></code>
@@ -113,9 +83,6 @@
     </RiskyTruthyFalsyComparison>
   </file>
   <file src="src/Security/Sanitize.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[empty( $email )]]></code>
       <code><![CDATA[empty( $fileInfo['dirname'] )]]></code>
@@ -126,9 +93,6 @@
     <DocblockTypeContradiction>
       <code><![CDATA[\is_array( $attachmentSize )]]></code>
     </DocblockTypeContradiction>
-    <PossiblyInvalidOperand>
-      <code><![CDATA[$sizeData['image_baseurl']]]></code>
-    </PossiblyInvalidOperand>
     <RedundantCastGivenDocblockType>
       <code><![CDATA[(int) $attachmentSize['height']]]></code>
       <code><![CDATA[(int) $attachmentSize['width']]]></code>
@@ -154,11 +118,6 @@
       <code><![CDATA[empty( $this->attachmentSizes )]]></code>
       <code><![CDATA[empty( $this->imgFile )]]></code>
     </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="src/Utils/Cache.php">
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function load(): void {]]></code>
-    </MissingOverrideAttribute>
   </file>
   <file src="src/helper.php">
     <MixedAssignment>

@@ -42,33 +42,28 @@ final class Enqueue implements AutoloadInterface {
 
         $addVersion = (bool) apply_filters( 'enqueue_add_script_version', true, $handle );
 
-        if ( ! $addVersion ) {
-            return $scriptSrc;
+        if ( $addVersion && app_is_current_host( $scriptSrc ) ) {
+            $file = self::prepareScriptFilePath( $scriptSrc );
+
+            if ( ! empty( $file ) ) {
+                $fileMap = $file.'.map';
+
+                $timestamp = is_readable( $fileMap ) ? $fileMap : $file;
+
+                $scriptSrc = add_query_arg( [
+                    'ver' => filemtime( (string) $timestamp ),
+                ], $scriptSrc );
+            }
+        } elseif ( str_contains( $scriptSrc, '?ver=' ) ) {
+            $scriptSrc = remove_query_arg( 'ver', $scriptSrc );
         }
 
-        if ( ! app_is_current_host( $scriptSrc ) ) {
-            return $scriptSrc;
-        }
-
-        $file = self::prepareScriptFilePath( $scriptSrc );
-
-        if ( empty( $file ) ) {
-            return $scriptSrc;
-        }
-
-        $fileMap = $file.'.map';
-
-        $filePath = is_readable( $fileMap ) ? $fileMap : $file;
-
-        return add_query_arg( [
-            'ver' => hash_file( 'sha256', (string) $filePath ),
-        ], $scriptSrc );
+        return $scriptSrc;
     }
 
     public static function jqueryFromCdn(): void {
         $registered = wp_scripts()->registered;
 
-        /** @psalm-suppress TypeDoesNotContainType */
         $suffix = SCRIPT_DEBUG ? '' : '.min';
 
         $jqCore = $registered['jquery-core'];
@@ -86,7 +81,6 @@ final class Enqueue implements AutoloadInterface {
                 continue;
             }
 
-            /** @psalm-suppress UndefinedConstant */
             if ( ! str_contains( $dependency->src, '/'.WPINC.'/' ) ) {
                 continue;
             }

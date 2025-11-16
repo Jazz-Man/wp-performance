@@ -2,7 +2,6 @@
 <psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://getpsalm.org/schema/config"
        xsi:schemaLocation="https://getpsalm.org/schema/config"
-       serializer="igbinary"
        errorBaseline="psalm-baseline.xml"
        errorLevel="1"
        phpVersion="8.2"
