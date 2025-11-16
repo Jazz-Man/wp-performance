@@ -290,6 +290,8 @@ final class Update implements AutoloadInterface {
      * @psalm-return bool|object
      */
     public static function lastCheckedCore( bool $transient = false ): bool|object {
+
+        /** @var string $wp_version */
         global $wp_version;
 
         if ( ! app_is_enabled_wp_performance() ) {
@@ -383,6 +385,7 @@ final class Update implements AutoloadInterface {
     }
 
     private static function preSiteTransientUpdateThemes(): object {
+        /** @var string $wp_version */
         global $wp_version;
 
         /** @var WP_Theme[]|null $themes */
@@ -412,6 +415,7 @@ final class Update implements AutoloadInterface {
     }
 
     private static function preSiteTransientUpdatePlugins(): object {
+        /** @var string $wp_version */
         global $wp_version;
 
         /** @var array<string,array<string,string>>|null $pluginsList */

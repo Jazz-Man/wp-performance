@@ -131,6 +131,7 @@ if ( ! function_exists( 'app_get_attachment_image' ) ) {
                 unset( $attributes['loading'] );
             }
 
+            /** @var int|WP_Post|null $post */
             $post = get_post( (int) $attachmentId );
 
             /** @var array<string,string|string[]> $attributes */
@@ -150,6 +151,8 @@ if ( ! function_exists( 'app_attachment_url_to_postid' ) ) {
      * @return false|int
      */
     function app_attachment_url_to_postid( string $url ): bool|int {
+
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {

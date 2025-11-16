@@ -102,6 +102,7 @@ final class AttachmentData {
      * @return array{attachmentId:int, fullUrl: string, metadata?: string, imageAlt?: string}
      */
     private function getAttachmentFromDb( int|string $attachmentId = 0 ): array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $cacheKey = \sprintf( 'attachment_image_%d', (int) $attachmentId );

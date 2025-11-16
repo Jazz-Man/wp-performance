@@ -182,6 +182,7 @@ final class TermCount implements AutoloadInterface {
      * @param bool|string    $transitionType 'increment' or 'decrement'
      */
     private function quickUpdateTermsCount( int $objectId, array $termTaxIds, string $taxonomy, bool|string $transitionType ): void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         if ( ! $transitionType ) {

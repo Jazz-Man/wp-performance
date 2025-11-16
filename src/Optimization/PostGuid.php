@@ -12,6 +12,7 @@ final class PostGuid implements AutoloadInterface {
     }
 
     public static function fixPostGuid( int $postId, WP_Post $wpPost ): void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         if ( \defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {

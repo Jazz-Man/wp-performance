@@ -40,6 +40,7 @@ final class WPQuery implements AutoloadInterface {
      * @return array<string,string>
      */
     public function postsClausesRequest( array $clauses, WP_Query $wpQuery ): array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         if ( $wpQuery->is_main_query() ) {
