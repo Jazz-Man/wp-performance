@@ -7,6 +7,7 @@ use WP_Error;
 use WP_Post;
 use WP_Screen;
 use WP_Taxonomy;
+use wpdb;
 
 /**
  * Class TermCount.
@@ -182,7 +183,7 @@ final class TermCount implements AutoloadInterface {
      * @param bool|string    $transitionType 'increment' or 'decrement'
      */
     private function quickUpdateTermsCount( int $objectId, array $termTaxIds, string $taxonomy, bool|string $transitionType ): void {
-        /** @var \wpdb $wpdb */
+        /** @var wpdb $wpdb */
         global $wpdb;
 
         if ( ! $transitionType ) {

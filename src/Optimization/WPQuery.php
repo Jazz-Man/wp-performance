@@ -7,6 +7,7 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
 use PDO;
 use WP_Query;
+use wpdb;
 
 /**
  * Class WP_Query.
@@ -35,19 +36,20 @@ final class WPQuery implements AutoloadInterface {
     }
 
     /**
-     * @param array<string,string> $clauses
+     * @param array{where: ?string, groupby: ?string, join: ?string, orderby: ?string, distinct: ?string, fields: ?string, limits: ?string} $clauses
      *
-     * @return array<string,string>
+     * @return array{where: ?string, groupby: ?string, join: ?string, orderby: ?string, distinct: ?string, fields: ?string, limits: ?string}
      */
     public function postsClausesRequest( array $clauses, WP_Query $wpQuery ): array {
-        /** @var \wpdb $wpdb */
+        /** @var wpdb $wpdb */
         global $wpdb;
 
         if ( $wpQuery->is_main_query() ) {
             return $clauses;
         }
 
-        $limit = absint( $wpQuery->get( 'posts_per_page' ) );
+        /** @var int $limit */
+        $limit = absint( (int) $wpQuery->get( 'posts_per_page', 10 ) );
 
         $this->invalidateFoundPostsCache();
 
@@ -96,7 +98,9 @@ final class WPQuery implements AutoloadInterface {
 
     public function setQueryParams( WP_Query $wpQuery ): void {
         if ( ! $wpQuery->is_main_query() ) {
-            $limit = absint( $wpQuery->get( 'posts_per_page' ) );
+
+            /** @var int $limit */
+            $limit = absint( $wpQuery->get( 'posts_per_page', 10 ) );
 
             /** @var false|string $orderby */
             $orderby = $wpQuery->get( 'orderby', false );

@@ -4,6 +4,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Post;
+use wpdb;
 
 final class PostGuid implements AutoloadInterface {
 
@@ -12,16 +13,16 @@ final class PostGuid implements AutoloadInterface {
     }
 
     public static function fixPostGuid( int $postId, WP_Post $wpPost ): void {
-        /** @var \wpdb $wpdb */
+        /** @var wpdb $wpdb */
         global $wpdb;
 
         if ( \defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;
         }
 
-        $guid = 'attachment' === $wpPost->post_type ?
-            app_get_attachment_image_url( $postId, 'full' ) :
-            get_permalink( $postId );
+        $guid = 'attachment' === $wpPost->post_type
+            ? app_get_attachment_image_url( $postId, 'full' )
+            : get_permalink( $postId );
 
         if ( ! empty( $guid ) ) {
             $wpdb->update(

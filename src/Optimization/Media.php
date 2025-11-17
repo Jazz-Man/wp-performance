@@ -9,6 +9,7 @@ use SimpleXMLElement;
 use stdClass;
 use WP_Comment;
 use WP_Post;
+use wpdb;
 
 /**
  * Class Media.
@@ -166,7 +167,7 @@ final class Media implements AutoloadInterface {
      */
     public static function mediaLibraryMonthsWithFiles( mixed $months = null ): array {
 
-        /** @var \wpdb $wpdb */
+        /** @var wpdb $wpdb */
         global $wpdb;
 
         /** @var false|stdClass[] $months */
