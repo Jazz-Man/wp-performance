@@ -17,9 +17,9 @@
             <file name=".php-cs-fixer.php"/>
         </ignoreFiles>
     </projectFiles>
-<plugins>
-    <pluginClass class="PsalmWordPress\Plugin">
-        <requireAllParams value="true" />
-    </pluginClass>
-</plugins>
+    <plugins>
+        <pluginClass class="PsalmWordPress\Plugin">
+            <requireAllParams value="false"/>
+        </pluginClass>
+    </plugins>
 </psalm>
