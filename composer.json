@@ -30,7 +30,7 @@
 	},
 	"require-dev": {
 		"humanmade/psalm-plugin-wordpress": "^3.1",
-		"jazzman/php-cs-fixer-rules": "^0.2.1",
+		"jazzman/php-cs-fixer-rules": "^0.3.0",
 		"jetbrains/phpstorm-attributes": "^1.2",
 		"pdepend/pdepend": "3.x-dev",
 		"php-stubs/wordpress-stubs": "^6.7",
