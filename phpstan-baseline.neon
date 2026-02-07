@@ -49,9 +49,15 @@ parameters:
 			path: src/Optimization/Update.php
 
 		-
+			rawMessage: Cannot cast mixed to int.
+			identifier: cast.int
+			count: 1
+			path: src/Optimization/WPQuery.php
+
+		-
 			rawMessage: 'Parameter #1 $maybeint of function absint expects array|bool|float|int|resource|string|null, mixed given.'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: src/Optimization/WPQuery.php
 
 		-
