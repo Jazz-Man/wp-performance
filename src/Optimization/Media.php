@@ -1,5 +1,7 @@
 <?php
 
+declare( strict_types=1 );
+
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
@@ -300,7 +302,7 @@ final class Media implements AutoloadInterface {
         $imageBaseUrl = \sprintf( '%s/%s', $upload['baseurl'], $imageDirname );
 
         /** @var array<array-key,array{width?: int|string, height?: int|string}>|false $sizes */
-        $sizes = ! empty( $meta['sizes'] ) ? (array) $meta['sizes'] : false;
+        $sizes = empty( $meta['sizes'] ) ? false : (array) $meta['sizes'];
 
         if ( empty( $sizes ) ) {
             return $image;

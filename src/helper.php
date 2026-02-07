@@ -204,7 +204,7 @@ if ( ! function_exists( 'app_attachment_url_to_postid' ) ) {
 
             return (int) $pdoStatement->fetchColumn();
 
-        } catch ( Exception $exception ) {
+        } catch ( Exception ) {
             return false;
         }
     }

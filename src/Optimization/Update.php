@@ -1,8 +1,11 @@
 <?php
 
+declare( strict_types=1 );
+
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use stdClass;
 use WP_Theme;
 
 /**
@@ -384,7 +387,7 @@ final class Update implements AutoloadInterface {
         return $availableLanguages;
     }
 
-    private static function preSiteTransientUpdateThemes(): object {
+    private static function preSiteTransientUpdateThemes(): stdClass {
         /** @var string $wp_version */
         global $wp_version;
 
@@ -414,7 +417,7 @@ final class Update implements AutoloadInterface {
         return (object) $update;
     }
 
-    private static function preSiteTransientUpdatePlugins(): object {
+    private static function preSiteTransientUpdatePlugins(): stdClass {
         /** @var string $wp_version */
         global $wp_version;
 

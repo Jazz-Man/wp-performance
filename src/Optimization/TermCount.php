@@ -1,5 +1,7 @@
 <?php
 
+declare( strict_types=1 );
+
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
@@ -190,7 +192,7 @@ final class TermCount implements AutoloadInterface {
             return;
         }
 
-        $termTaxIds = array_filter( array_map( 'intval', $termTaxIds ) );
+        $termTaxIds = array_filter( array_map( intval( ... ), $termTaxIds ) );
 
         if ( empty( $termTaxIds ) ) {
             return;

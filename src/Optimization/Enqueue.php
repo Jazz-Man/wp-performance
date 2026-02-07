@@ -1,5 +1,7 @@
 <?php
 
+declare( strict_types=1 );
+
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
@@ -11,7 +13,7 @@ use WP_Site;
 final class Enqueue implements AutoloadInterface {
 
     public function load(): void {
-        add_action( 'wp_enqueue_scripts', self::jsToFooter( ... ) );
+        add_action( 'wp_enqueue_scripts', $this->jsToFooter( ... ) );
         add_action( 'wp_enqueue_scripts', self::jqueryFromCdn( ... ) );
         add_filter( 'style_loader_tag', self::addAsyncStyle( ... ), 10, 4 );
 
@@ -81,7 +83,7 @@ final class Enqueue implements AutoloadInterface {
                 continue;
             }
 
-            if ( ! str_contains( $dependency->src, '/'.WPINC.'/' ) ) {
+            if ( ! str_contains( (string) $dependency->src, '/'.WPINC.'/' ) ) {
                 continue;
             }
 
@@ -135,7 +137,7 @@ final class Enqueue implements AutoloadInterface {
         }
     }
 
-    private static function jsToFooter(): void {
+    private function jsToFooter(): void {
         remove_action( 'wp_head', 'wp_print_scripts' );
         remove_action( 'wp_head', 'wp_print_head_scripts', 9 );
         remove_action( 'wp_head', 'wp_enqueue_scripts', 1 );
