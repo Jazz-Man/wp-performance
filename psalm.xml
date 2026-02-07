@@ -4,6 +4,7 @@
        xsi:schemaLocation="https://getpsalm.org/schema/config"
        errorBaseline="psalm-baseline.xml"
        errorLevel="1"
+       threads="1"
        phpVersion="8.4"
        findUnusedBaselineEntry="true"
        findUnusedCode="false"
