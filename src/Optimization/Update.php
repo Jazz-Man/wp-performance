@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 use stdClass;
 use WP_Theme;
 
@@ -13,6 +14,7 @@ use WP_Theme;
  */
 final class Update implements AutoloadInterface {
 
+    #[Override]
     public function load(): void {
         // Remove admin news dashboard widget
         add_action( 'admin_init', self::removeDashboards( ... ) );

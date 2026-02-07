@@ -7,6 +7,7 @@ namespace JazzMan\Performance\Optimization;
 use Exception;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
+use Override;
 use PDO;
 use WP_Query;
 use wpdb;
@@ -28,6 +29,7 @@ final class WPQuery implements AutoloadInterface {
 
     private ?string $queryHash = null;
 
+    #[Override]
     public function load(): void {
         add_action( 'save_post', static function (): void {
             wp_cache_set( self::INVALIDATE_TIME_KEY, time(), Cache::QUERY_CACHE_GROUP );

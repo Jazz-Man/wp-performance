@@ -5,12 +5,14 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Security;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 
 /**
  * Class Sanitizer.
  */
 final class Sanitize implements AutoloadInterface {
 
+    #[Override]
     public function load(): void {
 
         // Edit and update terms

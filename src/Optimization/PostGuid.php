@@ -5,11 +5,13 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 use WP_Post;
 use wpdb;
 
 final class PostGuid implements AutoloadInterface {
 
+    #[Override]
     public function load(): void {
         add_action( 'save_post', self::fixPostGuid( ... ), 10, 2 );
     }

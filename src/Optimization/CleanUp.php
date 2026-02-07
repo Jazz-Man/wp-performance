@@ -5,12 +5,14 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 
 /**
  * Class CleanUp.
  */
 final class CleanUp implements AutoloadInterface {
 
+    #[Override]
     public function load(): void {
         add_action( 'init', self::headCleanup( ... ) );
         // Remove the WordPress version from RSS feeds

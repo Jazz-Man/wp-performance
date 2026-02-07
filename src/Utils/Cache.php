@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Utils;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 
 final class Cache implements AutoloadInterface {
 
@@ -15,6 +16,7 @@ final class Cache implements AutoloadInterface {
      */
     public const QUERY_CACHE_GROUP = 'query';
 
+    #[Override]
     public function load(): void {
         add_action( 'save_post_attachment', self::resetAttachmentCache( ... ) );
     }

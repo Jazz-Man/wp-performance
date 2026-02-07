@@ -6,6 +6,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
+use Override;
 use PDO;
 use SimpleXMLElement;
 use stdClass;
@@ -18,6 +19,7 @@ use wpdb;
  */
 final class Media implements AutoloadInterface {
 
+    #[Override]
     public function load(): void {
         // Disable gravatars
 

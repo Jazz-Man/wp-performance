@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 use WP_Error;
 use WP_Post;
 use WP_Screen;
@@ -52,6 +53,7 @@ final class TermCount implements AutoloadInterface {
         add_action( 'edit_term', $this->maybeRecountPostsForTerm( ... ), 10, 3 );
     }
 
+    #[Override]
     public function load(): void {
         add_action( 'init', $this->setup( ... ) );
     }

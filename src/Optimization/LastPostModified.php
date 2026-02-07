@@ -6,6 +6,7 @@ namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use JazzMan\Performance\Utils\Cache;
+use Override;
 use WP_Post;
 
 /**
@@ -22,6 +23,7 @@ final class LastPostModified implements AutoloadInterface {
      */
     public const OPTION_PREFIX = 'lastpostmodified';
 
+    #[Override]
     public function load(): void {
         add_filter( 'pre_get_lastpostmodified', self::overrideGetLastPostModified( ... ), 10, 3 );
         add_action( 'transition_post_status', self::transitionPostStatus( ... ), 10, 3 );

@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace JazzMan\Performance\Optimization;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
+use Override;
 use WP_Site;
 
 /**
@@ -12,6 +13,7 @@ use WP_Site;
  */
 final class Enqueue implements AutoloadInterface {
 
+    #[Override]
     public function load(): void {
         add_action( 'wp_enqueue_scripts', $this->jsToFooter( ... ) );
         add_action( 'wp_enqueue_scripts', self::jqueryFromCdn( ... ) );
