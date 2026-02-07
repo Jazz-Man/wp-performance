@@ -37,7 +37,7 @@
 		"phpmd/phpmd": "3.x-dev",
 		"phpstan/extension-installer": "^1.4",
 		"rector/rector": "^2.2",
-		"roave/security-advisories": "@dev",
+		"roave/security-advisories": "dev-latest",
 		"roots/wordpress": "^6.7",
 		"szepeviktor/phpstan-wordpress": "^2.0"
 	},
