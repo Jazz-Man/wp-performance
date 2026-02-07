@@ -9,6 +9,7 @@
 			"email": "vsokolyk@gmail.com"
 		}
 	],
+	"minimum-stability": "dev",
 	"config": {
 		"sort-packages": true,
 		"preferred-install": "dist",
@@ -23,7 +24,7 @@
 	},
 	"require": {
 		"php": "^8.2",
-		"composer/installers": "^2.2",
+		"composer/installers": "^2.3",
 		"jazzman/autoload-interface": "^0.3.1",
 		"jazzman/wp-app-config": "^2.3",
 		"jazzman/wp-db-pdo": "^0.1.6"
@@ -32,13 +33,12 @@
 		"humanmade/psalm-plugin-wordpress": "^3.1",
 		"jazzman/php-cs-fixer-rules": "^0.3.0",
 		"jetbrains/phpstorm-attributes": "^1.2",
-		"pdepend/pdepend": "3.x-dev",
-		"php-stubs/wordpress-stubs": "^6.7",
+		"php-stubs/wordpress-stubs": "^6.9",
 		"phpmd/phpmd": "3.x-dev",
 		"phpstan/extension-installer": "^1.4",
-		"rector/rector": "^2.2",
+		"rector/rector": "^2.3",
 		"roave/security-advisories": "dev-latest",
-		"roots/wordpress": "^6.7",
+		"roots/wordpress": "^6.9",
 		"szepeviktor/phpstan-wordpress": "^2.0"
 	},
 	"autoload": {
