@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="6.13.1@1e3b7f0a8ab32b23197b91107adc0a7ed8a05b51">
+<files psalm-version="6.x-dev@28dc127af1b5aecd52314f6f645bafc10d0e11f9">
   <file src="src/Optimization/CleanUp.php">
     <HookInvalidArgs>
       <code><![CDATA[add_action( 'init', self::headCleanup( ... ) )]]></code>
@@ -26,8 +26,8 @@
   </file>
   <file src="src/Optimization/Enqueue.php">
     <HookInvalidArgs>
+      <code><![CDATA[add_action( 'wp_enqueue_scripts', $this->jsToFooter( ... ) )]]></code>
       <code><![CDATA[add_action( 'wp_enqueue_scripts', self::jqueryFromCdn( ... ) )]]></code>
-      <code><![CDATA[add_action( 'wp_enqueue_scripts', self::jsToFooter( ... ) )]]></code>
     </HookInvalidArgs>
     <MissingOverrideAttribute>
       <code><![CDATA[public function load(): void {]]></code>
@@ -35,6 +35,9 @@
     <PossiblyInvalidOperand>
       <code><![CDATA[$file]]></code>
     </PossiblyInvalidOperand>
+    <RedundantCast>
+      <code><![CDATA[(string) $dependency->src]]></code>
+    </RedundantCast>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[empty( $dependency->src )]]></code>
       <code><![CDATA[empty( $file )]]></code>
@@ -45,9 +48,9 @@
     </TypeDoesNotContainType>
   </file>
   <file src="src/Optimization/LastPostModified.php">
-    <InvalidScalarArgument>
+    <InvalidArgument>
       <code><![CDATA[self::overrideGetLastPostModified( ... )]]></code>
-    </InvalidScalarArgument>
+    </InvalidArgument>
     <MissingOverrideAttribute>
       <code><![CDATA[public function load(): void {]]></code>
     </MissingOverrideAttribute>
@@ -145,10 +148,6 @@
       <code><![CDATA[! $transitionType]]></code>
       <code><![CDATA[empty( $termIds )]]></code>
     </RiskyTruthyFalsyComparison>
-    <TooFewArguments>
-      <code><![CDATA[do_action( 'edit_term_taxonomy', $termTaxId, $taxonomy )]]></code>
-      <code><![CDATA[do_action( 'edited_term_taxonomy', $termTaxId, $taxonomy )]]></code>
-    </TooFewArguments>
   </file>
   <file src="src/Optimization/Update.php">
     <HookInvalidArgs>
@@ -170,12 +169,20 @@
       <code><![CDATA['__return_true']]></code>
       <code><![CDATA[static fn ( object $args, string $action ): false|object => app_is_enabled_wp_performance() ? ( 'feature_list' === $action ? false : $args ) : ( $args )]]></code>
     </InvalidArgument>
+    <LessSpecificReturnStatement>
+      <code><![CDATA[(object) $update]]></code>
+      <code><![CDATA[(object) $update]]></code>
+    </LessSpecificReturnStatement>
     <MissingOverrideAttribute>
       <code><![CDATA[public function load(): void {]]></code>
     </MissingOverrideAttribute>
     <MixedArgumentTypeCoercion>
       <code><![CDATA['install_themes_upload']]></code>
     </MixedArgumentTypeCoercion>
+    <MoreSpecificReturnType>
+      <code><![CDATA[stdClass]]></code>
+      <code><![CDATA[stdClass]]></code>
+    </MoreSpecificReturnType>
     <PossiblyInvalidArgument>
       <code><![CDATA['__return_empty_array']]></code>
       <code><![CDATA['__return_empty_string']]></code>
