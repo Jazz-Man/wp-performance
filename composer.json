@@ -34,7 +34,6 @@
 		"jazzman/php-cs-fixer-rules": "^0.3.0",
 		"jetbrains/phpstorm-attributes": "^1.2",
 		"php-stubs/wordpress-stubs": "^6.9",
-		"phpmd/phpmd": "3.x-dev",
 		"phpstan/extension-installer": "^1.4",
 		"rector/rector": "^2.3",
 		"roave/security-advisories": "dev-latest",
@@ -64,15 +63,12 @@
 		"cs-check": ["@php-cs-fixer --dry-run"],
 		"cs-fix": ["@php-cs-fixer"],
 		"update-baseline": [
-			"@init-baseline-phpmd",
 			"@baseline-phpstan",
 			"@init-baseline-psalm"
 		],
-		"init-baseline-phpmd": "@phpmd --generate-baseline",
 		"init-baseline-psalm": "psalm --config=psalm.xml --set-baseline=psalm-baseline.xml",
 		"baseline-phpstan": "@phpstan --generate-baseline=phpstan-baseline.neon",
 		"phpstan": "phpstan --no-progress",
-		"phpmd": "phpmd . text phpmd.ruleset.xml --exclude 'cache/*,vendor/*'",
 		"psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress --output-format=phpstorm",
 		"php-cs-fixer": "php-cs-fixer fix -vvv --diff"
 	}
