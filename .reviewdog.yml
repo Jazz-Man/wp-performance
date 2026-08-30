@@ -1,10 +1,4 @@
 runner:
-  # phpmd:
-  #   cmd: vendor/bin/phpmd . checkstyle phpmd.ruleset.xml --exclude 'cache/*,vendor/*' --baseline-file phpmd.baseline.xml
-  #   name: phpmd
-  #   format: checkstyle
-  #   level: warning
-
   phpstan:
     cmd: vendor/bin/phpstan --error-format=raw --no-progress --no-interaction
     format: phpstan
