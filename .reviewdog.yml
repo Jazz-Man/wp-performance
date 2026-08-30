@@ -11,8 +11,8 @@ runner:
     name: phpstan
     level: warning
 
-  # psalm:
-  #   cmd: psalm --config=psalm.xml --no-progress --output-format=text
-  #   format: psalm
-  #   name: psalm
-  #   level: warning
+  psalm:
+    cmd: vendor/bin/psalm --config=psalm.xml --no-progress --output-format=text
+    format: psalm
+    name: psalm
+    level: warning
