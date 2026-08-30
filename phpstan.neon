@@ -1,3 +1,4 @@
 includes:
     - phar://phpstan.phar/conf/bleedingEdge.neon
     - phpstan.neon.dist
+    - %currentWorkingDirectory%/phpstan-baseline.neon
