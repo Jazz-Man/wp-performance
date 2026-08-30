@@ -6,7 +6,7 @@ runner:
   #   level: warning
 
   phpstan:
-    cmd: vendor/bin/phpstan --error-format=raw
+    cmd: vendor/bin/phpstan --error-format=raw --no-progress --no-interaction
     format: phpstan
     name: phpstan
     level: warning
