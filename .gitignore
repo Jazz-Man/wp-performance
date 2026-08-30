@@ -43,5 +43,6 @@ Temporary Items
 .apdisk
 
 /.php[_|-]cs*.cache
-/cache/
+/cache/*
+!/cache/.gitkeep
 !.github/
