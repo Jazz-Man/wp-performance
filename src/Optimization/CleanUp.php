@@ -124,7 +124,8 @@ final class CleanUp implements AutoloadInterface {
 
         add_filter( 'register_post_type_args', static function ( array $args ): array {
             if ( ! empty( $args['_builtin'] ) && ( ! empty( $args['supports'] ) && \is_array( $args['supports'] ) ) ) {
-                $args['supports'] = array_merge( array_diff( (array) $args['supports'], [ 'trackbacks' ] ) );
+              $supports = /** @var array<int|string, string|int|float> */ $args['supports'];
+                $args['supports'] = array_merge( array_diff( $supports, [ 'trackbacks' ] ) );
             }
 
             return $args;
