@@ -17,6 +17,9 @@
       <code><![CDATA['__return_false']]></code>
       <code><![CDATA['__return_zero']]></code>
     </PossiblyInvalidArgument>
+    <RedundantCast>
+      <code><![CDATA[(array) $args['supports']]]></code>
+    </RedundantCast>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[empty( $methods[ $disableMethod ] )]]></code>
     </RiskyTruthyFalsyComparison>
