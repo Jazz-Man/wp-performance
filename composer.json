@@ -37,7 +37,7 @@
 		"phpstan/extension-installer": "^1.4",
 		"rector/rector": "^2.3",
 		"roave/security-advisories": "dev-latest",
-		"roots/wordpress": "^6.9",
+		"roots/wordpress": "^7.1",
 		"szepeviktor/phpstan-wordpress": "^2.0"
 	},
 	"autoload": {
